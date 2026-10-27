@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {estimate,credibility,matches} from './dist/domain.mjs';
+const r=estimate({distance:650,days:7,people:2,vehicle:'Bike',stay:'Comfort'});
+assert.equal(r.vehicles,2);
+assert.equal(r.total,r.fuel+r.accommodation+r.food+r.extras+r.contingency);
+assert.equal(r.perPerson,Math.ceil(r.total/2));
+assert.equal(estimate({distance:100,days:1,people:5,vehicle:'Car',stay:'Budget'}).vehicles,2);
+assert.equal(estimate({distance:100,days:1,people:1,vehicle:'Bike',stay:'Budget'}).accommodation,0);
+for(const bad of [0,-1,NaN,Infinity,20001])assert.throws(()=>estimate({distance:bad,days:2,people:1,vehicle:'Bike',stay:'Budget'}));
+assert.throws(()=>estimate({distance:100,days:1.5,people:1,vehicle:'Bike',stay:'Budget'}));
+assert.throws(()=>estimate({distance:100,days:2,people:1,vehicle:'Truck',stay:'Budget'}));
+assert.equal(credibility({profile:100,completion:94,reviews:96}),96);
+const trip={title:'Coorg',location:'Karnataka',route:'Bengaluru → Coorg',vehicle:'Car',seasons:['Winter']};
+assert(matches(trip,{query:'bengaluru',vehicle:'Car',season:'Winter'}));
+assert(!matches(trip,{vehicle:'Bike'}));assert(!matches(trip,{season:'Monsoon'}));
+console.log('All planner, validation, credibility, and filtering checks passed.');
