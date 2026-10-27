@@ -1,19 +1,29 @@
 # Roamly
 
-A responsive road-trip community prototype for bike and car travelers in India.
+A road-trip community prototype for bike and car travelers in India.
 
-Run locally: `python3 -m http.server 4173 --directory dist`
+## Run and check
 
-Check calculations and filtering: `node test.mjs`
+- Install using the Sites dependency helper, or `npm install`.
+- Run locally: `npm run dev`.
+- Check calculations and filtering: `node test.mjs`.
+- With the local dev server running: `node test-auth.mjs http://localhost:5173`.
+- Production build: use the Sites `build-site.mjs` helper.
 
-No build step or dependencies. Uses external Google Fonts and bundled Unsplash photos.
+## Sign in
 
-Working features: route filters and details, saved trips, local demo profiles, join/leave communities, create local groups, city/name/vehicle search, seasonal route filtering, budget calculator, daily outline, plan download, and external Instagram/Facebook searches.
+Sign in and sign out use the hosting platform’s ChatGPT authentication. The server-only starter helper reads the trusted identity headers supplied by Sites. `/api/session` returns only the user ID and display name, with private/no-store caching. Credentials and tokens are never stored in browser localStorage. Return paths are fixed to the site root using the starter's validated auth URL helpers.
 
-## Limits
+The profile UI reflects the server session. Creating or joining demo groups requires sign-in. Saved trips and group activity remain browser-local and are separated by account ID; they do not sync across devices and are not sensitive server records. The old unverified demo profile is no longer used. Existing `roamly-v1` browser data is preserved but not automatically assigned to a verified account.
 
-This is a browser-local prototype, not a production service. No secure application login, multi-user synchronization, social OAuth, imported groups, live locations, maps, live road/weather data, or language model is connected. The private hosting access gate is separate from the in-app demo profile. Curated routes, members, and scores are samples. New groups remain unrated. Do not use sample credibility as a safety guarantee.
+The local Sites development middleware provides a test identity (Seedy) for loopback-only testing and strips caller-supplied identity headers. This mock runs only in development. Production sign-in uses the hosting platform; do not expose the development server to the internet.
 
-Budget assumes one rider per bike, four people per car, 32 km/l for bikes, 14 km/l for cars, ₹105/l fuel, two people per room, ₹650 food per person/day, extras, and 15% contingency. Seasonal guidance is a static planning aid and must be checked against current local conditions.
+The hosted app retains its existing private audience; authentication does not grant new viewers site access.
 
-Production follow-up requires authenticated server-side accounts and authorization, shared database records, an AI provider secret held only on the server, authorized social-platform APIs, and live route/weather providers. Do not put API secrets in browser JavaScript.
+## Remaining prototype limits
+
+No shared database, social OAuth/imports, live locations, live road/weather data, or language model is connected. Social buttons open external searches. Routes, members, and scores are samples. New groups remain unrated.
+
+Budget assumes one rider per bike, four people per car, 32 km/l for bikes, 14 km/l for cars, ₹105/l fuel, two people per room, ₹650 food per person/day, extras, and 15% contingency. Static seasonal guidance and sample credibility are not verified safety advice.
+
+Uses bundled Unsplash photos and external Google Fonts.

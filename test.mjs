@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {estimate,credibility,matches} from './dist/domain.mjs';
+import {estimate,credibility,matches} from './public/domain.mjs';
 const r=estimate({distance:650,days:7,people:2,vehicle:'Bike',stay:'Comfort'});
 assert.equal(r.vehicles,2);
 assert.equal(r.total,r.fuel+r.accommodation+r.food+r.extras+r.contingency);
