@@ -6,7 +6,7 @@ assert.equal((await fetch(origin+'/api/profile')).status,401);
 const login=await fetch(origin+'/signin-with-chatgpt?return_to=%2F',{redirect:'manual'}),cookie=login.headers.get('set-cookie').split(';')[0];
 const request=(method,body,extra={})=>fetch(origin+'/api/profile',{method,headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json',...extra},...(body?{body:JSON.stringify(body)}:{})});
 let response=await request('GET'),original=await response.json();assert.equal(response.status,200,JSON.stringify(original));
-const bike={id:crypto.randomUUID(),type:'Bike',make:'Royal Enfield',model:'Himalayan',year:2024,fuel:'Petrol',mileage:30,seats:2,engineCc:450};
+const bike={id:crypto.randomUUID(),type:'Bike',make:'Royal Enfield',model:'Meteor 350',year:2026,fuel:'Petrol',mileage:32,seats:2,engineCc:350};
 const profile={...emptyProfile(),homeCity:'Bengaluru',experience:'Intermediate',vehicles:[bike,{...bike,id:crypto.randomUUID(),type:'Car',make:'Maruti',model:'Jimny',mileage:14,seats:4,engineCc:1462}]};
 try{
  assert.equal((await request('PUT',{profile,updatedAt:original.updatedAt},{Origin:'https://example.com'})).status,403);
