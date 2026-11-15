@@ -8,14 +8,12 @@ export const trips=[
     "vehicle": "Bike",
     "days": 7,
     "km": 650,
-    "price": 18500,
     "seasons": [
       "Monsoon"
     ],
     "level": "Challenging",
     "tag": "THE HIGH-ALTITUDE ESCAPE",
     "image": "photo-1581793745862-99fde7fa73d2",
-    "people": 12,
     "desc": "An unforgettable loop through stark mountain valleys, centuries-old monasteries, and roads that make you feel very small. Acclimatization is part of the journey.",
     "months": [
       5,
@@ -23,14 +21,12 @@ export const trips=[
       7,
       8
     ],
-    "window": "Jun, Jul, Aug, Sep",
     "risk": "High altitude and remote roads. Build in acclimatization days, carry fuel, and check local road openings before departure.",
     "places": [
       {
         "id": "spiti-p0",
         "name": "Hadimba Temple, Manali",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Manali",
         "stayArea": "Manali"
       },
@@ -38,7 +34,6 @@ export const trips=[
         "id": "spiti-p1",
         "name": "Key Monastery, Kaza",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Kaza",
         "stayArea": "Kaza"
       },
@@ -46,7 +41,6 @@ export const trips=[
         "id": "spiti-p2",
         "name": "Chandratal Lake",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Kaza — Chandratal excursion",
         "stayArea": "Kaza"
       }
@@ -85,7 +79,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 3,
     "km": 540,
-    "price": 6800,
     "seasons": [
       "Autumn",
       "Winter"
@@ -93,7 +86,6 @@ export const trips=[
     "level": "Easy going",
     "tag": "THE WEEKEND RESET",
     "image": "photo-1441974231531-c6227db76b6e",
-    "people": 8,
     "desc": "Trade city traffic for misty plantations, slow breakfasts, and winding forest roads. A relaxed escape with time to stop whenever the view deserves it.",
     "months": [
       9,
@@ -102,14 +94,12 @@ export const trips=[
       0,
       1
     ],
-    "window": "Oct, Nov, Dec, Jan, Feb",
     "risk": "Forest stretches can be foggy. Avoid night driving and respect wildlife crossings; heavy rainfall can affect access.",
     "places": [
       {
         "id": "coorg-p0",
         "name": "Mysuru Palace",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Mysuru",
         "stayArea": "Mysuru"
       },
@@ -117,7 +107,6 @@ export const trips=[
         "id": "coorg-p1",
         "name": "Abbey Falls, Madikeri",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Madikeri",
         "stayArea": "Madikeri"
       },
@@ -125,7 +114,6 @@ export const trips=[
         "id": "coorg-p2",
         "name": "Raja’s Seat, Madikeri",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Madikeri",
         "stayArea": "Madikeri"
       }
@@ -170,7 +158,6 @@ export const trips=[
     "vehicle": "Bike",
     "days": 5,
     "km": 720,
-    "price": 11200,
     "seasons": [
       "Autumn",
       "Winter"
@@ -178,7 +165,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "SALT IN THE AIR",
     "image": "photo-1473448912268-2022ce9509d8",
-    "people": 16,
     "desc": "Ocean detours, quiet coastal villages, and golden evenings. Follow the Konkan coast at a pace that leaves room for one more beach.",
     "months": [
       10,
@@ -186,14 +172,12 @@ export const trips=[
       0,
       1
     ],
-    "window": "Nov, Dec, Jan, Feb",
     "risk": "Narrow coastal roads and limited lighting. Ride in daylight; monsoon flooding and slippery surfaces can change the route.",
     "places": [
       {
         "id": "konkan-p0",
         "name": "Ganpatipule Beach",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Ganpatipule / Ratnagiri",
         "stayArea": "Ratnagiri"
       },
@@ -201,7 +185,6 @@ export const trips=[
         "id": "konkan-p1",
         "name": "Ratnagiri Fort",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Ratnagiri",
         "stayArea": "Ratnagiri"
       },
@@ -209,7 +192,6 @@ export const trips=[
         "id": "konkan-p2",
         "name": "Fort Aguada, Goa",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Panaji",
         "stayArea": "Panaji"
       }
@@ -252,7 +234,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 6,
     "km": 900,
-    "price": 15800,
     "seasons": [
       "Autumn",
       "Winter"
@@ -260,7 +241,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "THE DESERT CHAPTER",
     "image": "photo-1477587458883-47145ed94245",
-    "people": 10,
     "desc": "A warm winter route through sandstone forts, open desert highways, and cities full of color.",
     "months": [
       10,
@@ -268,14 +248,12 @@ export const trips=[
       0,
       1
     ],
-    "window": "Nov, Dec, Jan, Feb",
     "risk": "Long distances between stops. Carry water and avoid midday heat; check visibility during winter fog.",
     "places": [
       {
         "id": "rajasthan-p0",
         "name": "Amber Fort, Jaipur",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Jaipur",
         "stayArea": "Jaipur"
       },
@@ -283,7 +261,6 @@ export const trips=[
         "id": "rajasthan-p1",
         "name": "Mehrangarh Fort, Jodhpur",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Jodhpur",
         "stayArea": "Jodhpur"
       },
@@ -291,7 +268,6 @@ export const trips=[
         "id": "rajasthan-p2",
         "name": "Jaisalmer Fort",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Jaisalmer",
         "stayArea": "Jaisalmer"
       }
@@ -340,7 +316,6 @@ export const trips=[
     "vehicle": "Bike",
     "days": 5,
     "km": 220,
-    "price": 14500,
     "months": [
       5,
       6,
@@ -350,7 +325,6 @@ export const trips=[
     "level": "Challenging",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1581793745862-99fde7fa73d2",
-    "people": 8,
     "desc": "An independent road-trip idea through Ladakh, with time for local sights, breaks and unhurried evenings.",
     "risk": "Allow acclimatization before riding; remote high-altitude roads and cold weather require local advice.",
     "places": [
@@ -358,7 +332,6 @@ export const trips=[
         "id": "ladakh-p0",
         "name": "Leh Palace",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Leh",
         "stayArea": "Leh"
       },
@@ -366,7 +339,6 @@ export const trips=[
         "id": "ladakh-p1",
         "name": "Shanti Stupa, Leh",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Leh",
         "stayArea": "Leh"
       },
@@ -374,7 +346,6 @@ export const trips=[
         "id": "ladakh-p2",
         "name": "Hemis Monastery",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Leh — Hemis excursion",
         "stayArea": "Leh"
       }
@@ -398,7 +369,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/trips/trip-listing/leh-unraveling-the-ladakhi-landscapes",
-    "window": "Jun, Jul, Aug, Sep",
     "seasons": [
       "Monsoon"
     ]
@@ -411,7 +381,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 4,
     "km": 520,
-    "price": 8500,
     "months": [
       1,
       2,
@@ -422,7 +391,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1464822759023-fed622ff2c3b",
-    "people": 8,
     "desc": "An independent road-trip idea through Uttarakhand, with time for local sights, breaks and unhurried evenings.",
     "risk": "River activities need authorized operators. Check congestion, weather and hill-road access locally.",
     "places": [
@@ -430,7 +398,6 @@ export const trips=[
         "id": "rishikesh-p0",
         "name": "Har Ki Pauri, Haridwar",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Haridwar",
         "stayArea": "Haridwar"
       },
@@ -438,7 +405,6 @@ export const trips=[
         "id": "rishikesh-p1",
         "name": "Beatles Ashram, Rishikesh",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Rishikesh",
         "stayArea": "Rishikesh"
       },
@@ -446,7 +412,6 @@ export const trips=[
         "id": "rishikesh-p2",
         "name": "Triveni Ghat, Rishikesh",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Rishikesh",
         "stayArea": "Rishikesh"
       }
@@ -476,7 +441,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/trips/trip-listing/rishikesh-rendezvous",
-    "window": "Feb, Mar, Apr, Oct, Nov",
     "seasons": [
       "Winter",
       "Summer",
@@ -491,7 +455,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 6,
     "km": 460,
-    "price": 16000,
     "months": [
       0,
       1,
@@ -503,7 +466,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1441974231531-c6227db76b6e",
-    "people": 8,
     "desc": "An independent road-trip idea through Meghalaya, with time for local sights, breaks and unhurried evenings.",
     "risk": "Heavy rain can affect visibility and access. Keep daylight buffers and confirm road conditions.",
     "places": [
@@ -511,7 +473,6 @@ export const trips=[
         "id": "meghalaya-p0",
         "name": "Umiam Lake",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Shillong / Umiam",
         "stayArea": "Shillong"
       },
@@ -519,7 +480,6 @@ export const trips=[
         "id": "meghalaya-p1",
         "name": "Elephant Falls, Shillong",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Shillong",
         "stayArea": "Shillong"
       },
@@ -527,7 +487,6 @@ export const trips=[
         "id": "meghalaya-p2",
         "name": "Umngot River, Dawki",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Dawki",
         "stayArea": "Dawki"
       }
@@ -567,7 +526,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/trips/trip-listing/the-northeast-green-triangle",
-    "window": "Jan, Feb, Mar, Oct, Nov, Dec",
     "seasons": [
       "Winter",
       "Summer",
@@ -582,7 +540,6 @@ export const trips=[
     "vehicle": "Bike",
     "days": 6,
     "km": 330,
-    "price": 14800,
     "months": [
       2,
       3,
@@ -593,7 +550,6 @@ export const trips=[
     "level": "Challenging",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1473448912268-2022ce9509d8",
-    "people": 8,
     "desc": "An independent road-trip idea through Sikkim, with time for local sights, breaks and unhurried evenings.",
     "risk": "Mountain weather and landslides can alter routes. Check local access and any applicable permits.",
     "places": [
@@ -601,7 +557,6 @@ export const trips=[
         "id": "sikkim-p0",
         "name": "Namgyal Institute of Tibetology, Gangtok",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Gangtok",
         "stayArea": "Gangtok"
       },
@@ -609,7 +564,6 @@ export const trips=[
         "id": "sikkim-p1",
         "name": "Rumtek Monastery",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Gangtok — Rumtek excursion",
         "stayArea": "Gangtok"
       },
@@ -617,7 +571,6 @@ export const trips=[
         "id": "sikkim-p2",
         "name": "Buddha Park, Ravangla",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Ravangla",
         "stayArea": "Ravangla"
       }
@@ -647,7 +600,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/trips/trip-listing/small-but-beautiful",
-    "window": "Mar, Apr, May, Oct, Nov",
     "seasons": [
       "Summer",
       "Autumn"
@@ -661,7 +613,6 @@ export const trips=[
     "vehicle": "Bike",
     "days": 4,
     "km": 740,
-    "price": 8500,
     "months": [
       0,
       1,
@@ -672,7 +623,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1477587458883-47145ed94245",
-    "people": 8,
     "desc": "An independent road-trip idea through Karnataka, with time for local sights, breaks and unhurried evenings.",
     "risk": "Start early for heat management. Check monument entry and parking arrangements.",
     "places": [
@@ -680,7 +630,6 @@ export const trips=[
         "id": "hampi-p0",
         "name": "Chitradurga Fort",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Chitradurga",
         "stayArea": "Chitradurga"
       },
@@ -688,7 +637,6 @@ export const trips=[
         "id": "hampi-p1",
         "name": "Virupaksha Temple, Hampi",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Hampi",
         "stayArea": "Hosapete"
       },
@@ -696,7 +644,6 @@ export const trips=[
         "id": "hampi-p2",
         "name": "Vijaya Vittala Temple, Hampi",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Hampi",
         "stayArea": "Hosapete"
       }
@@ -732,7 +679,6 @@ export const trips=[
       }
     ],
     "source": "https://karnatakatourism.org/en/attractions/virupaksha-temple/",
-    "window": "Jan, Feb, Oct, Nov, Dec",
     "seasons": [
       "Winter",
       "Autumn"
@@ -746,7 +692,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 3,
     "km": 220,
-    "price": 7500,
     "months": [
       0,
       1,
@@ -758,7 +703,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1581793745862-99fde7fa73d2",
-    "people": 8,
     "desc": "An independent road-trip idea through Kerala, with time for local sights, breaks and unhurried evenings.",
     "risk": "Ghat bends, fog and seasonal rain need slower travel. Respect forest restrictions and wildlife.",
     "places": [
@@ -766,7 +710,6 @@ export const trips=[
         "id": "wayanad-p0",
         "name": "Lakkidi View Point",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Vythiri",
         "stayArea": "Vythiri"
       },
@@ -774,7 +717,6 @@ export const trips=[
         "id": "wayanad-p1",
         "name": "Pookode Lake",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Vythiri",
         "stayArea": "Vythiri"
       },
@@ -782,7 +724,6 @@ export const trips=[
         "id": "wayanad-p2",
         "name": "Edakkal Caves",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Kalpetta — Edakkal excursion",
         "stayArea": "Kalpetta"
       }
@@ -812,7 +753,6 @@ export const trips=[
       }
     ],
     "source": "https://www.keralatourism.org/",
-    "window": "Jan, Feb, Mar, Oct, Nov, Dec",
     "seasons": [
       "Winter",
       "Summer",
@@ -827,7 +767,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 4,
     "km": 320,
-    "price": 9200,
     "months": [
       0,
       1,
@@ -839,7 +778,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1464822759023-fed622ff2c3b",
-    "people": 8,
     "desc": "An independent road-trip idea through Kerala, with time for local sights, breaks and unhurried evenings.",
     "risk": "Hill roads can be foggy. Confirm park opening, advance-entry requirements and rain advisories.",
     "places": [
@@ -847,7 +785,6 @@ export const trips=[
         "id": "munnar-p0",
         "name": "Munnar Tea Museum",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Munnar",
         "stayArea": "Munnar"
       },
@@ -855,7 +792,6 @@ export const trips=[
         "id": "munnar-p1",
         "name": "Eravikulam National Park",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Munnar — park excursion",
         "stayArea": "Munnar"
       },
@@ -863,7 +799,6 @@ export const trips=[
         "id": "munnar-p2",
         "name": "Mattupetty Dam",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Munnar — Mattupetty excursion",
         "stayArea": "Munnar"
       }
@@ -893,7 +828,6 @@ export const trips=[
       }
     ],
     "source": "https://www.keralatourism.org/destination/munnar/202/",
-    "window": "Jan, Feb, Mar, Oct, Nov, Dec",
     "seasons": [
       "Winter",
       "Summer",
@@ -908,7 +842,6 @@ export const trips=[
     "vehicle": "Bike",
     "days": 3,
     "km": 200,
-    "price": 6500,
     "months": [
       0,
       1,
@@ -923,7 +856,6 @@ export const trips=[
     "level": "Challenging",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1441974231531-c6227db76b6e",
-    "people": 8,
     "desc": "An independent road-trip idea through Tamil Nadu, with time for local sights, breaks and unhurried evenings.",
     "risk": "Steep bends require vehicle checks. Confirm any current e-pass and traffic restrictions before travel.",
     "places": [
@@ -931,7 +863,6 @@ export const trips=[
         "id": "ooty-p0",
         "name": "Sim’s Park, Coonoor",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Coonoor",
         "stayArea": "Coonoor"
       },
@@ -939,7 +870,6 @@ export const trips=[
         "id": "ooty-p1",
         "name": "Government Botanical Garden, Ooty",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Ooty",
         "stayArea": "Ooty"
       },
@@ -947,7 +877,6 @@ export const trips=[
         "id": "ooty-p2",
         "name": "Doddabetta Peak",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Ooty",
         "stayArea": "Ooty"
       }
@@ -977,7 +906,6 @@ export const trips=[
       }
     ],
     "source": "https://www.tourism.tn.gov.in/destinations/ooty",
-    "window": "Jan, Feb, Mar, Apr, May, Sep, Oct, Nov, Dec",
     "seasons": [
       "Winter",
       "Summer",
@@ -993,7 +921,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 3,
     "km": 350,
-    "price": 6500,
     "months": [
       0,
       1,
@@ -1004,7 +931,6 @@ export const trips=[
     "level": "Easy going",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1473448912268-2022ce9509d8",
-    "people": 8,
     "desc": "An independent road-trip idea through Tamil Nadu & Puducherry, with time for local sights, breaks and unhurried evenings.",
     "risk": "Check coastal storm forecasts and avoid riding through waterlogged stretches.",
     "places": [
@@ -1012,7 +938,6 @@ export const trips=[
         "id": "pondy-p0",
         "name": "Shore Temple, Mahabalipuram",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Mahabalipuram",
         "stayArea": "Mahabalipuram"
       },
@@ -1020,7 +945,6 @@ export const trips=[
         "id": "pondy-p1",
         "name": "French Quarter, Puducherry",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Puducherry",
         "stayArea": "White Town, Puducherry"
       },
@@ -1028,7 +952,6 @@ export const trips=[
         "id": "pondy-p2",
         "name": "Promenade Beach, Puducherry",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Puducherry",
         "stayArea": "White Town, Puducherry"
       }
@@ -1058,7 +981,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/puducherry/puducherry/exploring-puducherry",
-    "window": "Jan, Feb, Mar, Nov, Dec",
     "seasons": [
       "Winter",
       "Summer",
@@ -1073,7 +995,6 @@ export const trips=[
     "vehicle": "Car",
     "days": 5,
     "km": 1000,
-    "price": 12500,
     "months": [
       0,
       1,
@@ -1083,7 +1004,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1477587458883-47145ed94245",
-    "people": 8,
     "desc": "An independent road-trip idea through Gujarat, with time for local sights, breaks and unhurried evenings.",
     "risk": "Long remote stretches need water and fuel planning. Verify permits and salt-desert access.",
     "places": [
@@ -1091,7 +1011,6 @@ export const trips=[
         "id": "kutch-p0",
         "name": "Aina Mahal, Bhuj",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Bhuj",
         "stayArea": "Bhuj"
       },
@@ -1099,7 +1018,6 @@ export const trips=[
         "id": "kutch-p1",
         "name": "Great Rann of Kutch",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Dhordo",
         "stayArea": "Dhordo"
       },
@@ -1107,7 +1025,6 @@ export const trips=[
         "id": "kutch-p2",
         "name": "Kalo Dungar",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Dhordo — Kalo Dungar excursion",
         "stayArea": "Dhordo"
       }
@@ -1137,7 +1054,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/gujarat/kutch",
-    "window": "Jan, Feb, Nov, Dec",
     "seasons": [
       "Winter",
       "Autumn"
@@ -1151,7 +1067,6 @@ export const trips=[
     "vehicle": "Bike",
     "days": 5,
     "km": 850,
-    "price": 10500,
     "months": [
       0,
       1,
@@ -1162,7 +1077,6 @@ export const trips=[
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1581793745862-99fde7fa73d2",
-    "people": 8,
     "desc": "An independent road-trip idea through Rajasthan, with time for local sights, breaks and unhurried evenings.",
     "risk": "Rural hill roads can be narrow. Leave daylight for the fort approach and check local closures.",
     "places": [
@@ -1170,7 +1084,6 @@ export const trips=[
         "id": "udaipur-p0",
         "name": "City Palace, Udaipur",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Udaipur",
         "stayArea": "Udaipur"
       },
@@ -1178,7 +1091,6 @@ export const trips=[
         "id": "udaipur-p1",
         "name": "Lake Pichola",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Udaipur",
         "stayArea": "Udaipur"
       },
@@ -1186,7 +1098,6 @@ export const trips=[
         "id": "udaipur-p2",
         "name": "Kumbhalgarh Fort",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Kumbhalgarh",
         "stayArea": "Kumbhalgarh"
       }
@@ -1216,7 +1127,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/rajasthan/udaipur",
-    "window": "Jan, Feb, Oct, Nov, Dec",
     "seasons": [
       "Winter",
       "Autumn"
@@ -1230,7 +1140,6 @@ export const trips=[
     "vehicle": "Bike",
     "days": 4,
     "km": 180,
-    "price": 9800,
     "months": [
       0,
       1,
@@ -1241,7 +1150,6 @@ export const trips=[
     "level": "Easy going",
     "tag": "YOUR NEXT CHAPTER",
     "image": "photo-1464822759023-fed622ff2c3b",
-    "people": 8,
     "desc": "An independent road-trip idea through Goa, with time for local sights, breaks and unhurried evenings.",
     "risk": "Expect narrow village roads and pedestrians. Check coastal weather and park only where permitted.",
     "places": [
@@ -1249,7 +1157,6 @@ export const trips=[
         "id": "goa-p0",
         "name": "Fontainhas, Panaji",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Panaji",
         "stayArea": "Panaji"
       },
@@ -1257,7 +1164,6 @@ export const trips=[
         "id": "goa-p1",
         "name": "Basilica of Bom Jesus, Old Goa",
         "minutes": 120,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Panaji — Old Goa excursion",
         "stayArea": "Panaji"
       },
@@ -1265,7 +1171,6 @@ export const trips=[
         "id": "goa-p2",
         "name": "Palolem Beach",
         "minutes": 90,
-        "note": "Optional sightseeing stop; allow extra time for access and queues.",
         "area": "Palolem",
         "stayArea": "Palolem"
       }
@@ -1295,7 +1200,6 @@ export const trips=[
       }
     ],
     "source": "https://www.incredibleindia.gov.in/en/goa",
-    "window": "Jan, Feb, Mar, Nov, Dec",
     "seasons": [
       "Winter",
       "Summer",

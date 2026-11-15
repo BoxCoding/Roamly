@@ -16,9 +16,10 @@ try{
  const reread=await (await request('GET')).json();assert.deepEqual(reread.profile,profile);assert.match((await request('GET')).headers.get('cache-control'),/no-store/);
  assert.equal((await request('PUT',{profile,updatedAt:original.updatedAt})).status,409);
  const forged=await fetch(origin+'/api/profile',{headers:{'oai-authenticated-user-id':'local_seedy','oai-authenticated-user-email':'seedy@sites.test'}});assert.equal(forged.status,401);
- const unavailable=await fetch(origin+'/api/ai-plan',{method:'POST',headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json'},body:'{}'});assert.equal(unavailable.status,503);
- assert.equal((await (await fetch(origin+'/api/ai-plan')).json()).available,false);
- console.log('Profile API passed: sign-in required, owner identity enforced, cross-origin rejection, multi-vehicle persistence, invalid data rejected, stale writes rejected, unconfigured AI reported.');
+ // With GEMINI_API_KEY set, '{}' fails validation (400); without it the route is unavailable (503).
+ const aiOn=(await (await fetch(origin+'/api/ai-plan')).json()).available;
+ const badPlan=await fetch(origin+'/api/ai-plan',{method:'POST',headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json'},body:'{}'});assert.equal(badPlan.status,aiOn?400:503);
+ console.log('Profile API passed: sign-in required, owner identity enforced, cross-origin rejection, multi-vehicle persistence, invalid data rejected, stale writes rejected, AI route guarded.');
 }finally{
  const current=await (await request('GET')).json();
  const restore=await request('PUT',{profile:original.profile,updatedAt:current.updatedAt});assert.equal(restore.status,200,'Restore local test profile');

@@ -18,7 +18,7 @@ assert.equal(login.status,302);assert.equal(login.headers.get('location'),'/');
 const cookie=login.headers.get('set-cookie').split(';')[0];
 assert.match(login.headers.get('set-cookie'),/HttpOnly/);
 const authenticated=await session({Cookie:cookie});
-assert.deepEqual(authenticated.user,{id:'local_seedy',name:'Seedy'});
+assert.deepEqual(authenticated.user,{id:'local_seedy',name:'Seedy',provider:'chatgpt'});
 assert.equal('email' in authenticated.user,false);
 const logout=await fetch(origin+authenticated.signOutUrl,{headers:{Cookie:cookie},redirect:'manual'});
 assert.equal(logout.status,302);assert.match(logout.headers.get('set-cookie'),/Max-Age=0/);

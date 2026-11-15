@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {hashPassword,verifyPassword,registerSchema,loginSchema} from './lib/password.mjs';
+const h=await hashPassword('correct horse');
+assert.match(h,/^pbkdf2\$100000\$[0-9a-f]{32}\$[0-9a-f]{64}$/);
+assert(await verifyPassword('correct horse',h));
+assert(!await verifyPassword('correct horsE',h));
+assert.notEqual(await hashPassword('correct horse'),h,'Salt must differ per hash');
+for(const bad of ['','plain','pbkdf2$1$$','md5$1$aa$bb'])assert(!await verifyPassword('x',bad));
+assert.equal(registerSchema.parse({name:' Asha ',email:' Asha@Example.COM ',password:'12345678'}).email,'asha@example.com');
+for(const bad of [{name:'',email:'a@b.co',password:'12345678'},{name:'A',email:'nope',password:'12345678'},{name:'A',email:'a@b.co',password:'short'},{name:'A',email:'a@b.co',password:'12345678',admin:true}])assert(!registerSchema.safeParse(bad).success,JSON.stringify(bad));
+assert(loginSchema.safeParse({email:'a@b.co',password:'x'}).success);
+console.log('Password checks passed: salted PBKDF2, verify/reject, malformed hashes, signup and login validation.');

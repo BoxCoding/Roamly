@@ -5,8 +5,8 @@ Road-trip discovery and planning for bike and car travelers in India.
 ## Run and verify
 
 - Start the local Sites development server: `npm run dev`.
-- Unit checks: `node test.mjs` and `node test-features.mjs`.
-- With the local dev server running: `node test-auth.mjs http://127.0.0.1:5173` and `node test-profile.mjs http://127.0.0.1:5173`.
+- Unit checks: `npm test`.
+- With the local dev server running: `node test-auth.mjs`, `node test-profile.mjs` and `node test-register.mjs` (each takes `http://127.0.0.1:5173`).
 - Type check: `node node_modules/typescript/bin/tsc --noEmit`.
 - Build using the Sites `build-site.mjs` helper.
 
@@ -14,7 +14,7 @@ The app now uses the Sites D1 binding `DB`. For a fresh local database, build on
 
 ## Features
 
-16 searchable routes, detailed communities, sightseeing and stay/stop searches, group and per-person estimates, account-backed profiles with multiple vehicles, and in-app/calendar reminders. Google/Meta login and live AI await service setup; the app labels these states explicitly.
+16 searchable routes, detailed communities, sightseeing and stay/stop searches, group and per-person estimates, account-backed profiles with multiple vehicles, and in-app/calendar reminders. Email/password registration works out of the box; Google login turns on once its credentials are set; Meta login and live AI await service setup. The app labels these states explicitly.
 
 See [INTEGRATIONS.md](INTEGRATIONS.md) for exact setup requirements, authentication boundaries, API limits and remaining prototype limitations.
 

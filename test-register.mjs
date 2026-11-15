@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+// Email/password account lifecycle against the local dev server only.
+const origin=process.argv[2]||'http://127.0.0.1:5173';
+if(!['localhost','127.0.0.1'].includes(new URL(origin).hostname))throw new Error('Run only against the local development server.');
+const post=(path,body,extra={})=>fetch(origin+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',...extra},body:JSON.stringify(body)});
+const email=`test-${crypto.randomUUID()}@example.test`,password='road-trip-123';
+assert.equal((await post('/api/auth/register',{name:'Tester',email,password:'short'})).status,400);
+assert.equal((await post('/api/auth/register',{name:'Tester',email,password},{Origin:'https://evil.test'})).status,403);
+const reg=await post('/api/auth/register',{name:'Tester',email,password});assert.equal(reg.status,201,await reg.clone().text());
+const cookie=reg.headers.get('set-cookie').split(';')[0];assert.match(reg.headers.get('set-cookie'),/HttpOnly; Secure; SameSite=Lax/);
+const me=await (await fetch(origin+'/api/session',{headers:{Cookie:cookie}})).json();
+assert.equal(me.user.provider,'password');assert.equal(me.user.name,'Tester');assert.equal(me.signOutUrl,'/api/auth/logout');
+assert.equal((await fetch(origin+'/api/profile',{headers:{Cookie:cookie}})).status,200);
+assert.equal((await post('/api/auth/register',{name:'Again',email:email.toUpperCase(),password})).status,409,'Duplicate email (case-insensitive)');
+assert.equal((await post('/api/auth/login',{email,password:'wrong-password'})).status,401);
+assert.equal((await post('/api/auth/login',{email:'nobody@example.test',password})).status,401);
+const login=await post('/api/auth/login',{email:email.toUpperCase(),password});assert.equal(login.status,200);assert.match(login.headers.get('set-cookie'),/__Host-roamly_session=/);
+for(let i=0;i<5;i++)await post('/api/auth/login',{email,password:'wrong-password'});
+assert.equal((await post('/api/auth/login',{email,password})).status,429,'Locked after 5 failures');
+const out=await fetch(origin+'/api/auth/logout',{redirect:'manual'});assert.match(out.headers.get('set-cookie'),/Max-Age=0/);
+console.log('Registration passed: validation, origin check, signup session, profile access, duplicate email, wrong password, unknown email, login, lockout, logout.');

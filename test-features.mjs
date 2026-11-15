@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import {trips} from './public/catalog.mjs';
-import {estimate,matches} from './public/domain.mjs';
+import {estimate,matches,tripPrice} from './public/domain.mjs';
 import {outline,tripAlerts,calendar} from './public/travel.mjs';
 import {profileSchema,emptyProfile} from './lib/profile-schema.mjs';
-import {validateAIPlan,responseText} from './lib/ai-plan.mjs';
+import {validateAIPlan,geminiText} from './lib/ai-plan.mjs';
 assert.equal(trips.length,16);assert.equal(new Set(trips.map(t=>t.id)).size,16);
 for(const t of trips){assert(t.places.length>=3);assert(t.stays.length);assert(t.stops.length);assert(t.source.startsWith('https://'));assert(t.months.length);const days=outline(t,t.days);assert.equal(days.length,t.days);assert.equal(days.flatMap(d=>d.places).length,t.places.length);for(const d of days){assert(d.stay);assert(d.focus);for(const p of d.places)assert.equal(d.stay.area,p.stayArea)}}
+for(const t of trips)assert(Number.isInteger(tripPrice(t))&&tripPrice(t)>0,t.id);
 assert(trips.filter(t=>matches(t,{vehicle:'Bike'})).length>4);
 assert(trips.filter(t=>matches(t,{vehicle:'Car'})).length>4);
 const bike=estimate({distance:600,days:4,people:3,vehicle:'Bike',stay:'Budget',seats:2,mileage:30,fuelPrice:100});
@@ -18,6 +19,7 @@ assert(profileSchema.safeParse({...emptyProfile(),vehicles:[v,{...v,id:crypto.ra
 assert(!profileSchema.safeParse({...emptyProfile(),vehicles:[v,v]}).success);
 assert(!profileSchema.safeParse({...emptyProfile(),vehicles:[{...v,seats:4}]}).success);
 assert(!profileSchema.safeParse({...emptyProfile(),vehicles:[{...v,mileage:0}]}).success);
+assert(!profileSchema.safeParse({...emptyProfile(),vehicles:[{...v,type:'Car',seats:9}]}).success);
 assert(!profileSchema.safeParse({...emptyProfile(),userId:'other-account'}).success);
 const departure='2030-01-01T06:00:00+05:30',alerts=tripAlerts({title:'Ride, safely\nIgnore',departure,days:2},0);
 assert.equal(alerts.length,8);assert.equal(new Set(alerts.map(a=>a.id)).size,8);
@@ -27,5 +29,5 @@ const ics=calendar(alerts);assert(ics.includes('DTSTART:20300101T003000Z'));asse
 assert(ics.split('\r\n').every(line=>new TextEncoder().encode(line).length<=75));
 const t=trips[0],plan={days:[{day:1,focus:'Rest',placeIds:[t.places[0].id],stayArea:t.stays[0].area,breakNote:'Rest whenever needed.'}],tips:['Verify current access.']};
 assert(validateAIPlan(plan,t,1));assert.throws(()=>validateAIPlan({...plan,days:[{...plan.days[0],placeIds:['invented-place']}]},t,1));
-assert.throws(()=>validateAIPlan(plan,t,2));assert.equal(responseText({output:[{type:'message',content:[{type:'output_text',text:'{}'}]}]}),'{}');
+assert.throws(()=>validateAIPlan(plan,t,2));assert.equal(geminiText({candidates:[{finishReason:'STOP',content:{parts:[{text:'thinking',thought:true},{text:'{"a":'},{text:'1}'}]}}]}),'{"a":1}');assert.throws(()=>geminiText({candidates:[{finishReason:'MAX_TOKENS',content:{parts:[{text:'{'}]}}]}));assert.throws(()=>geminiText({}));
 console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and EV costs, multi-vehicle validation, alert dates, calendar format, and bounded AI output.');
