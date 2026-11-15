@@ -6,7 +6,7 @@ Road-trip discovery and planning for bike and car travelers in India.
 
 - Start the local Sites development server: `npm run dev`.
 - Unit checks: `npm test`.
-- With the local dev server running: `node test-auth.mjs`, `node test-profile.mjs` and `node test-register.mjs` (each takes `http://127.0.0.1:5173`).
+- With the local dev server running: `node test-auth.mjs`, `node test-profile.mjs`, `node test-register.mjs` and `node test-groups.mjs` (each takes `http://127.0.0.1:5173`).
 - Type check: `node node_modules/typescript/bin/tsc --noEmit`.
 - Build using the Sites `build-site.mjs` helper.
 

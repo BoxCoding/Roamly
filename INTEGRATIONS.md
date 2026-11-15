@@ -72,4 +72,14 @@ Public community references: [India Bull Riders chapters](https://indiabullrider
 
 - **Rider profile** (saved in D1 with the profile): optional Instagram, YouTube, Facebook and website links. Server validates each with `cleanLinks(links, PROFILE_LINKS)`: https only, on the platform's own domain, stored in cleaned form. Chat invites are not allowed on profiles.
 - **Groups**: optional WhatsApp (`chat.whatsapp.com`, `whatsapp.com/channel`) and Telegram (`t.me`) join links next to the social links. `wa.me` links are rejected because they expose a personal phone number.
-- A group stores its organizer's profile links when it is created and shows them under "Connect with …". Groups still live in browser localStorage, so other users cannot see them until groups move to the server.
+- A group shows its organizer's current profile links under "Connect with …" (read live from the organizer's profile).
+
+## Shared crews (server)
+
+`/api/groups` stores rider crews in D1 (`crews`, `crew_members`, migration `drizzle/0003_whole_whizzer.sql`), so everyone sees the same list:
+
+- `GET` is public: up to 200 newest crews with member counts; signed-in viewers also get `joined` and `mine`. Organizer IDs never leave the server.
+- `POST` creates a crew (signed in, same-origin, zod-validated, links cleaned). One organizer can run at most 5 crews.
+- `PATCH {id, joined}` joins or leaves; `DELETE {id}` is organizer-only and removes members too.
+- Sample crews and the public directory are still static examples. Old browser-only demo groups are no longer shown.
+- No moderation or reporting yet: add it before a wide public launch.
