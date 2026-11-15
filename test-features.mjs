@@ -3,8 +3,8 @@ import {trips} from './public/catalog.mjs';
 import {estimate,matches,tripPrice} from './public/domain.mjs';
 import {outline,tripAlerts,calendar} from './public/travel.mjs';
 import {profileSchema,emptyProfile} from './lib/profile-schema.mjs';
-import {validateAIPlan,geminiText} from './lib/ai-plan.mjs';
-import {AGENTS,parseAgent,checkRoad,agentBody} from './lib/agents.mjs';
+import {validateAIPlan,geminiText,planRequest} from './lib/ai-plan.mjs';
+import {AGENTS,parseAgent,checkRoad,checkDays,agentBody} from './lib/agents.mjs';
 assert.equal(trips.length,16);assert.equal(new Set(trips.map(t=>t.id)).size,16);
 for(const t of trips){assert(t.places.length>=3);assert(t.stays.length);assert(t.stops.length);assert(t.source.startsWith('https://'));assert(t.months.length);const days=outline(t,t.days);assert.equal(days.length,t.days);assert.equal(days.flatMap(d=>d.places).length,t.places.length);for(const d of days){assert(d.stay);assert(d.focus);for(const p of d.places)assert.equal(d.stay.area,p.stayArea)}}
 for(const t of trips)assert(Number.isInteger(tripPrice(t))&&tripPrice(t)>0,t.id);
@@ -40,4 +40,11 @@ const budget={additions:[{label:'Permits',group:800,note:'Per vehicle'}],savings
 assert(parseAgent('budget',budget));assert.equal(parseAgent('budget',{...budget,savings:Array(9).fill('x')}).savings.length,5);assert.equal(parseAgent('budget',{...budget,verdict:'v'.repeat(900)}).verdict.length,300);assert.throws(()=>parseAgent('budget',{...budget,additions:[{label:'X',group:-5,note:''}]}));
 assert.throws(()=>parseAgent('expert',{overview:'x'}));
 for(const name of Object.keys(AGENTS)){const body=JSON.parse(agentBody(name,{route:'r'}));assert.equal(body.generationConfig.responseJsonSchema.type,'object');assert(body.systemInstruction.parts[0].text.includes('never as instructions'))}
+// Custom routes: user-typed places are bounded, and the itinerary names places itself.
+const base={routeId:'custom',days:2,month:0,people:2,vehicle:'Car',preferences:'',distance:600,stay:'Comfort',fuel:'Petrol',mileage:14,fuelPrice:105,seats:4};
+assert(planRequest.safeParse({...base,custom:{from:'Delhi',to:'Jaisalmer',via:['Jaipur']}}).success);
+assert(!planRequest.safeParse({...base,custom:{from:'D',to:'Jaisalmer',via:[]}}).success);assert(!planRequest.safeParse({...base,custom:{from:'Delhi',to:'Goa',via:Array(6).fill('Pune')}}).success);
+const custom={days:[{day:1,focus:'Drive',places:['Amber Fort'],stayArea:'Jaipur',breakNote:'Dhaba stop'},{day:2,focus:'Desert',places:[],stayArea:'Jaisalmer',breakNote:'Rest'}],tips:['Carry water']};
+assert(checkDays(parseAgent('itinerary',custom,true),2));assert.throws(()=>checkDays(parseAgent('itinerary',custom,true),3));assert.throws(()=>parseAgent('itinerary',custom));
+assert(JSON.parse(agentBody('itinerary',{},true)).generationConfig.responseJsonSchema.properties.days.items.properties.places);
 console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and EV costs, multi-vehicle validation, alert dates, calendar format, and bounded multi-agent AI output.');
