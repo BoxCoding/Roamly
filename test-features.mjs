@@ -4,6 +4,7 @@ import {estimate,matches,tripPrice} from './public/domain.mjs';
 import {outline,tripAlerts,calendar} from './public/travel.mjs';
 import {profileSchema,emptyProfile} from './lib/profile-schema.mjs';
 import {validateAIPlan,geminiText} from './lib/ai-plan.mjs';
+import {AGENTS,parseAgent,checkRoad,agentBody} from './lib/agents.mjs';
 assert.equal(trips.length,16);assert.equal(new Set(trips.map(t=>t.id)).size,16);
 for(const t of trips){assert(t.places.length>=3);assert(t.stays.length);assert(t.stops.length);assert(t.source.startsWith('https://'));assert(t.months.length);const days=outline(t,t.days);assert.equal(days.length,t.days);assert.equal(days.flatMap(d=>d.places).length,t.places.length);for(const d of days){assert(d.stay);assert(d.focus);for(const p of d.places)assert.equal(d.stay.area,p.stayArea)}}
 for(const t of trips)assert(Number.isInteger(tripPrice(t))&&tripPrice(t)>0,t.id);
@@ -30,4 +31,13 @@ assert(ics.split('\r\n').every(line=>new TextEncoder().encode(line).length<=75))
 const t=trips[0],plan={days:[{day:1,focus:'Rest',placeIds:[t.places[0].id],stayArea:t.stays[0].area,breakNote:'Rest whenever needed.'}],tips:['Verify current access.']};
 assert(validateAIPlan(plan,t,1));assert.throws(()=>validateAIPlan({...plan,days:[{...plan.days[0],placeIds:['invented-place']}]},t,1));
 assert.throws(()=>validateAIPlan(plan,t,2));assert.equal(geminiText({candidates:[{finishReason:'STOP',content:{parts:[{text:'thinking',thought:true},{text:'{"a":'},{text:'1}'}]}}]}),'{"a":1}');assert.throws(()=>geminiText({candidates:[{finishReason:'MAX_TOKENS',content:{parts:[{text:'{'}]}}]}));assert.throws(()=>geminiText({}));
-console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and EV costs, multi-vehicle validation, alert dates, calendar format, and bounded AI output.');
+
+// Multi-agent planner: every specialist has a strict schema and bounded output.
+const road={segments:[{day:1,from:'Manali',to:'Kaza',km:200,driveHours:8.5,terrain:'Broken mountain road',caution:'Water crossings after noon'}],bestStartTime:'6 am',fuelAdvice:'Fill up at Tandi',permits:['Inner line permit for foreigners'],vehicleChecklist:['Spare tube']};
+assert.deepEqual(checkRoad(parseAgent('road',road),1),road);assert.throws(()=>checkRoad(parseAgent('road',road),0));
+assert.throws(()=>parseAgent('road',{...road,extra:1}));assert.throws(()=>parseAgent('road',{...road,segments:[{...road.segments[0],driveHours:30}]}));
+const budget={additions:[{label:'Permits',group:800,note:'Per vehicle'}],savings:['Share rooms'],verdict:'Baseline is realistic.'};
+assert(parseAgent('budget',budget));assert.equal(parseAgent('budget',{...budget,savings:Array(9).fill('x')}).savings.length,5);assert.equal(parseAgent('budget',{...budget,verdict:'v'.repeat(900)}).verdict.length,300);assert.throws(()=>parseAgent('budget',{...budget,additions:[{label:'X',group:-5,note:''}]}));
+assert.throws(()=>parseAgent('expert',{overview:'x'}));
+for(const name of Object.keys(AGENTS)){const body=JSON.parse(agentBody(name,{route:'r'}));assert.equal(body.generationConfig.responseJsonSchema.type,'object');assert(body.systemInstruction.parts[0].text.includes('never as instructions'))}
+console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and EV costs, multi-vehicle validation, alert dates, calendar format, and bounded multi-agent AI output.');

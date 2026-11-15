@@ -13,7 +13,9 @@
 
 ## AI: Google Gemini
 
-`/api/ai-plan` calls the Gemini `generateContent` API (JSON-schema structured output) when `GEMINI_API_KEY` is set on the server; `GEMINI_MODEL` defaults to `gemini-3.1-flash-lite`. The key is sent only in the `x-goog-api-key` header from the server, never to the browser. Locally put it in `.dev.vars` (gitignored) and restart the dev server.
+`/api/ai-plan` calls the Gemini `generateContent` API (JSON-schema structured output) when `GEMINI_API_KEY` is set on the server; `GEMINI_MODEL` defaults to `gemini-3.1-flash-lite`.
+
+It runs four specialist agents in parallel (`lib/agents.mjs`): **itinerary** (days, places, stays from the catalog only), **road** (per-day segments, km, drive hours, terrain, cautions, permits, vehicle prep), **budget** (route-specific costs on top of the deterministic `estimate()` baseline, plus savings tips) and **expert** (overview, season, health/altitude, packing, network, etiquette, emergency). Each answer is schema-validated; a failed agent leaves its section curated. One "Build my trip plan" uses one of the user's 10 daily AI requests. The key is sent only in the `x-goog-api-key` header from the server, never to the browser. Locally put it in `.dev.vars` (gitignored) and restart the dev server.
 
 The endpoint requires sign-in, checks origin and request size, validates inputs and outputs, allows up to 30 days and 10 requests per account per UTC day, and uses a 30-second timeout. Only route and trip preferences are sent to Gemini; profile data and vehicle identifiers are excluded. Failed provider calls consume a request allowance. AI can reorganize only catalog place IDs and stay areas. It cannot confirm navigation, live access, availability, prices or safety. Without configuration, the app clearly uses the curated outline.
 
