@@ -15,6 +15,12 @@ try{
  response=await request('PUT',{profile,updatedAt:original.updatedAt});const saved=await response.json();assert.equal(response.status,200,JSON.stringify(saved));assert.equal(saved.profile.vehicles.length,2);
  const reread=await (await request('GET')).json();assert.deepEqual(reread.profile,profile);assert.match((await request('GET')).headers.get('cache-control'),/no-store/);
  assert.equal((await request('PUT',{profile,updatedAt:original.updatedAt})).status,409);
+ // Profile social links: saved in cleaned form; bad hosts and chat invites rejected.
+ const social={instagram:'https://instagram.com/seedy_rides',youtube:'https://youtube.com/@seedy'};
+ response=await request('PUT',{profile:{...profile,links:social},updatedAt:reread.updatedAt??saved.updatedAt});const withLinks=await response.json();assert.equal(response.status,200,JSON.stringify(withLinks));
+ assert.deepEqual((await (await request('GET')).json()).profile.links,social);
+ const bad=await request('PUT',{profile:{...profile,links:{instagram:'https://evil.com/x'}},updatedAt:withLinks.updatedAt});assert.equal(bad.status,400);assert.match((await bad.json()).error,/Instagram/);
+ assert.equal((await request('PUT',{profile:{...profile,links:{whatsapp:'https://chat.whatsapp.com/x'}},updatedAt:withLinks.updatedAt})).status,400);
  const forged=await fetch(origin+'/api/profile',{headers:{'oai-authenticated-user-id':'local_seedy','oai-authenticated-user-email':'seedy@sites.test'}});assert.equal(forged.status,401);
  // With GEMINI_API_KEY set, '{}' fails validation (400); without it the route is unavailable (503).
  const aiOn=(await (await fetch(origin+'/api/ai-plan')).json()).available;

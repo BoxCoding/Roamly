@@ -18,7 +18,9 @@ export const matches=(trip,{query='',vehicle='All',season='All'})=>(!query||`${t
 // Card price: 2 travelers, Comfort stays, default vehicle — same maths as the planner.
 export const tripPrice=t=>estimate({distance:t.km,days:t.days,people:2,vehicle:t.vehicle,stay:'Comfort'}).perPerson;
 // Group links: https only (http allowed for websites), and social links must be on the platform's own domain.
-export const LINK_KINDS={instagram:{label:'Instagram',hosts:['instagram.com']},youtube:{label:'YouTube',hosts:['youtube.com','youtu.be']},facebook:{label:'Facebook',hosts:['facebook.com','fb.com']},website:{label:'Website',hosts:null}};
+export const LINK_KINDS={instagram:{label:'Instagram',hosts:['instagram.com']},youtube:{label:'YouTube',hosts:['youtube.com','youtu.be']},facebook:{label:'Facebook',hosts:['facebook.com','fb.com']},website:{label:'Website',hosts:null},whatsapp:{label:'WhatsApp',hosts:['chat.whatsapp.com','whatsapp.com']},telegram:{label:'Telegram',hosts:['t.me','telegram.me']}};
+// Rider profiles carry public social links only; chat invites (WhatsApp/Telegram) belong to groups.
+export const PROFILE_LINKS=['instagram','youtube','facebook','website'];
 export function cleanLink(kind,value){
   const raw=String(value??'').trim();if(!raw)return '';
   let url;try{url=new URL(/^[a-z][a-z\d+.-]*:/i.test(raw)?raw:'https://'+raw)}catch{return null}
@@ -27,8 +29,8 @@ export function cleanLink(kind,value){
   return url.href;
 }
 // Returns {links} with only filled, valid entries, or {error} naming the first bad field.
-export function cleanLinks(input={}){
+export function cleanLinks(input={},kinds=Object.keys(LINK_KINDS)){
   const links={};
-  for(const [kind,{label}] of Object.entries(LINK_KINDS)){const href=cleanLink(kind,input[kind]);if(href===null)return {error:`Enter a valid ${label} link${kind==='website'?'':' on '+LINK_KINDS[kind].hosts[0]}.`};if(href)links[kind]=href}
+  for(const kind of kinds){const {label}=LINK_KINDS[kind];const href=cleanLink(kind,input[kind]);if(href===null)return {error:`Enter a valid ${label} link${kind==='website'?'':' on '+LINK_KINDS[kind].hosts[0]}.`};if(href)links[kind]=href}
   return {links};
 }

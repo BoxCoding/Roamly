@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {estimate,credibility,matches,cleanLink,cleanLinks} from './public/domain.mjs';
+import {estimate,credibility,matches,cleanLink,cleanLinks,PROFILE_LINKS} from './public/domain.mjs';
 const r=estimate({distance:650,days:7,people:2,vehicle:'Bike',stay:'Comfort'});
 assert.equal(r.vehicles,2);
 assert.equal(r.total,r.fuel+r.accommodation+r.food+r.extras+r.contingency);
@@ -21,4 +21,11 @@ assert.equal(cleanLink('website',''),'');
 for(const [k,v] of [['instagram','javascript:alert(1)'],['website','javascript:alert(1)'],['instagram','https://evil.com/instagram.com'],['instagram','https://instagram.com.evil.com'],['facebook','http://facebook.com/x'],['youtube','https://user:pw@youtube.com'],['website','https://localhost'],['website','data:text/html,x'],['twitter','x.com']])assert.equal(cleanLink(k,v),null,`${k} ${v}`);
 assert.deepEqual(cleanLinks({instagram:'instagram.com/a',website:''}),{links:{instagram:'https://instagram.com/a'}});
 assert.match(cleanLinks({youtube:'vimeo.com/x'}).error,/YouTube/);
+// Group chat channels: WhatsApp invites/channels and Telegram only on their own domains.
+assert.equal(cleanLink('whatsapp','chat.whatsapp.com/AbC123'),'https://chat.whatsapp.com/AbC123');
+assert.equal(cleanLink('whatsapp','https://whatsapp.com/channel/0029Va'),'https://whatsapp.com/channel/0029Va');
+assert.equal(cleanLink('telegram','t.me/ridecrew'),'https://t.me/ridecrew');
+for(const [k,v] of [['whatsapp','wa.me/919999999999'],['whatsapp','https://chat.whatsapp.com.evil.in/x'],['telegram','https://telegram.org.evil.com'],['telegram','http://t.me/x']])assert.equal(cleanLink(k,v),null,k+' '+v);
+// Rider profiles accept only public social links, not chat invites.
+assert.deepEqual(cleanLinks({instagram:'instagram.com/me',whatsapp:'chat.whatsapp.com/x'},PROFILE_LINKS),{links:{instagram:'https://instagram.com/me'}});
 console.log('All planner, validation, credibility, and filtering checks passed.');
