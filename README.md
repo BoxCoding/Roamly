@@ -4,13 +4,15 @@ Road-trip discovery and planning for bike and car travelers in India.
 
 ## Run and verify
 
-- Start the local Sites development server: `npm run dev`.
-- Unit checks: `npm test`.
-- With the local dev server running: `node test-auth.mjs`, `node test-profile.mjs`, `node test-register.mjs` and `node test-groups.mjs` (each takes `http://127.0.0.1:5173`).
-- Type check: `node node_modules/typescript/bin/tsc --noEmit`.
-- Build using the Sites `build-site.mjs` helper.
+- Needs Node 22+ and a local Postgres. Create a database (`createdb roamly`) and copy `.env.example` to `.env.local` with `DATABASE_URL` (and `GEMINI_API_KEY` for AI).
+- `npm run dev` starts Next.js on http://localhost:5173. Pending migrations in `drizzle/` are applied automatically at server start (`instrumentation.ts`).
+- Unit checks: `npm test`. With the dev server running: `node test-auth.mjs`, `node test-profile.mjs`, `node test-register.mjs` and `node test-groups.mjs` (set `ADMIN_EMAILS=moderator@roamly.test` locally for the moderation checks).
+- Type check: `npx tsc --noEmit`. Production build: `npm run build`.
+- Schema change: edit `db/schema.ts`, then `npm run db:generate`.
 
-The app now uses the Sites D1 binding `DB`. For a fresh local database, build once to generate the Worker config, then apply the pending SQL migrations in `drizzle/` in order with Wrangler D1 using `.wrangler/state`. Do not replay migrations already applied. Sites applies hosted migrations during deployment.
+## Deploy (Google Cloud)
+
+Cloud Run (asia-south1) runs the Next.js standalone server from `Dockerfile`; data lives in Cloud SQL Postgres `roamly-db`. Secrets `DATABASE_URL`, `SESSION_SECRET` and `GEMINI_API_KEY` are in Secret Manager. Redeploy with `deploy/gcp.sh` (optionally `ADMIN_EMAILS=you@example.com deploy/gcp.sh` to set moderators).
 
 ## Features
 
@@ -20,8 +22,6 @@ See [INTEGRATIONS.md](INTEGRATIONS.md) for exact setup requirements, authenticat
 
 ## Identity and data
 
-Sites checks ChatGPT identity server-side. `/api/profile` reads/writes only the current account's profile and vehicles; writes require same-origin JSON and include a version stamp to prevent silent overwrites. Existing `roamly-v1` demo data remains untouched. Local saved trips/groups/reminders still use `roamly-v2:<account>`; no passwords or authentication tokens are stored there.
-
-The loopback-only development sign-in uses the starter's test identity, Seedy, and strips caller-supplied identity headers. Production uses the private Sites authentication gate. Do not expose the development server to the internet.
+Riders sign in with email/password (PBKDF2) or Google (when configured). Identity comes only from a signed, HttpOnly session cookie; proxy headers are never trusted. `/api/profile` reads/writes only the current account; writes require same-origin JSON and a version stamp. Crews, members and reports are shared in Postgres; saved trips and reminders stay in the browser.
 
 Uses bundled illustrative Unsplash photos and Google Fonts. Seasonal notes, costs, attraction durations and community scores are planning aids, not verified real-time safety or availability data.

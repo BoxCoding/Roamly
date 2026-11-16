@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Self-contained server bundle for the Cloud Run container.
+  output: "standalone",
+  // Migrations are read from disk at startup.
+  outputFileTracingIncludes: { "/*": ["./drizzle/**/*"] },
 };
 
 export default nextConfig;

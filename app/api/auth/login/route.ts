@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   const { email, password } = parsed.data;
   try {
     const db = getDb();
-    const row = await db.select().from(users).where(eq(users.email, email)).get();
+    const [row] = await db.select().from(users).where(eq(users.email, email)).limit(1);
     if (row?.lockedUntil && Date.parse(row.lockedUntil) > Date.now()) return json({ error: `Too many attempts. Try again in ${LOCK_MINUTES} minutes.` }, 429);
     const ok = await verifyPassword(password, row?.passwordHash ?? DUMMY_HASH);
     if (!row) return wrong;
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       return wrong;
     }
     if (row.failedLogins || row.lockedUntil) await db.update(users).set({ failedLogins: 0, lockedUntil: null }).where(eq(users.id, row.id));
-    const user: AppUser = { userId: `user:${row.id}`, displayName: row.name, provider: "password" };
+    const user: AppUser = { userId: `user:${row.id}`, displayName: row.name, provider: "password", email: row.email };
     const response = json({ user: { id: user.userId, name: row.name, provider: user.provider } });
     response.headers.append("Set-Cookie", await sessionCookie(user));
     return response;

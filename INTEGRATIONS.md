@@ -2,10 +2,9 @@
 
 ## Working now
 
-- ChatGPT sign-in and sign-out supplied by Sites.
 - Email + password registration and sign-in.
 - Google sign-in (after credentials are configured; see below).
-- Profile and up to 10 vehicles per account, stored in D1. Every profile read/write uses the server identity; client-supplied owner IDs are rejected.
+- Profile and up to 10 vehicles per account, stored in Postgres. Every profile read/write uses the server identity; client-supplied owner IDs are rejected.
 - 16 curated routes, sightseeing places, rest/food search areas, and stay-area searches.
 - Public community references for India Bull Riders, xBhp and Enfield Rider’s Community, alongside clearly labeled sample/local groups. External membership stays on the official community sites.
 - Mileage, seating and fuel/charging assumptions; group and per-person cost breakdowns.
@@ -23,24 +22,22 @@ Reference: [Gemini structured output](https://ai.google.dev/gemini-api/docs/stru
 
 ## Email registration
 
-`/api/auth/register` and `/api/auth/login` store accounts in the D1 `users` table (migration `drizzle/0002_*`). Passwords are salted PBKDF2-SHA256 (100k iterations, the Workers limit). Five wrong passwords lock the account for 15 minutes. Sessions share the same signed 30-day cookie as Google; `/api/auth/logout` clears it. Email accounts are separate from ChatGPT/Google accounts.
+`/api/auth/register` and `/api/auth/login` store accounts in the Postgres `users` table. Passwords are salted PBKDF2-SHA256 (100k iterations). Five wrong passwords lock the account for 15 minutes. Sessions share the same signed 30-day cookie as Google; `/api/auth/logout` clears it. Email accounts are separate from Google accounts.
 
-Session signing key: set `SESSION_SECRET` (`openssl rand -base64 32`) as a hosted secret in production. If it is unset the app generates one and stores it in the D1 `app_secrets` table, which works but means anyone with database access can forge sessions.
+Session signing key: set `SESSION_SECRET` (`openssl rand -base64 32`) in production (Cloud Run reads it from Secret Manager). If it is unset the app generates one and stores it in the `app_secrets` table, which works but means anyone with database access can forge sessions.
 
 Not built yet: email verification and password reset (both need an email delivery service).
 
 ## Google login: built, needs credentials
 
-`/api/auth/google` runs the OpenID Connect authorization-code flow with PKCE, `state` and `nonce`, then stores a 30-day HMAC-signed, HttpOnly, Secure, SameSite=Lax cookie. Google users get their own account (`google:<sub>`); they are never merged with a ChatGPT account, even when the email matches. If a ChatGPT identity is present it takes priority. The Google button is hidden until `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set.
+`/api/auth/google` runs the OpenID Connect authorization-code flow with PKCE, `state` and `nonce`, then stores a 30-day HMAC-signed, HttpOnly, Secure, SameSite=Lax cookie. Google users get their own account (`google:<sub>`); they are never merged with an email account, even when the email matches. The Google button is hidden until `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set.
 
 Setup:
 
 1. In Google Cloud, configure the OAuth consent screen and create a **Web application** OAuth client.
 2. Add the authorized redirect URI `<origin>/api/auth/google/callback` for every origin you use, e.g. `http://localhost:5173/api/auth/google/callback` for local dev and the HTTPS production origin.
-3. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (and optionally `SESSION_SECRET`, see below). Locally put them in `.dev.vars` (gitignored) and restart `npm run dev`; in production set them as hosted secrets.
+3. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (and optionally `SESSION_SECRET`, see below). Locally put them in `.env.local` (gitignored) and restart `npm run dev`; on Cloud Run add them as Secret Manager secrets and to `--set-secrets` in `deploy/gcp.sh`.
 4. Rotating `SESSION_SECRET` signs everyone out.
-
-Hosting caveat: production Sites keeps its private ChatGPT access gate in front of the app. Google login only helps visitors who can reach the app, so check whether your host lets non-ChatGPT users in before relying on it.
 
 Reference: [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect).
 
@@ -70,16 +67,22 @@ Public community references: [India Bull Riders chapters](https://indiabullrider
 
 ## Rider social links and group channels
 
-- **Rider profile** (saved in D1 with the profile): optional Instagram, YouTube, Facebook and website links. Server validates each with `cleanLinks(links, PROFILE_LINKS)`: https only, on the platform's own domain, stored in cleaned form. Chat invites are not allowed on profiles.
+- **Rider profile** (saved with the profile in Postgres): optional Instagram, YouTube, Facebook and website links. Server validates each with `cleanLinks(links, PROFILE_LINKS)`: https only, on the platform's own domain, stored in cleaned form. Chat invites are not allowed on profiles.
 - **Groups**: optional WhatsApp (`chat.whatsapp.com`, `whatsapp.com/channel`) and Telegram (`t.me`) join links next to the social links. `wa.me` links are rejected because they expose a personal phone number.
 - A group shows its organizer's current profile links under "Connect with …" (read live from the organizer's profile).
 
 ## Shared crews (server)
 
-`/api/groups` stores rider crews in D1 (`crews`, `crew_members`, migration `drizzle/0003_whole_whizzer.sql`), so everyone sees the same list:
+`/api/groups` stores rider crews in Postgres (`crews`, `crew_members`, `crew_reports`), so everyone sees the same list:
 
 - `GET` is public: up to 200 newest crews with member counts; signed-in viewers also get `joined` and `mine`. Organizer IDs never leave the server.
 - `POST` creates a crew (signed in, same-origin, zod-validated, links cleaned). One organizer can run at most 5 crews.
 - `PATCH {id, joined}` joins or leaves; `DELETE {id}` is organizer-only and removes members too.
 - Sample crews and the public directory are still static examples. Old browser-only demo groups are no longer shown.
-- No moderation or reporting yet: add it before a wide public launch.
+
+## Reports and moderation
+
+- Any signed-in rider (not the organizer) can report a crew once, with a reason (spam, scam, unsafe, offensive, fake, other) and an optional note: `POST /api/groups/report`.
+- After **3 distinct reporters** the crew is hidden from everyone except its organizer, who sees it as "under review". Hidden crews cannot be joined.
+- Moderators are the emails in `ADMIN_EMAILS`. They get a "Moderation queue" button: `GET /api/moderation` lists hidden and reported crews with reasons and notes (never who reported). `POST /api/moderation {id, action}`: `restore` makes it active and clears reports; `remove` hides it for everyone (kept for the record).
+- Not built: appeals, notifying organizers, banning accounts, automatic text filtering.

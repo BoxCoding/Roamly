@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const id = crypto.randomUUID();
     const rows = await getDb().insert(users).values({ id, email, name, passwordHash: await hashPassword(password), createdAt: new Date().toISOString() }).onConflictDoNothing().returning({ id: users.id });
     if (!rows.length) return json({ error: "An account with this email already exists. Sign in instead." }, 409);
-    const user: AppUser = { userId: `user:${id}`, displayName: name, provider: "password" };
+    const user: AppUser = { userId: `user:${id}`, displayName: name, provider: "password", email };
     const response = json({ user: { id: user.userId, name, provider: user.provider } }, 201);
     response.headers.append("Set-Cookie", await sessionCookie(user));
     return response;

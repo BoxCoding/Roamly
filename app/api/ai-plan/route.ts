@@ -1,4 +1,4 @@
-import {env} from 'cloudflare:workers';
+import { env } from '../../../lib/env';
 import {sql} from 'drizzle-orm';
 import {getDb} from '../../../db';
 import {aiQuota} from '../../../db/schema';

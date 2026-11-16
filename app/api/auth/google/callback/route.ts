@@ -1,4 +1,5 @@
-import { env } from "cloudflare:workers";
+import { publicOrigin } from "../../../../../lib/http";
+import { env } from '../../../../../lib/env';
 import { googleConfigured, sessionCookie, sessionSecret } from "../../../../auth";
 import { FLOW_COOKIE, GOOGLE_CALLBACK, checkIdToken, cookie, readCookie, unseal } from "../../../../../lib/google-oauth.mjs";
 export const dynamic = "force-dynamic";
@@ -19,14 +20,14 @@ export async function GET(request: Request) {
     const response = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ code, client_id: env.GOOGLE_CLIENT_ID!, client_secret: env.GOOGLE_CLIENT_SECRET!, redirect_uri: url.origin + GOOGLE_CALLBACK, grant_type: "authorization_code", code_verifier: flow.verifier }),
+      body: new URLSearchParams({ code, client_id: env.GOOGLE_CLIENT_ID!, client_secret: env.GOOGLE_CLIENT_SECRET!, redirect_uri: publicOrigin(request) + GOOGLE_CALLBACK, grant_type: "authorization_code", code_verifier: flow.verifier }),
       signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) return fail();
     const { id_token } = (await response.json()) as { id_token?: string };
     const claims = checkIdToken(id_token, { clientId: env.GOOGLE_CLIENT_ID!, nonce: flow.nonce });
     if (!claims) return fail();
-    return redirect("/", await sessionCookie({ userId: `google:${claims.sub}`, displayName: claims.name || claims.email, provider: "google" }));
+    return redirect("/", await sessionCookie({ userId: `google:${claims.sub}`, displayName: claims.name || claims.email, provider: "google", email: claims.email }));
   } catch {
     return fail();
   }

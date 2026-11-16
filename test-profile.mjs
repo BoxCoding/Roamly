@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {emptyProfile} from './lib/profile-schema.mjs';
-const origin=process.argv[2]||'http://127.0.0.1:5173';
-if(!['localhost','127.0.0.1'].includes(new URL(origin).hostname))throw new Error('Use only the local test server.');
+import {liveOrigin,account} from './test-live.mjs';
+const origin=liveOrigin();
 assert.equal((await fetch(origin+'/api/profile')).status,401);
-const login=await fetch(origin+'/signin-with-chatgpt?return_to=%2F',{redirect:'manual'}),cookie=login.headers.get('set-cookie').split(';')[0];
+const cookie=await account(origin,{name:'Profile Tester'});
 const request=(method,body,extra={})=>fetch(origin+'/api/profile',{method,headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json',...extra},...(body?{body:JSON.stringify(body)}:{})});
 let response=await request('GET'),original=await response.json();assert.equal(response.status,200,JSON.stringify(original));
 const bike={id:crypto.randomUUID(),type:'Bike',make:'Royal Enfield',model:'Meteor 350',year:2026,fuel:'Petrol',mileage:32,seats:2,engineCc:350};
@@ -21,7 +21,7 @@ try{
  assert.deepEqual((await (await request('GET')).json()).profile.links,social);
  const bad=await request('PUT',{profile:{...profile,links:{instagram:'https://evil.com/x'}},updatedAt:withLinks.updatedAt});assert.equal(bad.status,400);assert.match((await bad.json()).error,/Instagram/);
  assert.equal((await request('PUT',{profile:{...profile,links:{whatsapp:'https://chat.whatsapp.com/x'}},updatedAt:withLinks.updatedAt})).status,400);
- const forged=await fetch(origin+'/api/profile',{headers:{'oai-authenticated-user-id':'local_seedy','oai-authenticated-user-email':'seedy@sites.test'}});assert.equal(forged.status,401);
+ const forged=await fetch(origin+'/api/profile',{headers:{'oai-authenticated-user-id':'someone','oai-authenticated-user-email':'someone@example.test'}});assert.equal(forged.status,401);
  // With GEMINI_API_KEY set, '{}' fails validation (400); without it the route is unavailable (503).
  const aiOn=(await (await fetch(origin+'/api/ai-plan')).json()).available;
  const badPlan=await fetch(origin+'/api/ai-plan',{method:'POST',headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json'},body:'{}'});assert.equal(badPlan.status,aiOn?400:503);

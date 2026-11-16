@@ -8,7 +8,7 @@ export const dynamic='force-dynamic';
 export async function GET(){
   const user=await getUser(); if(!user)return json({error:'Sign in to view your profile.'},401);
   try{
-    const row=await getDb().select().from(profiles).where(eq(profiles.userId,user.userId)).get();
+    const [row]=await getDb().select().from(profiles).where(eq(profiles.userId,user.userId)).limit(1);
     return json({profile:row?JSON.parse(row.details):emptyProfile(),updatedAt:row?.updatedAt??null});
   }catch{return json({error:'Your profile could not be loaded. Please try again.'},503)}
 }
