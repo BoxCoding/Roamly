@@ -37,7 +37,7 @@ A rider is a normal user everywhere and gets group powers only inside the groups
 - Plans can be edited and saved: change stops, swap stays, then recalculate budget and distance without new AI calls.
 - Saved plans are stored in the account and can be attached to a group ride.
 
-### Phase 4: Engagement and sharing
+### Phase 4: Engagement and sharing — done (photo uploads move to Phase 5 with Cloud Storage)
 - Ride feed: posts, photos and ride reports (road condition, fuel availability, police checks, weather) tagged to a route and date.
 - Comments and reactions, following riders and groups, a "road intel" view per route with the latest reports first.
 - Rider stats and badges from completed rides (km, states, ghats, first ride with a group) and group leaderboards.

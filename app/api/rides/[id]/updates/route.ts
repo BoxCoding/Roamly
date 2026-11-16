@@ -1,10 +1,11 @@
 import {and,eq} from 'drizzle-orm';
 import {z} from 'zod';
 import {getDb} from '../../../../../db';
-import {rideUpdates} from '../../../../../db/schema';
+import {rideRsvps,rideUpdates} from '../../../../../db/schema';
 import {getUser} from '../../../../auth';
 import {postInput} from '../../../../../lib/ride-schema.mjs';
 import {rideAccess} from '../../../../../lib/rides';
+import {notify} from '../../../../../lib/notify';
 import {json,readJson} from '../../../../../lib/http';
 export const dynamic='force-dynamic';
 type Ctx={params:Promise<{id:string}>};
@@ -23,6 +24,8 @@ export async function POST(request:Request,{params}:Ctx){
     if(existing.length>=MAX_UPDATES)return json({error:'This ride has reached its update limit. Delete old updates first.'},429);
     const uid=crypto.randomUUID();
     await db.insert(rideUpdates).values({id:uid,rideId:id,authorId:user.userId,authorName:user.displayName,body:parsed.data.body,pinned:parsed.data.pinned,createdAt:new Date().toISOString()});
+    const riders=await db.select({id:rideRsvps.userId}).from(rideRsvps).where(eq(rideRsvps.rideId,id));
+    await notify(riders.map(r=>r.id),{kind:'ride-update',text:`${a.ride.title}: ${parsed.data.body.slice(0,120)}`,link:`#ride=${id}`},user.userId);
     return json({id:uid},201);
   }catch{return json({error:'Your update was not posted. Please try again.'},503)}
 }

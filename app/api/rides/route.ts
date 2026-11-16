@@ -1,11 +1,12 @@
 import {and,count,eq,gte,inArray,or} from 'drizzle-orm';
 import {z} from 'zod';
 import {getDb} from '../../../db';
-import {accounts,crews,crewMembers,rides,rideRsvps} from '../../../db/schema';
+import {accounts,crews,crewMembers,follows,rides,rideRsvps} from '../../../db/schema';
 import {getUser,isAdmin} from '../../auth';
 import {rideInput,ridePhase,startsInPast} from '../../../lib/ride-schema.mjs';
 import {trips} from '../../../public/catalog.mjs';
 import {routeLabel} from '../../../lib/rides';
+import {notify} from '../../../lib/notify';
 import {json,readJson} from '../../../lib/http';
 export const dynamic='force-dynamic';
 
@@ -61,6 +62,12 @@ export async function POST(request:Request){
       await tx.insert(rides).values({id,crewId,...fields,route,leadId:user.userId,createdAt:now});
       await tx.insert(rideRsvps).values({rideId:id,userId:user.userId,status:'going',createdAt:now});
     });
+    const [members,fans,[crewRow]]=await Promise.all([
+      db.select({id:crewMembers.userId}).from(crewMembers).where(and(eq(crewMembers.crewId,crewId),eq(crewMembers.status,'active'))),
+      db.select({id:follows.followerId}).from(follows).where(and(eq(follows.targetType,'crew'),eq(follows.targetId,crewId))),
+      db.select({name:crews.name}).from(crews).where(eq(crews.id,crewId)).limit(1),
+    ]);
+    await notify([...members,...fans].map(x=>x.id),{kind:'ride',text:`New ride in ${crewRow?.name||'your crew'}: ${r.title} on ${r.startDate}`,link:`#ride=${id}`},user.userId);
     return json({id},201);
   }catch{return json({error:'The ride was not saved. Please try again.'},503)}
 }

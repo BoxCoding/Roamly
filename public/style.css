@@ -31,3 +31,16 @@
 .plan-edit-day{border:1px solid #dfe6d7;border-radius:8px;margin:14px 0;padding:14px}.plan-edit-day legend{font-weight:700;font-size:12px;color:#45683e}
 .stay-links a{margin-left:8px}.km-hint button{font-size:10px;padding:0}
 @media(max-width:560px){.plan-list,.plan-editor{margin-left:18px;margin-right:18px}.plan-map{height:240px}}
+.feed-wrap{margin:0 40px 35px;max-width:760px}.feed-tabs{margin:14px 0}
+.composer{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff}.composer-kinds{margin:0 0 10px}
+.post-card{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff;margin:10px 0}.post-card.report{border-left:4px solid #c8d6a8}.post-card.report.caution{border-left-color:#e2b84a}.post-card.report.bad{border-left-color:#c8553d}
+.post-head{font-size:12px}.post-head small{color:var(--muted)}.post-body{white-space:pre-wrap;font-size:13px;line-height:1.7;margin:8px 0;color:var(--ink)}
+.report-tag{font-size:11px;margin-top:6px}.cond{display:inline-block;border-radius:4px;padding:2px 7px;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px}.cond-good{background:#e3efd3;color:#3f6a2c}.cond-caution{background:#f6ebc8;color:#8a6510}.cond-bad{background:#f6dcd4;color:#a3402a}
+.route-chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px;background:#f6f8f1}
+.post-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px}.post-actions .liked{color:#a3402a}
+.comments{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}.comment{font-size:12px;margin:8px 0}.comment p{margin:3px 0;color:var(--ink)}.comment-form{display:flex;gap:8px;margin-top:8px}.comment-form input{flex:1;border:1px solid #dfe5d8;border-radius:6px;padding:9px}
+.rider-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.rider-stats>div{background:#edf2e5;border-radius:8px;padding:10px;text-align:center}.rider-stats strong{display:block;font:750 18px 'Manrope'}.rider-stats small{font-size:10px;color:var(--muted)}
+.badges span{background:#f6ebc8;color:#6b5210}.leaders{padding-left:20px;font-size:12px;line-height:2}
+.bell{position:relative}#bell-count{position:absolute;top:-2px;right:-2px;background:#c8553d;color:#fff;border-radius:999px;font-size:9px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 3px}
+.notice-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.notice-row.unread{font-weight:600}.notice-row small{color:var(--muted);font-weight:400}
+@media(max-width:560px){.feed-wrap{margin-left:18px;margin-right:18px}.rider-stats{grid-template-columns:repeat(2,1fr)}}

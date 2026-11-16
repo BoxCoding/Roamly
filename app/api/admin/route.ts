@@ -1,7 +1,7 @@
 import {and,count,desc,eq,ilike,inArray,ne,or,sql} from 'drizzle-orm';
 import {z} from 'zod';
 import {getDb} from '../../../db';
-import {accounts,aiQuota,crews,crewMembers,crewReports} from '../../../db/schema';
+import {accounts,aiQuota,crews,crewMembers,crewReports,postReports,posts} from '../../../db/schema';
 import {getUser,isAdmin} from '../../auth';
 import {json,readJson} from '../../../lib/http';
 export const dynamic='force-dynamic';
@@ -42,6 +42,12 @@ export async function GET(request:Request){
         db.select({crewId:crewReports.crewId,n:count()}).from(crewReports).where(inArray(crewReports.crewId,ids)).groupBy(crewReports.crewId),
       ]):[[],[]];
       return json({groups:rows.map(r=>({id:r.id,name:r.name,city:r.city,vehicle:r.vehicle,organizer:r.organizerName,status:r.status,visibility:r.visibility,createdAt:r.createdAt,members:members.find(m=>m.crewId===r.id)?.n||0,reports:reports.find(m=>m.crewId===r.id)?.n||0}))});
+    }
+    if(view==='posts'){
+      const reports=await db.select({postId:postReports.postId,reason:postReports.reason}).from(postReports);
+      const ids=[...new Set(reports.map(r=>r.postId))];
+      const rows=await db.select({p:posts,name:accounts.name}).from(posts).leftJoin(accounts,eq(accounts.userId,posts.authorId)).where(ids.length?or(eq(posts.status,'hidden'),inArray(posts.id,ids)):eq(posts.status,'hidden')).orderBy(desc(posts.createdAt)).limit(100);
+      return json({posts:rows.map(({p,name})=>({id:p.id,kind:p.kind,body:p.body,place:p.place,author:name||'Rider',status:p.status,createdAt:p.createdAt,reasons:reports.filter(r=>r.postId===p.id).map(r=>r.reason)}))});
     }
     return json({error:'Unknown view.'},400);
   }catch{return json({error:'Admin data could not be loaded.'},503)}

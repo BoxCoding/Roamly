@@ -144,3 +144,59 @@ export const geocodes = pgTable('geocodes', {
   label: text('label').notNull().default(''),
   createdAt: text('created_at').notNull(),
 });
+
+// Community feed. kind: post | report (road intel). status: active | hidden (auto, by reports) | removed (admin).
+// A post may be tagged to a catalog route, a crew (then it follows the crew's visibility) and/or a ride.
+export const posts = pgTable('posts', {
+  id: text('id').primaryKey(),
+  authorId: text('author_id').notNull(),
+  kind: text('kind').notNull().default('post'),
+  body: text('body').notNull(),
+  routeId: text('route_id').notNull().default(''),
+  place: text('place').notNull().default(''),
+  reportType: text('report_type').notNull().default(''),
+  condition: text('condition').notNull().default(''),
+  crewId: text('crew_id').references(() => crews.id, { onDelete: 'cascade' }),
+  status: text('status').notNull().default('active'),
+  createdAt: text('created_at').notNull(),
+}, t => [index('posts_created_idx').on(t.createdAt), index('posts_author_idx').on(t.authorId), index('posts_route_idx').on(t.routeId), index('posts_crew_idx').on(t.crewId)]);
+
+export const postReactions = pgTable('post_reactions', {
+  postId: text('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [primaryKey({ columns: [t.postId, t.userId] })]);
+
+export const comments = pgTable('comments', {
+  id: text('id').primaryKey(),
+  postId: text('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+  authorId: text('author_id').notNull(),
+  body: text('body').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [index('comments_post_idx').on(t.postId), index('comments_author_idx').on(t.authorId)]);
+
+export const postReports = pgTable('post_reports', {
+  postId: text('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+  reporterId: text('reporter_id').notNull(),
+  reason: text('reason').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [primaryKey({ columns: [t.postId, t.reporterId] })]);
+
+// targetType: rider (targetId = user ID) | crew (targetId = crew ID).
+export const follows = pgTable('follows', {
+  followerId: text('follower_id').notNull(),
+  targetType: text('target_type').notNull(),
+  targetId: text('target_id').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [primaryKey({ columns: [t.followerId, t.targetType, t.targetId] }), index('follows_target_idx').on(t.targetType, t.targetId)]);
+
+// In-app notifications. link is an in-app hash such as #ride=<id>.
+export const notifications = pgTable('notifications', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  kind: text('kind').notNull(),
+  text: text('text').notNull(),
+  link: text('link').notNull().default(''),
+  read: boolean('read').notNull().default(false),
+  createdAt: text('created_at').notNull(),
+}, t => [index('notifications_user_idx').on(t.userId, t.read)]);

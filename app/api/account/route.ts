@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import { getDb } from '../../../db';
-import { accounts, aiQuota, crewMembers, crewReports, crews, plans, profiles, rideRsvps, rideUpdates, users } from '../../../db/schema';
+import { accounts, aiQuota, comments, crewMembers, crewReports, crews, follows, notifications, plans, postReactions, postReports, posts, profiles, rideRsvps, rideUpdates, users } from '../../../db/schema';
 import { clearSessionCookie, getUser } from '../../auth';
 import { json, readJson } from '../../../lib/http';
 export const dynamic = 'force-dynamic';
@@ -22,6 +22,12 @@ export async function DELETE(request: Request) {
       await tx.delete(rideRsvps).where(eq(rideRsvps.userId, uid));
       await tx.delete(rideUpdates).where(eq(rideUpdates.authorId, uid));
       await tx.delete(plans).where(eq(plans.userId, uid));
+      await tx.delete(posts).where(eq(posts.authorId, uid));
+      await tx.delete(comments).where(eq(comments.authorId, uid));
+      await tx.delete(postReactions).where(eq(postReactions.userId, uid));
+      await tx.delete(postReports).where(eq(postReports.reporterId, uid));
+      await tx.delete(follows).where(or(eq(follows.followerId, uid), and(eq(follows.targetType, 'rider'), eq(follows.targetId, uid))));
+      await tx.delete(notifications).where(eq(notifications.userId, uid));
       await tx.delete(accounts).where(eq(accounts.userId, uid));
       if (uid.startsWith('user:')) await tx.delete(users).where(eq(users.id, uid.slice(5)));
     });

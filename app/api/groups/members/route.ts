@@ -5,6 +5,7 @@ import {getUser,isAdmin} from '../../../auth';
 import {memberActionInput,memberActionError} from '../../../../lib/crew-schema.mjs';
 import {json,readJson} from '../../../../lib/http';
 import {dropFromCrewRides} from '../../../../lib/rides';
+import {notify} from '../../../../lib/notify';
 export const dynamic='force-dynamic';
 
 const ORDER:Record<string,number>={owner:0,colead:1,member:2};
@@ -34,7 +35,7 @@ export async function POST(request:Request){
   const parsed=memberActionInput.safeParse(req.body);if(!parsed.success)return json({error:'Invalid request.'},400);
   try{
     const db=getDb(),{id,rider,action}=parsed.data;
-    const [crew]=await db.select({id:crews.id}).from(crews).where(eq(crews.id,id)).limit(1);
+    const [crew]=await db.select({id:crews.id,name:crews.name}).from(crews).where(eq(crews.id,id)).limit(1);
     if(!crew)return json({error:'This group is not available.'},404);
     const me=await membershipOf(id,user.userId);
     const [account]=await db.select({userId:accounts.userId}).from(accounts).where(eq(accounts.publicId,rider)).limit(1);
@@ -46,6 +47,8 @@ export async function POST(request:Request){
     else if(action==='reject')await db.delete(crewMembers).where(where);
     else if(action==='remove')await db.transaction(async tx=>{await tx.delete(crewMembers).where(where);await dropFromCrewRides(tx,id,account!.userId)});
     else await db.update(crewMembers).set({role:action==='promote'?'colead':'member'}).where(where);
+    const told={approve:`You're in! ${user.displayName} approved your request to join ${crew.name}`,promote:`You are now a co-lead of ${crew.name}`}[action as 'approve'|'promote'];
+    if(told)await notify([account!.userId],{kind:'crew',text:told,link:`#crew=${id}`},user.userId);
     return json({id,rider,action});
   }catch{return json({error:'That change was not saved. Please try again.'},503)}
 }

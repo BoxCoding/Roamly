@@ -108,3 +108,18 @@ console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and E
   assert(!planSchema.safeParse({...ok,settings:{...settings,seats:3}}).success,'bike seats');
   console.log('Plan budget and schema passed.');
 }
+
+// Feed rules and badges.
+{
+  const f=await import('./lib/feed-schema.mjs');
+  assert(f.postInput.safeParse({body:'Great ride!'}).success);
+  assert(!f.postInput.safeParse({body:'  '}).success,'empty post');
+  assert(!f.postInput.safeParse({kind:'report',body:'Potholes'}).success,'report needs place/type/condition');
+  assert(f.postInput.safeParse({kind:'report',body:'Potholes after Khopoli',place:'Khopoli',reportType:'road',condition:'bad',routeId:'konkan'}).success);
+  assert(!f.postInput.safeParse({body:'x',condition:'bad'}).success,'posts have no condition');
+  assert(!f.postInput.safeParse({body:'x',reportType:'aliens'}).success);
+  assert.deepEqual(f.badgesFor({rides:0,km:0,longestDays:0,reports:0,ledRides:0}),[]);
+  assert.deepEqual(f.badgesFor({rides:5,km:1200,longestDays:3,reports:1,ledRides:0}).map(b=>b.id),['first-ride','regular','km-1000','tourer']);
+  assert.equal(f.followInput.safeParse({type:'rider',id:'abc',follow:true}).success,true);
+  console.log('Feed rules and badges passed.');
+}

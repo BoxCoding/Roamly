@@ -1,11 +1,12 @@
 import {and,count,desc,eq,inArray,ne,or} from 'drizzle-orm';
 import {getDb} from '../../../db';
-import {accounts,crews,crewMembers,crewReports,profiles} from '../../../db/schema';
+import {accounts,crews,crewMembers,crewReports,follows,profiles} from '../../../db/schema';
 import {getUser,isAdmin} from '../../auth';
 import {crewInput,crewUpdateInput,membershipInput,crewIdInput,MAX_CREWS_PER_ORGANIZER} from '../../../lib/crew-schema.mjs';
 import {PROFILE_LINKS,cleanLinks} from '../../../public/domain.mjs';
 import {json,readJson} from '../../../lib/http';
 import {dropFromCrewRides} from '../../../lib/rides';
+import {notify} from '../../../lib/notify';
 export const dynamic='force-dynamic';
 
 // Public list of active crews (plus the viewer's own crews under review). Organizer user IDs stay on the server;
@@ -16,13 +17,14 @@ export async function GET(){
     const visible=user?or(eq(crews.status,'active'),and(eq(crews.organizerId,user.userId),ne(crews.status,'removed'))):eq(crews.status,'active');
     const rows=await db.select().from(crews).where(visible).orderBy(desc(crews.createdAt)).limit(200);
     const ids=rows.map(r=>r.id),organizers=[...new Set(rows.map(r=>r.organizerId))];
-    const [counts,mine,reported,owners,ownerAccounts]=ids.length?await Promise.all([
+    const [counts,mine,reported,owners,ownerAccounts,followed]=ids.length?await Promise.all([
       db.select({crewId:crewMembers.crewId,status:crewMembers.status,n:count()}).from(crewMembers).where(inArray(crewMembers.crewId,ids)).groupBy(crewMembers.crewId,crewMembers.status),
       user?db.select({crewId:crewMembers.crewId,role:crewMembers.role,status:crewMembers.status}).from(crewMembers).where(and(eq(crewMembers.userId,user.userId),inArray(crewMembers.crewId,ids))):[],
       user?db.select({crewId:crewReports.crewId}).from(crewReports).where(and(eq(crewReports.reporterId,user.userId),inArray(crewReports.crewId,ids))):[],
       db.select().from(profiles).where(inArray(profiles.userId,organizers)),
       db.select({userId:accounts.userId,publicId:accounts.publicId}).from(accounts).where(inArray(accounts.userId,organizers)),
-    ]):[[],[],[],[],[]];
+      user?db.select({id:follows.targetId}).from(follows).where(and(eq(follows.followerId,user.userId),eq(follows.targetType,'crew'),inArray(follows.targetId,ids))):[],
+    ]):[[],[],[],[],[],[]];
     const tally=(id:string,status:string)=>counts.find(c=>c.crewId===id&&c.status===status)?.n||0;
     const membership=new Map(mine.map(m=>[m.crewId,m])),flagged=new Set(reported.map(r=>r.crewId)),ownerIds=new Map(ownerAccounts.map(a=>[a.userId,a.publicId]));
     // Organizer social links are read live from their profile, so edits show up everywhere.
@@ -33,7 +35,7 @@ export async function GET(){
       return {id:r.id,name:r.name,city:r.city,vehicle:r.vehicle,description:r.description,meetup:r.meetup,cadence:r.cadence,visibility:r.visibility,
         links:linksHidden?{}:JSON.parse(r.links),linksHidden,organizer:r.organizerName,organizerPublicId:ownerIds.get(r.organizerId)||null,organizerLinks:socials.get(r.organizerId)||{},
         members:tally(r.id,'active'),pendingRequests:lead?tally(r.id,'pending'):0,joined:active,pending:m?.status==='pending',myRole:active?m.role:null,
-        reported:flagged.has(r.id),mine:r.organizerId===user?.userId,underReview:r.status==='hidden',createdAt:r.createdAt};
+        reported:flagged.has(r.id),following:followed.some(f=>f.id===r.id),mine:r.organizerId===user?.userId,underReview:r.status==='hidden',createdAt:r.createdAt};
     })});
   }catch{return json({error:'Groups could not be loaded. Please try again.'},503)}
 }
@@ -75,11 +77,15 @@ export async function PATCH(request:Request){
   try{
     const db=getDb(),{id,joined}=parsed.data;
     if(joined){
-      const [crew]=await db.select({visibility:crews.visibility}).from(crews).where(and(eq(crews.id,id),eq(crews.status,'active'))).limit(1);
+      const [crew]=await db.select({visibility:crews.visibility,name:crews.name}).from(crews).where(and(eq(crews.id,id),eq(crews.status,'active'))).limit(1);
       if(!crew)return json({error:'This group is not available.'},404);
       const status=crew.visibility==='private'?'pending':'active';
-      await db.insert(crewMembers).values({crewId:id,userId:user.userId,joinedAt:new Date().toISOString(),status}).onConflictDoNothing();
+      const fresh=await db.insert(crewMembers).values({crewId:id,userId:user.userId,joinedAt:new Date().toISOString(),status}).onConflictDoNothing().returning({id:crewMembers.crewId});
       const [m]=await db.select({status:crewMembers.status}).from(crewMembers).where(and(eq(crewMembers.crewId,id),eq(crewMembers.userId,user.userId))).limit(1);
+      if(fresh.length&&status==='pending'){
+        const leads=await db.select({id:crewMembers.userId}).from(crewMembers).where(and(eq(crewMembers.crewId,id),eq(crewMembers.status,'active'),inArray(crewMembers.role,['owner','colead'])));
+        await notify(leads.map(l=>l.id),{kind:'join-request',text:`${user.displayName} asked to join ${crew.name}`,link:`#crew=${id}`},user.userId);
+      }
       return json({id,joined:m?.status==='active',pending:m?.status==='pending'});
     }
     const left=await db.transaction(async tx=>{

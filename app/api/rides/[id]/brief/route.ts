@@ -5,6 +5,7 @@ import {rides,rideRsvps} from '../../../../../db/schema';
 import {getUser} from '../../../../auth';
 import {BRIEF_INSTRUCTION,BRIEF_LIMIT,briefJsonSchema,briefSchema,checkBrief} from '../../../../../lib/ride-schema.mjs';
 import {rideAccess} from '../../../../../lib/rides';
+import {notify} from '../../../../../lib/notify';
 import {generateJson} from '../../../../../lib/gemini';
 import {trips} from '../../../../../public/catalog.mjs';
 import {json,readJson} from '../../../../../lib/http';
@@ -37,6 +38,8 @@ export async function POST(request:Request,{params}:Ctx){
     catch{return json({error:'The AI brief could not be generated right now. Please try again later.',remaining:BRIEF_LIMIT-slot.n},502)}
     const at=new Date().toISOString();
     await db.update(rides).set({brief:JSON.stringify(brief),briefAt:at}).where(eq(rides.id,id));
+    const riders=await db.select({id:rideRsvps.userId}).from(rideRsvps).where(and(eq(rideRsvps.rideId,id),eq(rideRsvps.status,'going')));
+    await notify(riders.map(x=>x.id),{kind:'ride',text:`The AI ride brief for ${r.title} is ready`,link:`#ride=${id}`},user.userId);
     return json({brief,briefAt:at,remaining:BRIEF_LIMIT-slot.n});
   }catch{return json({error:'The AI brief could not be generated right now.'},503)}
 }

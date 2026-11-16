@@ -2,6 +2,7 @@ import {and,asc,count,eq,inArray} from 'drizzle-orm';
 import {getDb} from '../db';
 import {crews,crewMembers,rides,rideRsvps} from '../db/schema';
 import {isAdmin,type Rider} from '../app/auth';
+import {notify} from './notify';
 
 type Db=ReturnType<typeof getDb>;
 type Tx=Parameters<Parameters<Db['transaction']>[0]>[0];
@@ -25,6 +26,7 @@ export async function promoteWaitlist(tx:Tx,rideId:string,capacity:number){
   if(free<=0)return;
   const next=await tx.select({userId:rideRsvps.userId}).from(rideRsvps).where(and(eq(rideRsvps.rideId,rideId),eq(rideRsvps.status,'waitlist'))).orderBy(asc(rideRsvps.createdAt)).limit(free);
   for(const n of next)await tx.update(rideRsvps).set({status:'going'}).where(and(eq(rideRsvps.rideId,rideId),eq(rideRsvps.userId,n.userId)));
+  if(next.length){const [r]=await tx.select({title:rides.title}).from(rides).where(eq(rides.id,rideId));await notify(next.map(n=>n.userId),{kind:'ride',text:`A seat opened up: you are now going on ${r?.title||'the ride'}`,link:`#ride=${rideId}`},undefined,tx)}
 }
 
 /** Human route label: the catalog route line, or From → via → To. */

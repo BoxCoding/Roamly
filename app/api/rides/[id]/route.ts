@@ -4,6 +4,7 @@ import {accounts,profiles,rides,rideRsvps,rideUpdates} from '../../../../db/sche
 import {getUser} from '../../../auth';
 import {CHECKLIST,rideUpdateInput,ridePhase,startsInPast} from '../../../../lib/ride-schema.mjs';
 import {promoteWaitlist,rideAccess,routeLabel} from '../../../../lib/rides';
+import {notify} from '../../../../lib/notify';
 import {trips} from '../../../../public/catalog.mjs';
 import {estimate} from '../../../../public/domain.mjs';
 import {json,readJson} from '../../../../lib/http';
@@ -58,6 +59,10 @@ export async function PUT(request:Request,{params}:Ctx){
       await tx.update(rides).set({...r,route,...(replan?{brief:null,briefAt:null}:{})}).where(eq(rides.id,id));
       if(r.capacity>old.capacity)await promoteWaitlist(tx,id,r.capacity);
     });
+    if(r.status==='cancelled'&&old.status!=='cancelled'){
+      const riders=await getDb().select({id:rideRsvps.userId}).from(rideRsvps).where(eq(rideRsvps.rideId,id));
+      await notify(riders.map(x=>x.id),{kind:'ride',text:`${old.title} on ${old.startDate} was cancelled`,link:`#ride=${id}`},user.userId);
+    }
     return json({id,briefCleared:replan&&Boolean(old.brief)});
   }catch{return json({error:'Your changes were not saved. Please try again.'},503)}
 }
