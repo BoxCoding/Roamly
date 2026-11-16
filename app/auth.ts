@@ -5,14 +5,18 @@ import { getDb } from "../db";
 import { appSecrets } from "../db/schema";
 import { SESSION_COOKIE, cookie, randomToken, readCookie, seal, unseal } from "../lib/google-oauth.mjs";
 
-export type Provider = "google" | "password";
+export type Provider = "google" | "facebook" | "password";
 export type AppUser = { userId: string; displayName: string; provider: Provider; email: string };
 
 const SESSION_DAYS = 30;
 export const googleConfigured = () => Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
-// Moderators are listed by email in ADMIN_EMAILS (comma separated).
+export const metaConfigured = () => Boolean(env.META_APP_ID && env.META_APP_SECRET);
+// Moderators are listed by email in ADMIN_EMAILS (comma separated). In production only Google sign-ins
+// count: Google verifies the email, while email/password and Facebook emails are not proven. Local dev
+// also accepts password accounts so the moderation tests can run without Google.
+const trustedEmail = (user: AppUser) => user.provider === "google" || (process.env.NODE_ENV !== "production" && user.provider === "password");
 export const isAdmin = (user: AppUser | null) =>
-  Boolean(user?.email && (env.ADMIN_EMAILS || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean).includes(user.email.toLowerCase()));
+  Boolean(user && trustedEmail(user) && user.email && (env.ADMIN_EMAILS || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean).includes(user.email.toLowerCase()));
 
 let cachedSecret: string | undefined;
 export async function sessionSecret(): Promise<string> {
@@ -37,7 +41,7 @@ export async function getUser(): Promise<AppUser | null> {
   if (!token) return null;
   try {
     const s = await unseal(token, await sessionSecret());
-    return s && (s.provider === "google" || s.provider === "password") ? { userId: s.uid, displayName: s.name, provider: s.provider, email: typeof s.email === "string" ? s.email : "" } : null;
+    return s && ["google", "facebook", "password"].includes(s.provider) ? { userId: s.uid, displayName: s.name, provider: s.provider, email: typeof s.email === "string" ? s.email : "" } : null;
   } catch {
     return null;
   }

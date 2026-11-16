@@ -3,7 +3,7 @@
 ## Working now
 
 - Email + password registration and sign-in.
-- Google sign-in (after credentials are configured; see below).
+- Google and Facebook sign-in (each after its credentials are configured; see below).
 - Profile and up to 10 vehicles per account, stored in Postgres. Every profile read/write uses the server identity; client-supplied owner IDs are rejected.
 - 16 curated routes, sightseeing places, rest/food search areas, and stay-area searches.
 - Public community references for India Bull Riders, xBhp and Enfield Rider’s Community, alongside clearly labeled sample/local groups. External membership stays on the official community sites.
@@ -36,20 +36,20 @@ Setup:
 
 1. In Google Cloud, configure the OAuth consent screen and create a **Web application** OAuth client.
 2. Add the authorized redirect URI `<origin>/api/auth/google/callback` for every origin you use, e.g. `http://localhost:5173/api/auth/google/callback` for local dev and the HTTPS production origin.
-3. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (and optionally `SESSION_SECRET`, see below). Locally put them in `.env.local` (gitignored) and restart `npm run dev`; on Cloud Run add them as Secret Manager secrets and to `--set-secrets` in `deploy/gcp.sh`.
+3. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (and optionally `SESSION_SECRET`, see below). Locally put them in `.env.local` (gitignored) and restart `npm run dev`; on Cloud Run create Secret Manager secrets named `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` and rerun `deploy/gcp.sh` (it wires in any of these secrets that exist).
 4. Rotating `SESSION_SECRET` signs everyone out.
 
 Reference: [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect).
 
-## Meta login: setup required, no adapter yet
+## Facebook (Meta) login: built, needs credentials
 
-To prepare Meta login:
+`/api/auth/meta` runs the Facebook Login OAuth code flow with a sealed `state` cookie, exchanges the code server-side and reads `id,name,email` from the Graph API with `appsecret_proof`. Facebook users get their own account (`facebook:<id>`), never merged with email or Google accounts. The button is hidden until `META_APP_ID` and `META_APP_SECRET` are set.
 
-1. Create a Meta developer app with the appropriate Facebook Login product/use case.
-2. Configure the app domain, privacy policy, user-data deletion instructions and callback URL supplied by the chosen auth service.
-3. Keep the app secret server-side. Request only the approved identity permissions the app needs.
-4. Complete any required review/live-mode checks. Implement state verification, server-side code exchange, identity validation and secure account linking through maintained tooling.
-5. Confirm which Meta product is intended: Facebook Login authenticates Facebook identities; Instagram group discovery is a separate capability and permission process.
+Setup:
+
+1. At developers.facebook.com create an app with the **Facebook Login** use case; request `public_profile` and `email`.
+2. Add the valid OAuth redirect URI `<origin>/api/auth/meta/callback` (production: `https://roamly-526696942469.asia-south1.run.app/api/auth/meta/callback`). Set the app domain, privacy policy URL and data-deletion instructions, then switch the app to Live.
+3. Create Secret Manager secrets `META_APP_ID` and `META_APP_SECRET` and rerun `deploy/gcp.sh`. Locally put them in `.env.local`.
 
 Reference: [Meta Facebook Login documentation](https://developers.facebook.com/docs/facebook-login/).
 
@@ -84,5 +84,5 @@ Public community references: [India Bull Riders chapters](https://indiabullrider
 
 - Any signed-in rider (not the organizer) can report a crew once, with a reason (spam, scam, unsafe, offensive, fake, other) and an optional note: `POST /api/groups/report`.
 - After **3 distinct reporters** the crew is hidden from everyone except its organizer, who sees it as "under review". Hidden crews cannot be joined.
-- Moderators are the emails in `ADMIN_EMAILS`. They get a "Moderation queue" button: `GET /api/moderation` lists hidden and reported crews with reasons and notes (never who reported). `POST /api/moderation {id, action}`: `restore` makes it active and clears reports; `remove` hides it for everyone (kept for the record).
+- Moderators are the emails in `ADMIN_EMAILS`, signed in **with Google** (Google verifies the email; email/password and Facebook emails are not trusted for moderation in production). They get a "Moderation queue" button: `GET /api/moderation` lists hidden and reported crews with reasons and notes (never who reported). `POST /api/moderation {id, action}`: `restore` makes it active and clears reports; `remove` hides it for everyone (kept for the record).
 - Not built: appeals, notifying organizers, banning accounts, automatic text filtering.

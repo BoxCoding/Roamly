@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const { id_token } = (await response.json()) as { id_token?: string };
     const claims = checkIdToken(id_token, { clientId: env.GOOGLE_CLIENT_ID!, nonce: flow.nonce });
     if (!claims) return fail();
-    return redirect("/", await sessionCookie({ userId: `google:${claims.sub}`, displayName: claims.name || claims.email, provider: "google", email: claims.email }));
+    return redirect("/", await sessionCookie({ userId: `google:${claims.sub}`, displayName: claims.name || claims.email, provider: "google", email: claims.emailVerified ? claims.email : "" }));
   } catch {
     return fail();
   }

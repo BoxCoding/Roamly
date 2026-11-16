@@ -5,6 +5,8 @@ export const env = process.env as {
   GEMINI_MODEL?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  META_APP_ID?: string;
+  META_APP_SECRET?: string;
   SESSION_SECRET?: string;
   ADMIN_EMAILS?: string;
 };
