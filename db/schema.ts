@@ -157,6 +157,8 @@ export const posts = pgTable('posts', {
   reportType: text('report_type').notNull().default(''),
   condition: text('condition').notNull().default(''),
   crewId: text('crew_id').references(() => crews.id, { onDelete: 'cascade' }),
+  // JSON array of upload keys (photos), at most 4.
+  photos: text('photos').notNull().default('[]'),
   status: text('status').notNull().default('active'),
   createdAt: text('created_at').notNull(),
 }, t => [index('posts_created_idx').on(t.createdAt), index('posts_author_idx').on(t.authorId), index('posts_route_idx').on(t.routeId), index('posts_crew_idx').on(t.crewId)]);
@@ -200,3 +202,14 @@ export const notifications = pgTable('notifications', {
   read: boolean('read').notNull().default(false),
   createdAt: text('created_at').notNull(),
 }, t => [index('notifications_user_idx').on(t.userId, t.read)]);
+
+// Uploaded photos (re-encoded WebP, metadata stripped). postId is set once a post uses the photo.
+export const uploads = pgTable('uploads', {
+  key: text('key').primaryKey(),
+  userId: text('user_id').notNull(),
+  postId: text('post_id'),
+  bytes: integer('bytes').notNull(),
+  width: integer('width').notNull(),
+  height: integer('height').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [index('uploads_user_idx').on(t.userId), index('uploads_post_idx').on(t.postId)]);

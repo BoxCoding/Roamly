@@ -44,3 +44,9 @@
 .bell{position:relative}#bell-count{position:absolute;top:-2px;right:-2px;background:#c8553d;color:#fff;border-radius:999px;font-size:9px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 3px}
 .notice-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.notice-row.unread{font-weight:600}.notice-row small{color:var(--muted);font-weight:400}
 @media(max-width:560px){.feed-wrap{margin-left:18px;margin-right:18px}.rider-stats{grid-template-columns:repeat(2,1fr)}}
+.photo-picker{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 12px}.photo-button{cursor:pointer;display:inline-block}
+.photo-thumbs{display:flex;gap:8px}.photo-thumb{position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;background:#eef2e8}.photo-thumb.loading{animation:pulse 1s infinite alternate}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}.photo-thumb button{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:13px;line-height:20px;padding:0;cursor:pointer}
+@keyframes pulse{from{opacity:.5}to{opacity:1}}@media(prefers-reduced-motion:reduce){.photo-thumb.loading{animation:none}}
+.post-photos{display:grid;gap:4px;margin:8px 0;border-radius:8px;overflow:hidden}.post-photos.n2,.post-photos.n4{grid-template-columns:1fr 1fr}.post-photos.n3{grid-template-columns:2fr 1fr}.post-photos.n3 a:first-child{grid-row:span 2}
+.post-photos img{width:100%;height:100%;max-height:420px;object-fit:cover;display:block}.post-photos.n1 img{max-height:520px}

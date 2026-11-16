@@ -35,7 +35,7 @@ export async function GET(request:Request){
     ]):[[],[],[]];
     const mineLiked=new Set(liked.map(l=>l.postId));
     return json({posts:rows.map(({post:p,author,crewName})=>({id:p.id,kind:p.kind,body:p.body,routeId:p.routeId,place:p.place,reportType:p.reportType,condition:p.condition,
-      crewId:p.crewId,crewName,author:{name:author?.name||'Rider',publicId:author?.publicId||null},createdAt:p.createdAt,
+      crewId:p.crewId,crewName,photos:JSON.parse(p.photos).map((k:string)=>'/api/photos/'+k),author:{name:author?.name||'Rider',publicId:author?.publicId||null},createdAt:p.createdAt,
       likes:likes.find(l=>l.postId===p.id)?.n||0,comments:talk.find(c=>c.postId===p.id)?.n||0,liked:mineLiked.has(p.id),
       mine:p.authorId===user?.userId,canDelete:p.authorId===user?.userId||admin})),next:rows.length===PAGE?rows.at(-1)!.post.createdAt:null});
   }catch{return json({error:'The feed could not be loaded. Please try again.'},503)}

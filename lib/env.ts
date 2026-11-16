@@ -9,4 +9,5 @@ export const env = process.env as {
   META_APP_SECRET?: string;
   SESSION_SECRET?: string;
   ADMIN_EMAILS?: string;
+  PHOTO_BUCKET?: string;
 };

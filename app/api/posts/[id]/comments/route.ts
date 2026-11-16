@@ -6,6 +6,7 @@ import {getUser,isAdmin} from '../../../../auth';
 import {COMMENTS_PER_DAY,commentInput} from '../../../../../lib/feed-schema.mjs';
 import {postAccess} from '../../../../../lib/feed';
 import {notify} from '../../../../../lib/notify';
+import {checkRules} from '../../../../../lib/moderation.mjs';
 import {json,readJson} from '../../../../../lib/http';
 export const dynamic='force-dynamic';
 type Ctx={params:Promise<{id:string}>};
@@ -23,6 +24,7 @@ export async function POST(request:Request,{params}:Ctx){
   const {id}=await params;const user=await getUser();if(!user)return json({error:'Sign in to comment.'},401);
   const req=await readJson(request,1500);if('error' in req)return req.error;
   const parsed=commentInput.safeParse(req.body);if(!parsed.success)return json({error:parsed.error.issues[0]?.message||'Write a comment.'},400);
+  const rule=checkRules(parsed.data.body);if(rule.block)return json({error:rule.block},400);
   try{
     const a=await postAccess(id,user.userId,isAdmin(user));if(!a?.canSee)return json({error:'Post not found.'},404);
     const db=getDb(),[{n}]=await db.select({n:count()}).from(comments).where(and(eq(comments.authorId,user.userId),gte(comments.createdAt,new Date(Date.now()-86400000).toISOString())));

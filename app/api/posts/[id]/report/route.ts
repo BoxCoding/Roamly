@@ -5,6 +5,7 @@ import {getUser,isAdmin} from '../../../../auth';
 import {HIDE_POST_AFTER,postReportInput} from '../../../../../lib/feed-schema.mjs';
 import {postAccess} from '../../../../../lib/feed';
 import {json,readJson} from '../../../../../lib/http';
+import {aiReview} from '../../../../../lib/ai-moderation';
 export const dynamic='force-dynamic';
 type Ctx={params:Promise<{id:string}>};
 
@@ -19,6 +20,8 @@ export async function POST(request:Request,{params}:Ctx){
     const db=getDb();
     await db.insert(postReports).values({postId:id,reporterId:user.userId,reason:parsed.data.reason,createdAt:new Date().toISOString()}).onConflictDoNothing();
     const [{n}]=await db.select({n:count()}).from(postReports).where(eq(postReports.postId,id));
+    // The first report asks the AI once; confident violations are hidden straight away for admins to review.
+    if(n===1)await aiReview(id,a.post.body);
     if(n>=HIDE_POST_AFTER)await db.update(posts).set({status:'hidden'}).where(and(eq(posts.id,id),eq(posts.status,'active')));
     return json({reported:true});
   }catch{return json({error:'Your report was not sent.'},503)}

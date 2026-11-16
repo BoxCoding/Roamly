@@ -1,22 +1,8 @@
+import {htmlResponse,staticPage} from '../../lib/static-page';
 export const dynamic = "force-static";
 
 // Plain page so Meta/Google reviewers and riders can read it without running the app.
-const html = `<!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Roamly privacy policy</title><meta name="description" content="What Roamly stores, why, who it is shared with, and how to delete your account.">
-<link rel="icon" href="/favicon.svg">
-<style>
-:root{--paper:#fbfaf6;--ink:#1f2a22;--muted:#5f6b5c;--accent:#244d3d;--line:#e3e6dd}
-@media (prefers-color-scheme:dark){:root{--paper:#141a16;--ink:#e8ece4;--muted:#a3ad9d;--accent:#8fc4a8;--line:#2c352e}}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:720px;margin:0 auto;padding:40px 16px 64px}
-h1{font-size:32px;line-height:1.2;margin:8px 0}h2{font-size:20px;margin:36px 0 8px;scroll-margin-top:16px}
-p,li{color:var(--muted)}strong{color:var(--ink)}a{color:var(--accent)}
-.back{font-size:14px;text-decoration:none}.updated{font-size:14px}
-table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{text-align:left;vertical-align:top;padding:10px 8px;border-bottom:1px solid var(--line)}th{color:var(--ink)}
-</style></head><body><main>
-<a class="back" href="/">← Back to Roamly</a>
-<h1>Privacy policy</h1>
+const html = staticPage({title:'Roamly privacy policy',description:'What Roamly stores, why, who it is shared with, and how to delete your account.'},`<h1>Privacy policy</h1>
 <p class="updated">Last updated 18 November 2026</p>
 <p>Roamly helps riders discover road trips, plan them and find a crew. This page explains what we store, why, who else sees it and how you delete it. We do not sell your data and we do not show ads.</p>
 
@@ -29,6 +15,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 <tr><td><strong>Group rides</strong>: rides your crew plans (date, route, meetup, seats), your RSVP (going, maybe, waitlist), your pre-ride checklist ticks, and updates posted by ride leads.</td><td>Rides of open crews are listed for every visitor; rides of private crews only for members. Crew members see who is going and whether their checklist is complete. Rider names and updates are never shown to non-members.</td></tr>
 <tr><td><strong>Saved trip plans</strong>: plans you save in My plans (route, days, towns, stays, stops, notes and budget settings).</td><td>Private to you. If you lead a ride and attach a plan, a copy is shown to everyone who can see that ride.</td></tr>
 <tr><td><strong>Posts and road reports</strong>: what you post (text, place, route, report type and condition), comments, “Ride on / Useful” reactions and reports you file on posts.</td><td>Open posts are public to every visitor with your name. Posts shared with a private crew are visible only to its members. Road reports show in a route's road intel for 30 days. Reports on posts go to admins only.</td></tr>
+<tr><td><strong>Photos</strong>: photos you attach to posts.</td><td>Resized and re-encoded when you upload them, which removes hidden metadata such as GPS location and camera details. Stored privately in Google Cloud Storage (India) and shown with the post to the post's audience. Deleted when you delete the post or your account.</td></tr>
 <tr><td><strong>Follows and notifications</strong>: riders and open crews you follow, and in-app notifications about your crews, rides, posts and followers.</td><td>A rider you follow is told you followed them, and follower counts show on rider cards. Notifications are visible only to you.</td></tr>
 <tr><td><strong>Ride stats and badges</strong>: computed from finished group rides you were going on, the rides you led and your road reports.</td><td>Shown on your rider card to signed-in riders, and on crew leaderboards to crew members.</td></tr>
 <tr><td><strong>Account record</strong>: name, email, sign-in method, role (rider or admin), account status, when you joined and when you were last active.</td><td>To run the service and keep it safe. Admins can see this record, including your email, to handle reports and suspend accounts that break the rules.</td></tr>
@@ -44,6 +31,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 <li><strong>Google Cloud</strong> (Mumbai region, India) hosts the app and its database.</li>
 <li><strong>Google Gemini API</strong> receives the trip details you enter when you build an AI plan (route, dates, travellers, vehicle, budget and preferences), and ride details when a ride lead generates a group ride brief (route, dates, meetup, vehicle, number of riders, notes). Rider names and emails are not sent.</li>
 <li><strong>Google</strong> or <strong>Meta (Facebook)</strong>, only if you choose to sign in with them. We receive your account ID, name and email; we do not post anything or read your friends, groups or pages.</li>
+<li><strong>Google Gemini API (moderation)</strong>: when automatic rules flag a post (for example a money request) or a rider reports a post, the post's text (not your name or email) is sent once to Gemini to check it against the community guidelines.</li>
 <li><strong>Google Fonts</strong> serves the page fonts, so your browser contacts Google when the page loads.</li>
 <li><strong>OpenStreetMap</strong>: to draw route maps, our server looks up town names you enter (only the place names) with OpenStreetMap's Nominatim service and caches the coordinates. Map tiles load from OpenStreetMap and the map library from cdnjs (Cloudflare), so your browser contacts them when a map is shown.</li>
 </ul>
@@ -62,15 +50,15 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 <p>Until you delete your account. Crews removed by moderators are kept hidden for the record until their organizer deletes them or their account.</p>
 
 <h2>Security</h2>
-<p>Traffic is encrypted with HTTPS. Secrets are kept in Google Secret Manager. Passwords are stored only as salted PBKDF2 hashes, and repeated wrong passwords lock the account for 15 minutes.</p>
+<p>Traffic is encrypted with HTTPS. To stop abuse, the number of changes from each internet address is counted for one minute in server memory and never stored. The database is backed up daily and kept for 7 days. Secrets are kept in Google Secret Manager. Passwords are stored only as salted PBKDF2 hashes, and repeated wrong passwords lock the account for 15 minutes.</p>
 
 <h2>Children</h2>
 <p>Roamly is meant for adults planning road trips and is not directed at children under 18.</p>
 
 <h2>Changes</h2>
 <p>If this policy changes, we will update this page and its date.</p>
-</main></body></html>`;
+`);
 
 export function GET() {
-  return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600" } });
+  return htmlResponse(html);
 }

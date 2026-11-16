@@ -100,7 +100,7 @@ function captureProfile(){
     regions:String(data.get('regions')||'').trim(),languages:String(data.get('languages')||'').trim(),
     vehicles:[...form.querySelectorAll('[data-vehicle-row]')].map(row=>Object.fromEntries([...row.querySelectorAll('input,select')].map(field=>[field.name,['year','mileage','seats','engineCc'].includes(field.name)?Number(field.value):field.value])))};
 }
-function authModal(mode){const reg=mode==='register';return `<div class="eyebrow">YOUR JOURNEY STARTS HERE</div><h2>${reg?'Create your Roamly account.':'Your next adventure awaits.'}</h2><p>Sign in to create your profile, add vehicles, and join groups.</p><form id="auth-form" data-mode="${mode}"><div class="form-grid">${reg?'<div class="form-field wide"><label for="auth-name">Name</label><input id="auth-name" name="name" maxlength="60" autocomplete="name" required></div>':''}<div class="form-field wide"><label for="auth-email">Email</label><input id="auth-email" name="email" type="email" maxlength="254" autocomplete="email" required></div><div class="form-field wide"><label for="auth-password">Password${reg?' <small>(8+ characters)</small>':''}</label><input id="auth-password" name="password" type="password" minlength="${reg?8:1}" maxlength="128" autocomplete="${reg?'new-password':'current-password'}" required></div></div><p id="auth-status" class="form-footnote" role="status"></p><button class="primary" style="width:100%">${reg?'Create account':'Sign in'}</button></form><p class="form-footnote">${reg?'Already have an account?':'New to Roamly?'} <button type="button" class="text-link" data-auth-mode="${reg?'signin':'register'}">${reg?'Sign in':'Create an account'}</button></p>${session.googleLogin||session.metaLogin?`<div class="auth-divider">or continue with</div><div class="login-providers">${session.googleLogin?'<a class="secondary" href="/api/auth/google" target="_top">Google ↗</a>':''}${session.metaLogin?'<a class="secondary" href="/api/auth/meta" target="_top">Facebook ↗</a>':''}</div>`:''}`}
+function authModal(mode){const reg=mode==='register';return `<div class="eyebrow">YOUR JOURNEY STARTS HERE</div><h2>${reg?'Create your Roamly account.':'Your next adventure awaits.'}</h2><p>Sign in to create your profile, add vehicles, and join groups.</p><form id="auth-form" data-mode="${mode}"><div class="form-grid">${reg?'<div class="form-field wide"><label for="auth-name">Name</label><input id="auth-name" name="name" maxlength="60" autocomplete="name" required></div>':''}<div class="form-field wide"><label for="auth-email">Email</label><input id="auth-email" name="email" type="email" maxlength="254" autocomplete="email" required></div><div class="form-field wide"><label for="auth-password">Password${reg?' <small>(8+ characters)</small>':''}</label><input id="auth-password" name="password" type="password" minlength="${reg?8:1}" maxlength="128" autocomplete="${reg?'new-password':'current-password'}" required></div></div><p id="auth-status" class="form-footnote" role="status"></p><button class="primary" style="width:100%">${reg?'Create account':'Sign in'}</button>${reg?'<p class="form-footnote">By creating an account you confirm you are 18+ and agree to the <a href="/terms" target="_blank">Terms</a> and <a href="/guidelines" target="_blank">Community guidelines</a>.</p>':''}</form><p class="form-footnote">${reg?'Already have an account?':'New to Roamly?'} <button type="button" class="text-link" data-auth-mode="${reg?'signin':'register'}">${reg?'Sign in':'Create an account'}</button></p>${session.googleLogin||session.metaLogin?`<div class="auth-divider">or continue with</div><div class="login-providers">${session.googleLogin?'<a class="secondary" href="/api/auth/google" target="_top">Google ↗</a>':''}${session.metaLogin?'<a class="secondary" href="/api/auth/meta" target="_top">Facebook ↗</a>':''}</div>`:''}`}
 async function submitAuth(form,d){const reg=form.dataset.mode==='register',status=$('#auth-status'),button=form.querySelector('button.primary');button.disabled=true;status.textContent=reg?'Creating your account…':'Signing in…';
   try{const response=await fetch(reg?'/api/auth/register':'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg?{name:d.name,email:d.email,password:d.password}:{email:d.email,password:d.password}),signal:AbortSignal.timeout(15000)});const data=await response.json();if(!response.ok)throw new Error(data.error||'Please try again.');location.reload()}
   catch(error){status.textContent=error.message||'Please try again.';button.disabled=false}}
@@ -435,7 +435,7 @@ async function showRide(id){
   try{
     const {ride:r,checklist}=await api('/api/rides/'+encodeURIComponent(id));rideChecklist=checklist;
     const upcoming=r.phase==='upcoming',open_=upcoming&&r.status!=='cancelled',btn=(s,label)=>`<button class="${r.myRsvp===s||(s==='going'&&r.myRsvp==='waitlist')?'primary':'secondary'}" data-rsvp="${s}" data-ride-id="${esc(r.id)}">${label}</button>`;
-    const shareUrl=location.origin+'/#ride='+r.id,shareText=`${r.title} · ${rideDates(r)} · meetup ${r.meetupPoint} at ${r.meetupTime} · ${shareUrl}`;
+    const shareUrl=location.origin+'/r/'+r.id,shareText=`${r.title} · ${rideDates(r)} · meetup ${r.meetupPoint} at ${r.meetupTime} · ${shareUrl}`;
     const roster=s=>r.roster.filter(x=>x.status===s).map(x=>`<span class="rider-chip">${x.publicId?`<button class="text-link" data-rider="${esc(x.publicId)}">${esc(x.name)}</button>`:esc(x.name)}${s==='going'&&x.ready?' ✓':''}</span>`).join('');
     open(`<div class="eyebrow">${esc(r.crewName).toUpperCase()}${r.crewVisibility==='private'?' · PRIVATE CREW':''} · ${PHASE_LABELS[r.phase].toUpperCase()}</div><h2>${esc(r.title)}</h2>
     ${r.status==='cancelled'?'<p class="notice">This ride was cancelled by the ride lead.</p>':''}
@@ -655,14 +655,15 @@ function composer(kind='post',routeId=''){
   <div class="form-field"><label for="post-route">Route <small>(optional)</small></label><select id="post-route" name="routeId"><option value="">No route</option>${trips.map(t=>`<option value="${t.id}" ${routeId===t.id?'selected':''}>${esc(t.title)}</option>`).join('')}</select></div>
   ${kind==='post'&&myCrews.length?`<div class="form-field"><label for="post-crew">Share with</label><select id="post-crew" name="crewId"><option value="">Everyone</option>${myCrews.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.visibility==='private'?' (members only)':''}</option>`).join('')}</select></div>`:''}
   <div class="form-field wide"><label for="post-body">${kind==='report'?'What riders should know':'Share with riders'}</label><textarea id="post-body" name="body" maxlength="1000" required placeholder="${kind==='report'?'Fresh potholes after the toll, ride slow on the left lane. Fuel at the Khopoli pump.':'Sunrise at the ghat today, perfect weather.'}"></textarea></div></div>
+  <div class="photo-picker"><label class="secondary photo-button">📷 Add photos<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-photo-input hidden></label><div class="photo-thumbs" data-photo-thumbs></div><small class="form-footnote">Up to 4. Location data is removed.</small></div>
   <button class="primary">${kind==='report'?'Share report':'Post'}</button></form>`;
 }
 function postCard(p){
   const report=p.kind==='report';
   return `<article class="post-card ${report?'report '+p.condition:''}" data-post-id="${esc(p.id)}"><div class="post-head">${p.author.publicId?`<button class="text-link" data-rider="${esc(p.author.publicId)}"><strong>${esc(p.author.name)}</strong></button>`:`<strong>${esc(p.author.name)}</strong>`}<small> · ${ago(p.createdAt)}${p.crewName?` · in ${esc(p.crewName)}`:''}</small></div>
   ${report?`<div class="report-tag"><span class="cond cond-${esc(p.condition)}">${CONDITIONS[p.condition]||''}</span> ${esc(REPORT_TYPES[p.reportType]||'Report')} · <a href="${mapLink(p.place)}" target="_blank" rel="noopener noreferrer">${esc(p.place)} ↗</a></div>`:''}
-  <p class="post-body">${esc(p.body)}</p>${p.routeId&&tripName(p.routeId)?`<button class="route-chip" data-trip="${esc(p.routeId)}">⌁ ${esc(tripName(p.routeId))}</button>`:''}
-  <div class="post-actions"><button class="text-link ${p.liked?'liked':''}" data-like="${esc(p.id)}" data-on="${p.liked?'0':'1'}">${p.liked?'♥':'♡'} ${report?'Useful':'Ride on'} · ${p.likes}</button><button class="text-link" data-comments="${esc(p.id)}">💬 ${p.comments}</button><button class="text-link" data-copy-ride="${esc(location.origin+'/#post='+p.id)}">Share</button>${p.canDelete?`<button class="text-link danger" data-delete-post="${esc(p.id)}">Delete</button>`:session.user?`<button class="text-link" data-report-post="${esc(p.id)}">⚑</button>`:''}</div><div class="comments" id="comments-${esc(p.id)}" hidden></div></article>`;
+  <p class="post-body">${esc(p.body)}</p>${p.photos?.length?`<div class="post-photos n${p.photos.length}">${p.photos.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Photo shared by ${esc(p.author.name)}" loading="lazy"></a>`).join('')}</div>`:''}${p.routeId&&tripName(p.routeId)?`<button class="route-chip" data-trip="${esc(p.routeId)}">⌁ ${esc(tripName(p.routeId))}</button>`:''}
+  <div class="post-actions"><button class="text-link ${p.liked?'liked':''}" data-like="${esc(p.id)}" data-on="${p.liked?'0':'1'}">${p.liked?'♥':'♡'} ${report?'Useful':'Ride on'} · ${p.likes}</button><button class="text-link" data-comments="${esc(p.id)}">💬 ${p.comments}</button><button class="text-link" data-copy-ride="${esc(location.origin+'/p/'+p.id)}">Share</button>${p.canDelete?`<button class="text-link danger" data-delete-post="${esc(p.id)}">Delete</button>`:session.user?`<button class="text-link" data-report-post="${esc(p.id)}">⚑</button>`:''}</div><div class="comments" id="comments-${esc(p.id)}" hidden></div></article>`;
 }
 function feedPage(){
   return heading('The road, live from riders.','Share rides, warn others about the road ahead, and follow riders you trust.')+
@@ -721,17 +722,20 @@ async function showNotifications(){
 function goTo(hash){
   const [kind,id]=hash.replace(/^#/,'').split('=');
   if(modal.open)modal.close();
+  if(kind==='plan'&&trips.some(t=>t.id===id)){page='planner';render();$('#plan-route').value=id;syncRoute();return}
   if(kind==='ride')return showRide(id);if(kind==='post')return showPost(id);if(kind==='rider')return showRider(id);
   if(kind==='crew'){page='groups';render();const wait=()=>crews.some(c=>c.id===id)?showGroup(id):loadCrews().then(()=>crews.some(c=>c.id===id)?showGroup(id):toast('This crew is not available.'));return wait()}
 }
-{const m=location.hash.match(/^#(post|crew|rider)=([\w-]{6,40})$/);if(m){const wait=setInterval(()=>{if(!authLoading){clearInterval(wait);goTo(location.hash)}},200)}}
+{const m=location.hash.match(/^#(post|crew|rider|plan)=([\w-]{2,40})$/);if(m){const wait=setInterval(()=>{if(!authLoading){clearInterval(wait);goTo(location.hash)}},200)}}
 
 document.addEventListener('submit',async e=>{
   const f=e.target;
   if(f.id==='post-form'){
     const d=Object.fromEntries(new FormData(f)),kind=f.dataset.kind;
-    const body={kind,body:String(d.body||'').trim(),routeId:d.routeId||'',...(kind==='report'?{place:String(d.place||'').trim(),reportType:d.reportType,condition:d.condition}:{crewId:d.crewId||null})};
-    try{await api('/api/posts',{method:'POST',body});toast(kind==='report'?'Thanks! Your road report helps every rider on this route.':'Posted.');
+    if(f.dataset.uploading>0)return toast('Wait for the photos to finish uploading.');
+    const photos=JSON.parse(f.dataset.photos||'[]').map(x=>x.key);
+    const body={kind,photos,body:String(d.body||'').trim(),routeId:d.routeId||'',...(kind==='report'?{place:String(d.place||'').trim(),reportType:d.reportType,condition:d.condition}:{crewId:d.crewId||null})};
+    try{const res=await api('/api/posts',{method:'POST',body});if(res.underReview)toast('Your post is waiting for an admin to review it.');else toast(kind==='report'?'Thanks! Your road report helps every rider on this route.':'Posted.');
       if(modal.open&&f.closest('#modal'))modal.close();if(page==='feed'){$('#composer-slot').innerHTML=composer(kind);feedScope=kind==='report'?'intel':feedScope;render()}}
     catch(error){toast(error.message)}
   }
@@ -760,3 +764,34 @@ function handleFeedClick(el){
   if(d.adminPost){if(d.adminPost==='remove'&&!confirm('Remove this post for everyone?'))return true;api(`/api/posts/${d.post}/moderate`,{method:'POST',body:{action:d.adminPost}}).then(()=>{toast(d.adminPost==='remove'?'Post removed.':'Post kept.');loadAdmin()}).catch(e=>toast(e.message));return true}
   return false;
 }
+
+// Photos: resized in the browser (max 1600 px JPEG, which also drops EXIF), then re-encoded on the server.
+async function shrink(file){
+  const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>{throw new Error('This photo format is not supported here. Use JPEG or PNG.')});
+  const scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height)),c=document.createElement('canvas');
+  c.width=Math.round(bitmap.width*scale);c.height=Math.round(bitmap.height*scale);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);
+  return new Promise((ok,fail)=>c.toBlob(b=>b?ok(b):fail(new Error('Could not read this photo.')),'image/jpeg',.85));
+}
+document.addEventListener('change',async e=>{
+  if(!e.target.matches('[data-photo-input]'))return;
+  const form=e.target.closest('form'),thumbs=form.querySelector('[data-photo-thumbs]'),have=JSON.parse(form.dataset.photos||'[]');
+  const files=[...e.target.files].slice(0,4-have.length);e.target.value='';
+  if(!files.length)return toast('Up to 4 photos per post.');
+  form.dataset.uploading=Number(form.dataset.uploading||0)+files.length;
+  for(const file of files){
+    const slot=document.createElement('span');slot.className='photo-thumb loading';thumbs.append(slot);
+    try{
+      const blob=await shrink(file);
+      const r=await fetch('/api/uploads',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob});const d=await r.json();if(!r.ok)throw new Error(d.error);
+      const list=JSON.parse(form.dataset.photos||'[]');list.push({key:d.key,url:d.url});form.dataset.photos=JSON.stringify(list);
+      slot.className='photo-thumb';slot.innerHTML=`<img src="${esc(d.url)}" alt=""><button type="button" data-remove-photo="${esc(d.key)}" aria-label="Remove photo">×</button>`;
+    }catch(error){slot.remove();toast(error.message||'Photo upload failed.')}
+    finally{form.dataset.uploading=Number(form.dataset.uploading)-1}
+  }
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-remove-photo]');if(!b)return;
+  const form=b.closest('form');form.dataset.photos=JSON.stringify(JSON.parse(form.dataset.photos||'[]').filter(x=>x.key!==b.dataset.removePhoto));b.parentElement.remove();
+});
+// Installable app: register the service worker (shell works offline; data needs a connection).
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('/sw.js').catch(()=>{});

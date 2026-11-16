@@ -20,5 +20,5 @@ gcloud run deploy roamly --project "$PROJECT" --region "$REGION" --image "$IMAGE
   --allow-unauthenticated --port 8080 --memory 512Mi --min-instances 0 --max-instances 3 \
   --add-cloudsql-instances "$INSTANCE" \
   --set-secrets "$SECRETS" \
-  --update-env-vars "GEMINI_MODEL=gemini-3.1-flash-lite${ADMIN_EMAILS:+,ADMIN_EMAILS=$ADMIN_EMAILS}"
+  --update-env-vars "PHOTO_BUCKET=${PHOTO_BUCKET:-$PROJECT-photos},GEMINI_MODEL=gemini-3.1-flash-lite${ADMIN_EMAILS:+,ADMIN_EMAILS=$ADMIN_EMAILS}"
 gcloud run services describe roamly --project "$PROJECT" --region "$REGION" --format 'value(status.url)'

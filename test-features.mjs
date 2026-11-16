@@ -123,3 +123,26 @@ console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and E
   assert.equal(f.followInput.safeParse({type:'rider',id:'abc',follow:true}).success,true);
   console.log('Feed rules and badges passed.');
 }
+
+// Rate limiter.
+{
+  const {createLimiter}=await import('./lib/rate-limit.mjs');
+  const take=createLimiter({limit:2,windowMs:1000});
+  assert(take('a',0).ok);assert(take('a',10).ok);assert(!take('a',20).ok,'third in window blocked');assert.equal(take('a',20).retryAfter,1);
+  assert(take('b',20).ok,'keys are separate');assert(take('a',1000).ok,'new window resets');
+  console.log('Rate limiter passed.');
+}
+
+// Moderation rules.
+{
+  const {checkRules,shouldHide}=await import('./lib/moderation.mjs');
+  assert.deepEqual(checkRules('Fog after 6 am on the ghat, ride slow.'),{});
+  assert.deepEqual(checkRules('Fuel at the pump takes UPI and cards'),{},'UPI alone is fine');
+  assert(checkRules('see https://a.in https://b.in https://c.in https://d.in').block);
+  assert(checkRules('details at bit.ly/xyz').block);
+  assert(checkRules('aaaaaaaaaaaaaaaaaaaaaa').block);
+  assert.equal(checkRules('Send me money as advance for the ride booking').flag,'money');
+  assert.equal(checkRules('share your upi id for registration').flag,'money');
+  assert(shouldHide({verdict:'violates',category:'scam',confidence:.9}));assert(!shouldHide({verdict:'violates',category:'scam',confidence:.5}));assert(!shouldHide({verdict:'ok',category:'',confidence:.99}));
+  console.log('Moderation rules passed.');
+}

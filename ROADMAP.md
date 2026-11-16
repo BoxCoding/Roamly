@@ -43,7 +43,7 @@ A rider is a normal user everywhere and gets group powers only inside the groups
 - Rider stats and badges from completed rides (km, states, ghats, first ride with a group) and group leaderboards.
 - In-app notifications for RSVPs, approvals, ride updates and replies, with optional email.
 
-### Phase 5: Launch readiness
+### Phase 5: Launch readiness — done except the custom domain (needs a domain you own)
 - Database backups on, uptime and error monitoring, rate limits on every write.
 - Terms of service, community guidelines, content moderation (rules first, AI only on flagged posts).
 - Installable PWA, link previews for shared rides and posts, a custom domain, SEO pages for routes.
