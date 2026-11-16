@@ -31,7 +31,7 @@ A rider is a normal user everywhere and gets group powers only inside the groups
 - Ride updates board: pinned notes from the lead, and timeline updates such as "regroup at Lonavala".
 - Calendar file (.ics) and WhatsApp share links.
 
-### Phase 3: Route and stay planning
+### Phase 3: Route and stay planning — done
 - Map of the route (Leaflet with OpenStreetMap, no per-request cost) with day segments, fuel stops and stays.
 - Stays are planned per night with area, budget band and type (hotel, homestay, camp, dharamshala), plus booking-site search links. No invented hotel names.
 - Plans can be edited and saved: change stops, swap stays, then recalculate budget and distance without new AI calls.

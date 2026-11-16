@@ -35,7 +35,7 @@ export async function GET(_request:Request,{params}:Ctx){
       roster:insider?rsvps.map(x=>({name:x.name||'Rider',publicId:x.publicId,status:x.status,ready:JSON.parse(x.checklist).length===CHECKLIST.length})):null,
       myRsvp:mine?.status||null,myChecklist:mine?JSON.parse(mine.checklist):[],myExperience:experience,
       updates:insider?updates.map(u=>({id:u.id,author:u.authorName,body:u.body,pinned:u.pinned,createdAt:u.createdAt})):null,
-      brief:r.brief?JSON.parse(r.brief):null,briefAt:r.briefAt,briefCount:r.briefCount,
+      brief:r.brief?JSON.parse(r.brief):null,plan:r.plan?JSON.parse(r.plan):null,briefAt:r.briefAt,briefCount:r.briefCount,
       perRider,member:a.member,canManage:a.canManage,signedIn:Boolean(user)},checklist:CHECKLIST});
   }catch{return json({error:'This ride could not be loaded.'},503)}
 }

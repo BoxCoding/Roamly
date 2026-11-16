@@ -29,7 +29,9 @@ export async function POST(request:Request,{params}:Ctx){
     // Compact facts: only what the brief needs, so the prompt stays small.
     const facts={ride:r.title,vehicle:r.vehicle,month:new Date(r.startDate+'T00:00:00Z').toLocaleString('en',{month:'long',timeZone:'UTC'}),days:r.days,distanceKm:r.distanceKm,
       meetup:`${r.meetupPoint} at ${r.meetupTime}`,riders:Math.max(going,1),minExperience:r.minExperience,stayBudget:r.stay,notes:r.description.slice(0,300),
-      route:trip?{line:trip.route,region:trip.location,places:trip.places.map(p=>p.name),stays:trip.stays.map(s=>s.area),risk:trip.risk}:{from:route.from,via:route.via||[],to:route.to}};
+      route:trip?{line:trip.route,region:trip.location,places:trip.places.map(p=>p.name),stays:trip.stays.map(s=>s.area),risk:trip.risk}:{from:route.from,via:route.via||[],to:route.to},
+      // The lead's attached plan, if any, so the brief follows their chosen stretches and stays.
+      leadPlan:r.plan?JSON.parse(r.plan).days.map((d:{from:string,to:string,km:number,stayArea:string})=>({from:d.from,to:d.to,km:d.km,stay:d.stayArea})):undefined};
     let brief;
     try{brief=checkBrief(briefSchema.z.parse(await generateJson(BRIEF_INSTRUCTION,facts,briefJsonSchema,3500)),r.days)}
     catch{return json({error:'The AI brief could not be generated right now. Please try again later.',remaining:BRIEF_LIMIT-slot.n},502)}

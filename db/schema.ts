@@ -1,4 +1,4 @@
-import { boolean, index, integer, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
+import { boolean, doublePrecision, index, integer, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
 
 // One row per signed-in identity (google:…, facebook:…, user:…). publicId is what other riders see in URLs.
 // role: rider | admin. status: active | suspended.
@@ -101,6 +101,8 @@ export const rides = pgTable('rides', {
   brief: text('brief'),
   briefAt: text('brief_at'),
   briefCount: integer('brief_count').notNull().default(0),
+  // Snapshot of a saved plan the lead attached (JSON), so riders see the same route and stays.
+  plan: text('plan'),
   createdAt: text('created_at').notNull(),
 }, t => [index('rides_crew_idx').on(t.crewId), index('rides_start_idx').on(t.startDate)]);
 
@@ -123,3 +125,22 @@ export const rideUpdates = pgTable('ride_updates', {
   pinned: boolean('pinned').notNull().default(false),
   createdAt: text('created_at').notNull(),
 }, t => [index('ride_updates_ride_idx').on(t.rideId)]);
+
+// A rider's saved, editable trip plans (JSON validated by lib/plan-schema.mjs).
+export const plans = pgTable('plans', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  title: text('title').notNull(),
+  data: text('data').notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [index('plans_user_idx').on(t.userId)]);
+
+// OpenStreetMap geocoding cache, keyed by the normalized place query. lat/lng are null when nothing was found.
+export const geocodes = pgTable('geocodes', {
+  query: text('query').primaryKey(),
+  lat: doublePrecision('lat'),
+  lng: doublePrecision('lng'),
+  label: text('label').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+});

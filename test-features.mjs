@@ -87,3 +87,24 @@ console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and E
   assert.deepEqual(r.checklistInput.safeParse({items:['docs','fuel']}).success,true);assert.equal(r.checklistInput.safeParse({items:['bogus']}).success,false);
   console.log('Group ride rules passed.');
 }
+
+// Editable plans: budget recalculation and validation.
+{
+  const {planBudget,estimate,haversineKm}=await import('./public/domain.mjs');
+  const {planSchema}=await import('./lib/plan-schema.mjs');
+  const settings={people:2,vehicle:'Bike',fuel:'Petrol',mileage:32,fuelPrice:105,seats:1,month:10};
+  const day=(n,km,band='Comfort')=>({day:n,from:'A',to:'B',km,stayArea:'B',stayType:'Hotel',stayBand:band,places:[],fuelStops:[],notes:''});
+  const all=[day(1,300),day(2,200),day(3,100)];
+  const same=estimate({distance:600,days:3,people:2,vehicle:'Bike',stay:'Comfort',fuelPrice:105,mileage:32,seats:1});
+  assert.equal(planBudget({settings,days:all}).total,same.total,'matches estimate when every night is Comfort');
+  const mixed=planBudget({settings,days:[day(1,300,'Budget'),day(2,200,'Premium'),day(3,100,'Budget')]});
+  assert.equal(mixed.accommodation,(900+3500)*1,'per-night bands, last day has no night');
+  assert.equal(planBudget({settings,days:[day(1,0)]}).distance,1,'zero km still prices');
+  assert(Math.abs(haversineKm({lat:18.52,lng:73.86},{lat:19.08,lng:72.88})-118)<5,'Pune–Mumbai straight line ~118 km');
+  const ok={title:'Konkan',routeId:'konkan',settings,days:all};
+  assert(planSchema.safeParse(ok).success);
+  assert(!planSchema.safeParse({...ok,days:[day(2,10)]}).success,'days numbered from 1');
+  assert(!planSchema.safeParse({...ok,days:[{...day(1,10),stayType:'Palace'}]}).success);
+  assert(!planSchema.safeParse({...ok,settings:{...settings,seats:3}}).success,'bike seats');
+  console.log('Plan budget and schema passed.');
+}

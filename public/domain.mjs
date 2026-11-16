@@ -43,3 +43,25 @@ export function cleanLinks(input={},kinds=Object.keys(LINK_KINDS)){
   for(const kind of kinds){const {label}=LINK_KINDS[kind];const href=cleanLink(kind,input[kind]);if(href===null)return {error:`Enter a valid ${label} link${kind==='website'?'':' on '+LINK_KINDS[kind].hosts[0]}.`};if(href)links[kind]=href}
   return {links};
 }
+// ---- Editable trip plans (Phase 3) ----
+export const STAY_RATES={Budget:900,Comfort:1800,Premium:3500};
+export const STAY_TYPES=['Hotel','Homestay','Guesthouse','Camp','Hostel','Resort','Dharamshala'];
+// Budget for an edited plan: distance is the sum of day km, and each night uses its own stay band.
+// Same formulas as estimate(); the last day has no night.
+export function planBudget({settings:s,days}){
+  const distance=Math.max(1,days.reduce((n,d)=>n+(Number(d.km)||0),0));
+  const base=estimate({distance,days:days.length,people:s.people,vehicle:s.vehicle,stay:'Comfort',fuelPrice:s.fuelPrice,mileage:s.mileage,seats:s.seats});
+  const rooms=Math.ceil(s.people/2);
+  const accommodation=days.slice(0,-1).reduce((n,d)=>n+STAY_RATES[d.stayBand||'Comfort']*rooms,0);
+  const contingency=Math.round((base.fuel+accommodation+base.food+base.extras)*.15);
+  const total=base.fuel+accommodation+base.food+base.extras+contingency;
+  return {...base,distance,accommodation,contingency,total,perPerson:Math.ceil(total/s.people)};
+}
+// Straight-line distance between two {lat,lng} points in km.
+export function haversineKm(a,b){
+  const r=x=>x*Math.PI/180,dLat=r(b.lat-a.lat),dLng=r(b.lng-a.lng);
+  const h=Math.sin(dLat/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLng/2)**2;
+  return 2*6371*Math.asin(Math.sqrt(h));
+}
+// Indian roads run roughly 1.3x the straight line; used only as a suggestion the rider can accept.
+export const ROAD_FACTOR=1.3;
