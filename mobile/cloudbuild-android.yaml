@@ -1,0 +1,30 @@
+# Builds the Roamly Android debug APK in Cloud Build (no local Android Studio needed).
+# gcloud builds submit mobile --config mobile/cloudbuild-android.yaml --project roamly-f22530
+steps:
+- name: node:22
+  entrypoint: npm
+  args: ['ci', '--no-audit', '--no-fund']
+- name: node:22
+  entrypoint: npx
+  args: ['cap', 'sync', 'android']
+- name: eclipse-temurin:21-jdk
+  entrypoint: bash
+  args:
+  - -ceu
+  - |
+    apt-get update -qq && apt-get install -y -qq unzip curl >/dev/null
+    mkdir -p /sdk/cmdline-tools
+    curl -sSL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/tools.zip
+    unzip -q /tmp/tools.zip -d /sdk/cmdline-tools && mv /sdk/cmdline-tools/cmdline-tools /sdk/cmdline-tools/latest
+    yes | /sdk/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null
+    /sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" >/dev/null
+    export ANDROID_HOME=/sdk ANDROID_SDK_ROOT=/sdk
+    cd android && chmod +x gradlew && ./gradlew --no-daemon -q assembleDebug
+    ls -la app/build/outputs/apk/debug/
+artifacts:
+  objects:
+    location: gs://${PROJECT_ID}-builds/android/
+    paths: ['android/app/build/outputs/apk/debug/app-debug.apk']
+options:
+  machineType: E2_HIGHCPU_8
+timeout: 1800s

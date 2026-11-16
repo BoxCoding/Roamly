@@ -10,7 +10,7 @@ const session=async(headers={})=>{
 };
 const anonymous=await session();assert.equal(anonymous.user,null);assert.equal(anonymous.signOutUrl,'/api/auth/logout');
 assert.equal((await session({'oai-authenticated-user-id':'attacker','oai-authenticated-user-email':'attacker@example.test'})).user,null,'proxy identity headers are ignored');
-assert.equal((await session({Cookie:'__Host-roamly_session=eyJ1aWQiOiJ1c2VyOngifQ.forged'})).user,null,'forged cookie rejected');
+assert.equal((await session({Cookie:'__session=eyJzIjoiZXlKMWFXUWlPaUoxYzJWeU9uZ2lmUS5mb3JnZWQifQ'})).user,null,'forged cookie rejected');
 const cookie=await account(origin,{name:'Auth Tester'});
 const me=await session({Cookie:cookie});
 assert.equal(me.user.name,'Auth Tester');assert.equal(me.user.provider,'password');assert.equal(me.user.admin,false);assert.equal('email' in me.user,false);

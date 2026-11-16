@@ -36,7 +36,7 @@ export async function DELETE(request: Request) {
     });
     await deletePhotos(photoKeys);
     const response = json({ deleted: true });
-    response.headers.append('Set-Cookie', clearSessionCookie());
+    for (const c of clearSessionCookie()) response.headers.append('Set-Cookie', c);
     return response;
   } catch { return json({ error: 'Your account was not deleted. Please try again.' }, 503); }
 }

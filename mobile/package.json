@@ -1,0 +1,27 @@
+{
+  "name": "roamly-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Native Android and iOS apps for Roamly (Capacitor), loading the deployed app with native touches.",
+  "scripts": {
+    "sync": "cap sync",
+    "icons": "capacitor-assets generate --android --ios --iconBackgroundColor '#244d3d' --splashBackgroundColor '#244d3d'",
+    "android": "cap open android",
+    "ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.6.2",
+    "@capacitor/share": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.6.2"
+  }
+}

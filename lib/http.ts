@@ -4,7 +4,9 @@ export const json = (data: unknown, status = 200) =>
 // The origin the browser used. Behind Cloud Run, request.url is the container's internal address,
 // so take the public host from the Host header and the scheme from the proxy.
 export function publicOrigin(request: Request) {
-  const url = new URL(request.url), host = request.headers.get("host") || url.host;
+  // Firebase Hosting (custom domain) forwards to Cloud Run with the browser's host in X-Forwarded-Host.
+  // A cross-site page cannot set that header without a CORS preflight, which this app never allows.
+  const url = new URL(request.url), host = request.headers.get("x-forwarded-host")?.split(",")[0].trim() || request.headers.get("host") || url.host;
   const proto = request.headers.get("x-forwarded-proto")?.split(",")[0].trim() || url.protocol.slice(0, -1);
   return `${proto}://${host}`;
 }

@@ -449,7 +449,7 @@ async function showRide(id){
     ${r.canManage&&open_?`<div class="button-row"><button class="secondary" data-ride-brief="${esc(r.id)}" ${r.briefCount>=3?'disabled':''}>✧ ${r.brief?'Regenerate':'Generate'} AI brief <small>(${3-r.briefCount} left)</small></button></div>`:''}
     ${r.updates?`<h3>Ride updates</h3>${r.canManage?`<form id="ride-update-form" data-ride="${esc(r.id)}"><div class="form-field wide"><label for="ride-update-body">Post an update to riders</label><textarea id="ride-update-body" name="body" maxlength="600" required placeholder="Regroup at the Lonavala food mall, 8:15"></textarea></div><label class="form-footnote"><input type="checkbox" name="pinned"> Pin to top</label> <button class="secondary">Post update</button></form>`:''}${r.updates.map(u=>`<div class="ride-update ${u.pinned?'pinned':''}">${u.pinned?'<span class="role-badge role-owner">Pinned</span> ':''}<strong>${esc(u.author)}</strong><small> · ${shortDate(u.createdAt)}</small><p>${esc(u.body)}</p>${r.canManage?`<button class="text-link danger" data-delete-update="${esc(u.id)}" data-ride-id="${esc(r.id)}">Delete</button>`:''}</div>`).join('')||'<p class="form-footnote">No updates yet.</p>'}`:'<p class="form-footnote">Ride updates and the rider list are visible to crew members.</p>'}
     ${r.roster?`<h3>Riders</h3><p class="form-footnote">Going (✓ = checklist complete)</p><div class="rider-chips">${roster('going')||'—'}</div>${r.maybe?`<p class="form-footnote">Maybe</p><div class="rider-chips">${roster('maybe')}</div>`:''}${r.waitlist?`<p class="form-footnote">Waitlist</p><div class="rider-chips">${roster('waitlist')}</div>`:''}`:''}
-    <div class="button-row"><button class="secondary" data-ride-ics="${esc(r.id)}">Add to calendar</button><a class="secondary" href="https://wa.me/?text=${encodeURIComponent(shareText)}" target="_blank" rel="noopener noreferrer">Share on WhatsApp ↗</a><button class="text-link" data-copy-ride="${esc(shareUrl)}">Copy link</button></div>
+    <div class="button-row"><button class="secondary" data-ride-ics="${esc(r.id)}">Add to calendar</button><a class="secondary" href="https://wa.me/?text=${encodeURIComponent(shareText)}" target="_blank" rel="noopener noreferrer">Share on WhatsApp ↗</a><button class="text-link" data-copy-ride="${esc(shareUrl)}">Share link</button></div>
     ${r.canManage?`<div class="button-row"><button class="secondary" data-edit-ride="${esc(r.id)}">Edit ride</button><button class="text-link danger" data-delete-ride="${esc(r.id)}">Delete ride</button></div>`:''}`);
     window.__ride=r;if(r.plan)drawMap($('#ride-plan-map'),r.plan.days);
   }catch(error){toast(error.message||'Ride unavailable.')}
@@ -468,7 +468,7 @@ function handleRideClick(el){
   if(d.editRide){const r=window.__ride;if(r)open(rideForm(r.crewId,r));return true}
   if(d.deleteRide){if(confirm('Delete this ride for everyone? RSVPs and updates are removed.'))api('/api/rides/'+d.deleteRide,{method:'DELETE',body:{}}).then(()=>{modal.close();toast('Ride deleted.');if(page==='rides')loadRides()}).catch(e=>toast(e.message));return true}
   if(d.deleteUpdate){api(`/api/rides/${d.rideId}/updates`,{method:'DELETE',body:{updateId:d.deleteUpdate}}).then(()=>showRide(d.rideId)).catch(e=>toast(e.message));return true}
-  if(d.copyRide){navigator.clipboard?.writeText(d.copyRide).then(()=>toast('Ride link copied.'),()=>toast(d.copyRide));return true}
+  if(d.copyRide){shareLink(d.copyRide);return true}
   if(d.rideIcs){const r=window.__ride;if(!r)return true;const [h,m]=r.meetupTime.split(':').map(Number);
     const events=Array.from({length:r.days},(_,i)=>{const at=new Date(r.startDate+'T00:00:00');at.setDate(at.getDate()+i);at.setHours(h,m,0,0);return {id:`${r.id}-${i+1}`,at:at.toISOString(),label:`${r.title} · Day ${i+1}${i===0?' · Meetup '+r.meetupPoint:''}`}});
     downloadFile(`roamly-${r.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40)}.ics`,calendar(events),'text/calendar');return true}
@@ -794,4 +794,68 @@ document.addEventListener('click',e=>{
   const form=b.closest('form');form.dataset.photos=JSON.stringify(JSON.parse(form.dataset.photos||'[]').filter(x=>x.key!==b.dataset.removePhoto));b.parentElement.remove();
 });
 // Installable app: register the service worker (shell works offline; data needs a connection).
-if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('/sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.Capacitor?.isNativePlatform?.())navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+// ---- Native app (Capacitor shell in mobile/) — everything here is skipped on the website ----
+const cap=window.Capacitor,nativeApp=Boolean(cap?.isNativePlatform?.()),NP=cap?.Plugins||{};
+const b64url=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const tap=()=>{if(nativeApp)NP.Haptics?.impact?.({style:'LIGHT'}).catch(()=>{})};
+// Google refuses sign-in inside app WebViews: sign in through the system browser, come back on
+// roamly://auth with a code, and redeem it here with the PKCE verifier only this app knows.
+async function startAppLogin(provider){
+  const verifier=b64url(crypto.getRandomValues(new Uint8Array(32)));
+  const challenge=b64url(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))));
+  try{localStorage.setItem('roamly-app-verifier',verifier)}catch{}
+  await NP.Browser.open({url:`${location.origin}/api/auth/${provider}?app=${challenge}`,presentationStyle:'popover'});
+}
+async function finishAppLogin(link){
+  let u;try{u=new URL(link)}catch{return}
+  if(u.protocol!=='roamly:'||u.host!=='auth')return;
+  NP.Browser?.close?.().catch(()=>{});
+  let verifier=null;try{verifier=localStorage.getItem('roamly-app-verifier');localStorage.removeItem('roamly-app-verifier')}catch{}
+  const code=u.searchParams.get('code');
+  if(!code||!verifier)return toast('Sign-in did not finish. Please try again.');
+  try{await api('/api/auth/app',{method:'POST',body:{code,verifier}});tap();location.reload()}catch(error){toast(error.message)}
+}
+if(nativeApp){
+  document.documentElement.classList.add('native-app','platform-'+cap.getPlatform());
+  NP.StatusBar?.setStyle?.({style:'DARK'}).catch(()=>{});
+  NP.App?.addListener('backButton',()=>{
+    if(modal.open)return modal.close();
+    if(page!=='discover'){page='discover';render();window.scrollTo({top:0});return}
+    NP.App.minimizeApp?NP.App.minimizeApp():NP.App.exitApp();
+  });
+  NP.App?.addListener('appUrlOpen',({url})=>finishAppLogin(url));
+  NP.App?.getLaunchUrl?.().then(r=>r?.url&&finishAppLogin(r.url)).catch(()=>{});
+  NP.App?.addListener('resume',()=>{if(typeof refreshBell==='function')refreshBell()});
+  document.addEventListener('click',e=>{
+    const a=e.target.closest('a[href]');if(!a)return;
+    const href=a.getAttribute('href');
+    if(/^\/api\/auth\/(google|meta)$/.test(href)){e.preventDefault();startAppLogin(href.endsWith('meta')?'meta':'google');return}
+    // Links meant for a new tab (maps, booking sites, socials, policies) open in the system browser.
+    if(a.target==='_blank'){e.preventDefault();NP.Browser?.open({url:new URL(href,location.href).href})}
+  },true);
+  // Quick haptic tick on the main actions.
+  document.addEventListener('click',e=>{if(e.target.closest('[data-rsvp],[data-like],[data-join],[data-follow-rider],[data-follow-crew],#save-profile'))tap()});
+}
+// Native share sheet (app) or Web Share (phones), else copy the link.
+async function shareLink(url,title='Roamly'){
+  try{
+    if(nativeApp&&NP.Share)return await NP.Share.share({title,url,dialogTitle:'Share'});
+    if(navigator.share)return await navigator.share({title,url});
+  }catch{return}
+  navigator.clipboard?.writeText(url).then(()=>toast('Link copied.'),()=>toast(url));
+}
+
+// "More" tab for phones: the pages that do not fit in the bottom bar.
+// Tab labels (full + short) and the More tab are in the server HTML so the phone bar is right on the first frame.
+function moreSheet(){
+  const item=(p,icon,label)=>`<button data-page="${p}" data-close-sheet><span>${icon}</span>${label}</button>`;
+  open(`<div class="eyebrow">MORE</div><h2>Everything else</h2><div class="more-sheet">${item('plans','⌖','My plans')}${item('saved','♡','Saved trips · '+state.saved.length)}${item('alerts','◷','Time alerts')}${session.user?.admin?item('admin','⚙','Admin'):''}
+  <a href="/routes" target="_blank"><span>⌁</span>Route guides</a><a href="/guidelines" target="_blank"><span>✓</span>Community guidelines</a><a href="/privacy" target="_blank"><span>⚿</span>Privacy</a><a href="/terms" target="_blank"><span>§</span>Terms</a></div>`);
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#nav-more')){moreSheet();return}
+  if(e.target.closest('[data-close-sheet]')&&modal.open)modal.close();
+});
+{const sync=()=>$('#nav-more')?.classList.toggle('active',['plans','saved','alerts','admin'].includes(page));const orig=updateProfile;updateProfile=function(){orig();sync()}}

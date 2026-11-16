@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     if (row.failedLogins || row.lockedUntil) await db.update(users).set({ failedLogins: 0, lockedUntil: null }).where(eq(users.id, row.id));
     const user: AppUser = { userId: `user:${row.id}`, displayName: row.name, provider: "password", email: row.email };
     const response = json({ user: { id: user.userId, name: row.name, provider: user.provider } });
-    response.headers.append("Set-Cookie", await sessionCookie(user));
+    for (const c of await sessionCookie(user)) response.headers.append("Set-Cookie", c);
     return response;
   } catch {
     return json({ error: "Sign-in is temporarily unavailable. Please try again." }, 503);

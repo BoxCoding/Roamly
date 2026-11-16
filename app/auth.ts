@@ -3,7 +3,8 @@ import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { accounts, appSecrets } from "../db/schema";
-import { SESSION_COOKIE, cookie, randomToken, readCookie, seal, unseal } from "../lib/google-oauth.mjs";
+import { randomToken, seal, unseal } from "../lib/google-oauth.mjs";
+import { jarCookies, readJar } from "../lib/cookie-jar.mjs";
 
 export type Provider = "google" | "facebook" | "password";
 export type AppUser = { userId: string; displayName: string; provider: Provider; email: string };
@@ -32,13 +33,14 @@ export async function sessionSecret(): Promise<string> {
   return (cachedSecret = row.value);
 }
 
-/** Set-Cookie value for a signed app session; also creates or refreshes the rider's account row. */
-export async function sessionCookie(user: AppUser) {
+/** Set-Cookie values for a signed app session (any half-finished sign-in flow is dropped); also creates or refreshes the rider's account row. */
+export async function sessionCookie(user: AppUser): Promise<string[]> {
   await ensureAccount(user, true);
   const maxAge = SESSION_DAYS * 86400;
-  return cookie(SESSION_COOKIE, await seal({ uid: user.userId, name: user.displayName, provider: user.provider, email: user.email }, await sessionSecret(), maxAge), maxAge);
+  return jarCookies({ s: await seal({ uid: user.userId, name: user.displayName, provider: user.provider, email: user.email }, await sessionSecret(), maxAge) });
 }
-export const clearSessionCookie = () => cookie(SESSION_COOKIE, "", 0);
+/** Set-Cookie values that sign out, keeping nothing else. */
+export const clearSessionCookie = (): string[] => jarCookies({});
 
 // Returns the account row, creating it for sessions that predate accounts. On login the name/email are refreshed.
 async function ensureAccount(user: AppUser, refresh = false) {
@@ -52,7 +54,7 @@ async function ensureAccount(user: AppUser, refresh = false) {
 
 // Identity comes only from our signed session cookie; no proxy headers are trusted.
 async function sessionIdentity(): Promise<AppUser | null> {
-  const token = readCookie((await headers()).get("cookie"), SESSION_COOKIE);
+  const token = readJar((await headers()).get("cookie")).s;
   if (!token) return null;
   try {
     const s = await unseal(token, await sessionSecret());

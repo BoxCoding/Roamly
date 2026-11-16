@@ -44,3 +44,5 @@ yarn-error.log*
 # OS metadata
 .DS_Store
 .uploads/
+mobile/node_modules/
+mobile/dist/

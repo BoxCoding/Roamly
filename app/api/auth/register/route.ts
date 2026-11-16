@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     if (!rows.length) return json({ error: "An account with this email already exists. Sign in instead." }, 409);
     const user: AppUser = { userId: `user:${id}`, displayName: name, provider: "password", email };
     const response = json({ user: { id: user.userId, name, provider: user.provider } }, 201);
-    response.headers.append("Set-Cookie", await sessionCookie(user));
+    for (const c of await sessionCookie(user)) response.headers.append("Set-Cookie", c);
     return response;
   } catch {
     return json({ error: "Your account could not be created. Please try again." }, 503);

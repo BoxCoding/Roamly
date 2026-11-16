@@ -1,0 +1,17 @@
+{
+  "appId": "app.roamly.rides",
+  "appName": "Roamly",
+  "webDir": "www",
+  "backgroundColor": "#244d3d",
+  "server": {
+    "url": "https://roamly-526696942469.asia-south1.run.app",
+    "errorPath": "offline.html",
+    "allowNavigation": ["roamly-526696942469.asia-south1.run.app"]
+  },
+  "plugins": {
+    "SplashScreen": {"launchShowDuration": 1200, "launchAutoHide": true, "backgroundColor": "#244d3d", "showSpinner": false},
+    "StatusBar": {"style": "DARK", "backgroundColor": "#244d3d", "overlaysWebView": false}
+  },
+  "android": {"allowMixedContent": false},
+  "ios": {"contentInset": "never", "scheme": "Roamly"}
+}

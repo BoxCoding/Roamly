@@ -37,3 +37,31 @@ import {metaAuthorizeUrl,metaProfile} from './lib/meta-oauth.mjs';
   assert.equal(await metaProfile({code:'c',appId:'app',appSecret:'sec',redirectUri:'r',fetchImpl:async()=>({ok:false})}),null);
   console.log('Meta login helpers passed.');
 }
+
+// Cookie jar: one __session cookie for Firebase Hosting.
+{
+  const {readJar,jarCookies,JAR}=await import('./lib/cookie-jar.mjs');
+  const [set,legacyClear]=jarCookies({s:'sess.tok',g:'flow.tok',x:'ignored'});
+  assert.match(set,new RegExp(`^${JAR}=`));assert.match(set,/Max-Age=2592000/);assert.match(legacyClear,/__Host-roamly_session=; .*Max-Age=0/);
+  const header=set.split(';')[0];
+  assert.deepEqual(readJar(header),{s:'sess.tok',g:'flow.tok'});
+  assert.match(jarCookies({g:'flow'})[0],/Max-Age=600/,'flow-only jar is short-lived');
+  assert.match(jarCookies({})[0],/^__session=; .*Max-Age=0/,'empty jar deletes the cookie');
+  assert.deepEqual(readJar('__Host-roamly_session=old.tok'),{s:'old.tok'},'legacy session still read');
+  assert.deepEqual(readJar('__session=@@@'),{},'garbage ignored');
+  console.log('Cookie jar passed.');
+}
+
+// Mobile app sign-in codes: PKCE-bound and short-lived.
+{
+  const {makeAppCode,redeemAppCode,APP_CHALLENGE}=await import('./lib/app-code.mjs');
+  const {pkcePair}=await import('./lib/google-oauth.mjs');
+  const {verifier,challenge}=await pkcePair();assert(APP_CHALLENGE.test(challenge));
+  const user={userId:'google:1',displayName:'Asha',provider:'google',email:'a@x.test'};
+  const code=await makeAppCode(user,challenge,'secret');
+  assert.deepEqual(await redeemAppCode(code,verifier,'secret'),user);
+  assert.equal(await redeemAppCode(code,(await pkcePair()).verifier,'secret'),null,'stolen code without the verifier is useless');
+  assert.equal(await redeemAppCode(code,verifier,'other-secret'),null,'forged code rejected');
+  assert.equal(await redeemAppCode(await makeAppCode(user,challenge,'secret',-1),verifier,'secret'),null,'expired code rejected');
+  console.log('App sign-in codes passed.');
+}
