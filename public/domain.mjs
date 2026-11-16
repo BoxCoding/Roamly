@@ -18,9 +18,18 @@ export const matches=(trip,{query='',vehicle='All',season='All'})=>(!query||`${t
 // Card price: 2 travelers, Comfort stays, default vehicle — same maths as the planner.
 export const tripPrice=t=>estimate({distance:t.km,days:t.days,people:2,vehicle:t.vehicle,stay:'Comfort'}).perPerson;
 // Group links: https only (http allowed for websites), and social links must be on the platform's own domain.
-export const LINK_KINDS={instagram:{label:'Instagram',hosts:['instagram.com']},youtube:{label:'YouTube',hosts:['youtube.com','youtu.be']},facebook:{label:'Facebook',hosts:['facebook.com','fb.com']},website:{label:'Website',hosts:null},whatsapp:{label:'WhatsApp',hosts:['chat.whatsapp.com','whatsapp.com']},telegram:{label:'Telegram',hosts:['t.me','telegram.me']}};
+export const LINK_KINDS={instagram:{label:'Instagram',hosts:['instagram.com']},youtube:{label:'YouTube',hosts:['youtube.com','youtu.be']},facebook:{label:'Facebook',hosts:['facebook.com','fb.com']},x:{label:'X (Twitter)',hosts:['x.com','twitter.com']},strava:{label:'Strava',hosts:['strava.com','strava.app.link']},threads:{label:'Threads',hosts:['threads.net','threads.com']},website:{label:'Website',hosts:null},whatsapp:{label:'WhatsApp',hosts:['chat.whatsapp.com','whatsapp.com']},telegram:{label:'Telegram',hosts:['t.me','telegram.me']}};
 // Rider profiles carry public social links only; chat invites (WhatsApp/Telegram) belong to groups.
-export const PROFILE_LINKS=['instagram','youtube','facebook','website'];
+export const PROFILE_LINKS=['instagram','youtube','facebook','x','strava','threads','website'];
+// Rider profile choices (shared by the form and the server schema).
+export const RIDING_STYLES=['Touring','Adventure','Off-road','Cruising','Long distance','City rides','Breakfast rides','Track days'];
+export const RIDING_PACES=['Relaxed','Steady','Spirited'];
+export const LOOKING_FOR=['Riding buddies','Weekend rides','Long trips','Learning from experienced riders','Leading rides'];
+// Share of the optional rider details filled in, 0-100.
+export function profileCompleteness(p){
+  const checks=[p.homeCity,p.bio,p.ridingSince,p.styles?.length,p.pace,p.lookingFor?.length,p.regions,p.languages,Object.keys(p.links||{}).length,p.vehicles?.length];
+  return Math.round(100*checks.filter(Boolean).length/checks.length);
+}
 export function cleanLink(kind,value){
   const raw=String(value??'').trim();if(!raw)return '';
   let url;try{url=new URL(/^[a-z][a-z\d+.-]*:/i.test(raw)?raw:'https://'+raw)}catch{return null}

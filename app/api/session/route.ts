@@ -1,10 +1,11 @@
-import { getUser, googleConfigured, isAdmin, metaConfigured } from "../../auth";
+import { getRider, googleConfigured, isAdmin, metaConfigured } from "../../auth";
 import { json } from "../../../lib/http";
 export const dynamic = "force-dynamic";
 export async function GET() {
-  const user = await getUser();
+  const rider = await getRider().catch(() => null), active = rider?.status === "active";
   return json({
-    user: user ? { id: user.userId, name: user.displayName, provider: user.provider, admin: isAdmin(user) } : null,
+    user: active ? { id: rider.userId, publicId: rider.publicId, name: rider.displayName, provider: rider.provider, admin: isAdmin(rider) } : null,
+    suspended: rider?.status === "suspended",
     signOutUrl: "/api/auth/logout",
     googleLogin: googleConfigured(),
     metaLogin: metaConfigured(),

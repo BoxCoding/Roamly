@@ -2,14 +2,14 @@ import {and,eq} from 'drizzle-orm';
 import {getDb} from '../../../db';
 import {profiles} from '../../../db/schema';
 import {getUser} from '../../auth';
-import {emptyProfile,profileUpdateSchema} from '../../../lib/profile-schema.mjs';
+import {emptyProfile,profileUpdateSchema,withDefaults} from '../../../lib/profile-schema.mjs';
 import {json,readJson} from '../../../lib/http';
 export const dynamic='force-dynamic';
 export async function GET(){
   const user=await getUser(); if(!user)return json({error:'Sign in to view your profile.'},401);
   try{
     const [row]=await getDb().select().from(profiles).where(eq(profiles.userId,user.userId)).limit(1);
-    return json({profile:row?JSON.parse(row.details):emptyProfile(),updatedAt:row?.updatedAt??null});
+    return json({profile:row?withDefaults(JSON.parse(row.details)):emptyProfile(),updatedAt:row?.updatedAt??null});
   }catch{return json({error:'Your profile could not be loaded. Please try again.'},503)}
 }
 export async function PUT(request:Request){

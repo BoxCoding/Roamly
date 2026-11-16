@@ -48,3 +48,18 @@ const custom={days:[{day:1,focus:'Drive',places:['Amber Fort'],stayArea:'Jaipur'
 assert(checkDays(parseAgent('itinerary',custom,true),2));assert.throws(()=>checkDays(parseAgent('itinerary',custom,true),3));assert.throws(()=>parseAgent('itinerary',custom));
 assert(JSON.parse(agentBody('itinerary',{},true)).generationConfig.responseJsonSchema.properties.days.items.properties.places);
 console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and EV costs, multi-vehicle validation, alert dates, calendar format, and bounded multi-agent AI output.');
+
+// Group member permissions (pure rules, shared by the API).
+{
+  const {memberActionError:e}=await import('./lib/crew-schema.mjs');
+  const m={role:'member',status:'active'},c={role:'colead',status:'active'},o={role:'owner',status:'active'},p={role:'member',status:'pending'};
+  assert.equal(e('member',m,'remove'),'Only the group owner or a co-lead can manage members.');
+  assert.equal(e('colead',p,'approve'),'');assert.equal(e('colead',m,'approve'),'There is no pending request from this rider.');
+  assert.equal(e('colead',m,'remove'),'');assert.equal(e('colead',c,'remove'),'Only the owner can remove a co-lead.');
+  assert.equal(e('colead',m,'promote'),'Only the owner can change co-leads.');
+  assert.equal(e('owner',m,'promote'),'');assert.equal(e('owner',c,'promote'),'This rider is already a co-lead.');
+  assert.equal(e('owner',c,'demote'),'');assert.equal(e('owner',m,'demote'),'This rider is not a co-lead.');
+  assert.equal(e('owner',o,'remove'),'The owner cannot be changed here.');assert.equal(e('owner',p,'promote'),'Approve or reject this request first.');
+  assert.equal(e('owner',undefined,'remove'),'That rider is not in this group.');
+  console.log('Group member permission rules passed.');
+}

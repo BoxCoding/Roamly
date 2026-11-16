@@ -17,15 +17,16 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 </style></head><body><main>
 <a class="back" href="/">← Back to Roamly</a>
 <h1>Privacy policy</h1>
-<p class="updated">Last updated 17 November 2026</p>
+<p class="updated">Last updated 18 November 2026</p>
 <p>Roamly helps riders discover road trips, plan them and find a crew. This page explains what we store, why, who else sees it and how you delete it. We do not sell your data and we do not show ads.</p>
 
 <h2>What we store</h2>
 <table>
 <tr><th>Data</th><th>Why</th></tr>
 <tr><td><strong>Account</strong>: name and email. For email sign-up, a salted password hash (never the password). For Google or Facebook sign-in, your account ID with that service, name and email.</td><td>To sign you in and keep your data in your account.</td></tr>
-<tr><td><strong>Profile and garage</strong>: home city, experience, vehicles and social links you add.</td><td>To fill in trip plans and show your links to other riders if you choose to add them.</td></tr>
-<tr><td><strong>Crews</strong>: crews you create (name, city, meetup, description, WhatsApp/Telegram and other links), which crews you join, and reports you file with their reason and note.</td><td>Crews are public to every visitor. Member counts are shown; member names are not. Reports are seen only by moderators and never show who filed them.</td></tr>
+<tr><td><strong>Rider profile and garage</strong>: home city, experience, riding since, pace, riding styles, what you are looking for, regions ridden, languages, about text, vehicles and social links you add.</td><td>To fill in trip plans and to show your rider card to other <strong>signed-in</strong> riders. Your rider card never shows your email.</td></tr>
+<tr><td><strong>Crews</strong>: crews you create (name, city, meetup, description, WhatsApp/Telegram and other links, open or private), which crews you join or ask to join, your role in each (owner, co-lead, member), and reports you file with their reason and note.</td><td>Crews are listed for every visitor with a member count. Members of a crew can see each other's names and rider cards; the owner and co-leads also see join requests. Private crews show their chat links only to approved members. Reports are seen only by admins and never show who filed them.</td></tr>
+<tr><td><strong>Account record</strong>: name, email, sign-in method, role (rider or admin), account status, when you joined and when you were last active.</td><td>To run the service and keep it safe. Admins can see this record, including your email, to handle reports and suspend accounts that break the rules.</td></tr>
 <tr><td><strong>AI usage count</strong>: how many AI plans you built today.</td><td>To enforce the daily limit.</td></tr>
 </table>
 <p>Saved trips, sample-group joins and reminders stay only in your browser's local storage, not on our servers.</p>
@@ -48,7 +49,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 <li>Sign in to Roamly and open your profile.</li>
 <li>Click <strong>Delete my account</strong> and type <strong>DELETE</strong> to confirm.</li>
 </ol>
-<p>This immediately and permanently deletes your account, profile, garage, AI usage count, crews you organize (with their members and reports), your crew memberships and the reports you filed. It cannot be undone. To also clear saved trips on a device, clear this site's data in your browser.</p>
+<p>This immediately and permanently deletes your account record, profile, garage, AI usage count, crews you organize (with their members and reports), your crew memberships and the reports you filed. It cannot be undone. To also clear saved trips on a device, clear this site's data in your browser.</p>
 <p>If you signed in with Facebook, you can also remove Roamly under Facebook Settings → Apps and Websites; then sign in once more and use Delete my account to remove what Roamly stored.</p>
 
 <h2>How long we keep it</h2>
