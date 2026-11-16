@@ -6,7 +6,7 @@ Road-trip discovery and planning for bike and car travelers in India.
 
 - Needs Node 22+ and a local Postgres. Create a database (`createdb roamly`) and copy `.env.example` to `.env.local` with `DATABASE_URL` (and `GEMINI_API_KEY` for AI).
 - `npm run dev` starts Next.js on http://localhost:5173. Pending migrations in `drizzle/` are applied automatically at server start (`instrumentation.ts`).
-- Unit checks: `npm test`. With the dev server running: `node test-auth.mjs`, `node test-profile.mjs`, `node test-register.mjs` and `node test-groups.mjs` (set `ADMIN_EMAILS=moderator@roamly.test` locally for the moderation checks).
+- Unit checks: `npm test`. With the dev server running: `node test-auth.mjs`, `node test-profile.mjs`, `node test-register.mjs`, `node test-groups.mjs` and `node test-account.mjs` (set `ADMIN_EMAILS=moderator@roamly.test` locally for the moderation checks).
 - Type check: `npx tsc --noEmit`. Production build: `npm run build`.
 - Schema change: edit `db/schema.ts`, then `npm run db:generate`.
 

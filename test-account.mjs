@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {liveOrigin,account} from './test-live.mjs';
+const o=liveOrigin(),email=`del-${Date.now()}@example.test`;
+const c=await account(o,{email,name:'Delete Me',password:'correct horse 123'});
+const call=(m,p,b,ck)=>fetch(o+p,{method:m,headers:{Origin:o,'Content-Type':'application/json',...(ck?{Cookie:ck}:{})},...(b?{body:JSON.stringify(b)}:{})});
+const crew=await call('POST','/api/groups',{name:'Delete Test Crew',city:'Pune',vehicle:'Bike',meetup:'X',cadence:'Sun',description:'d',links:{}},c);assert.equal(crew.status,201);const {id}=await crew.json();
+assert.equal((await call('DELETE','/api/account',{confirm:'nope'},c)).status,400);
+assert.equal((await call('DELETE','/api/account',{confirm:'DELETE'})).status,401);
+const r=await call('DELETE','/api/account',{confirm:'DELETE'},c);assert.equal(r.status,200);assert.match(r.headers.get('set-cookie'),/Max-Age=0/);
+assert(!(await (await call('GET','/api/groups')).json()).groups.some(g=>g.id===id),'crew gone');
+assert.equal((await call('POST','/api/auth/login',{email,password:'correct horse 123'})).status,401,'login gone');
+const p=await fetch(o+'/privacy');assert.equal(p.status,200);assert.match(await p.text(),/id="delete"/);
+console.log('Account deletion + privacy page passed.');
