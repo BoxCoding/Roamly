@@ -26,6 +26,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 <tr><td><strong>Account</strong>: name and email. For email sign-up, a salted password hash (never the password). For Google or Facebook sign-in, your account ID with that service, name and email.</td><td>To sign you in and keep your data in your account.</td></tr>
 <tr><td><strong>Rider profile and garage</strong>: home city, experience, riding since, pace, riding styles, what you are looking for, regions ridden, languages, about text, vehicles and social links you add.</td><td>To fill in trip plans and to show your rider card to other <strong>signed-in</strong> riders. Your rider card never shows your email.</td></tr>
 <tr><td><strong>Crews</strong>: crews you create (name, city, meetup, description, WhatsApp/Telegram and other links, open or private), which crews you join or ask to join, your role in each (owner, co-lead, member), and reports you file with their reason and note.</td><td>Crews are listed for every visitor with a member count. Members of a crew can see each other's names and rider cards; the owner and co-leads also see join requests. Private crews show their chat links only to approved members. Reports are seen only by admins and never show who filed them.</td></tr>
+<tr><td><strong>Group rides</strong>: rides your crew plans (date, route, meetup, seats), your RSVP (going, maybe, waitlist), your pre-ride checklist ticks, and updates posted by ride leads.</td><td>Rides of open crews are listed for every visitor; rides of private crews only for members. Crew members see who is going and whether their checklist is complete. Rider names and updates are never shown to non-members.</td></tr>
 <tr><td><strong>Account record</strong>: name, email, sign-in method, role (rider or admin), account status, when you joined and when you were last active.</td><td>To run the service and keep it safe. Admins can see this record, including your email, to handle reports and suspend accounts that break the rules.</td></tr>
 <tr><td><strong>AI usage count</strong>: how many AI plans you built today.</td><td>To enforce the daily limit.</td></tr>
 </table>
@@ -37,7 +38,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 <h2>Who else processes your data</h2>
 <ul>
 <li><strong>Google Cloud</strong> (Mumbai region, India) hosts the app and its database.</li>
-<li><strong>Google Gemini API</strong> receives the trip details you enter when you build an AI plan (route, dates, travellers, vehicle, budget and preferences) to generate the plan. Your name and email are not sent.</li>
+<li><strong>Google Gemini API</strong> receives the trip details you enter when you build an AI plan (route, dates, travellers, vehicle, budget and preferences), and ride details when a ride lead generates a group ride brief (route, dates, meetup, vehicle, number of riders, notes). Rider names and emails are not sent.</li>
 <li><strong>Google</strong> or <strong>Meta (Facebook)</strong>, only if you choose to sign in with them. We receive your account ID, name and email; we do not post anything or read your friends, groups or pages.</li>
 <li><strong>Google Fonts</strong> serves the page fonts, so your browser contacts Google when the page loads.</li>
 </ul>
@@ -49,7 +50,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{tex
 <li>Sign in to Roamly and open your profile.</li>
 <li>Click <strong>Delete my account</strong> and type <strong>DELETE</strong> to confirm.</li>
 </ol>
-<p>This immediately and permanently deletes your account record, profile, garage, AI usage count, crews you organize (with their members and reports), your crew memberships and the reports you filed. It cannot be undone. To also clear saved trips on a device, clear this site's data in your browser.</p>
+<p>This immediately and permanently deletes your account record, profile, garage, AI usage count, crews you organize (with their members, rides and reports), your crew memberships, ride RSVPs, ride updates you posted and the reports you filed. It cannot be undone. To also clear saved trips on a device, clear this site's data in your browser.</p>
 <p>If you signed in with Facebook, you can also remove Roamly under Facebook Settings → Apps and Websites; then sign in once more and use Delete my account to remove what Roamly stored.</p>
 
 <h2>How long we keep it</h2>

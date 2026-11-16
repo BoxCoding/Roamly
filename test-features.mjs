@@ -63,3 +63,27 @@ console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and E
   assert.equal(e('owner',undefined,'remove'),'That rider is not in this group.');
   console.log('Group member permission rules passed.');
 }
+
+// Group ride rules.
+{
+  const r=await import('./lib/ride-schema.mjs');
+  const now=Date.parse('2026-11-18T10:00:00Z');
+  assert.equal(r.ridePhase({status:'scheduled',startDate:'2026-11-20',days:2},now),'upcoming');
+  assert.equal(r.ridePhase({status:'scheduled',startDate:'2026-11-17',days:2},now),'ongoing');
+  assert.equal(r.ridePhase({status:'scheduled',startDate:'2026-11-16',days:2},now),'past');
+  assert.equal(r.ridePhase({status:'cancelled',startDate:'2026-11-20',days:2},now),'cancelled');
+  assert.equal(r.endDate('2026-12-30',3),'2027-01-01');
+  assert.equal(r.seatFor(9,10),'going');assert.equal(r.seatFor(10,10),'waitlist');
+  assert(r.meetsExperience('Experienced','Intermediate'));assert(!r.meetsExperience('Beginner','Intermediate'));
+  const ok={title:'Sunday ghats',routeId:'konkan',startDate:'2026-12-06',days:2,meetupPoint:'Chandni Chowk',meetupTime:'06:30',capacity:12,vehicle:'Bike',distanceKm:300};
+  assert(r.rideInput.safeParse(ok).success);
+  assert(!r.rideInput.safeParse({...ok,routeId:'custom'}).success,'custom needs from/to');
+  assert(r.rideInput.safeParse({...ok,routeId:'custom',custom:{from:'Pune',to:'Goa'}}).success);
+  assert(!r.rideInput.safeParse({...ok,meetupTime:'25:00'}).success);assert(!r.rideInput.safeParse({...ok,capacity:1}).success);
+  assert(!r.rideUpdateInput.safeParse({...ok,status:'done'}).success);assert(r.rideUpdateInput.safeParse({...ok,status:'cancelled'}).success);
+  const brief={summary:'x',days:[{day:1,from:'A',to:'B',km:100,rideHours:3,stayArea:'B',stayType:'Homestay',highlights:['a','b','c','d'],caution:'c'}],regroupPoints:[],fuelPlan:'f',packing:[],safety:[]};
+  const parsed=r.briefSchema.z.parse(brief);assert.equal(parsed.days[0].highlights.length,3,'over-long lists trimmed');
+  assert.throws(()=>r.checkBrief(parsed,2));assert.equal(r.checkBrief(parsed,1),parsed);
+  assert.deepEqual(r.checklistInput.safeParse({items:['docs','fuel']}).success,true);assert.equal(r.checklistInput.safeParse({items:['bogus']}).success,false);
+  console.log('Group ride rules passed.');
+}

@@ -4,6 +4,7 @@ import {accounts,crews,crewMembers} from '../../../../db/schema';
 import {getUser,isAdmin} from '../../../auth';
 import {memberActionInput,memberActionError} from '../../../../lib/crew-schema.mjs';
 import {json,readJson} from '../../../../lib/http';
+import {dropFromCrewRides} from '../../../../lib/rides';
 export const dynamic='force-dynamic';
 
 const ORDER:Record<string,number>={owner:0,colead:1,member:2};
@@ -42,7 +43,8 @@ export async function POST(request:Request){
     if(error)return json({error},403);
     const where=and(eq(crewMembers.crewId,id),eq(crewMembers.userId,account!.userId));
     if(action==='approve')await db.update(crewMembers).set({status:'active',joinedAt:new Date().toISOString()}).where(where);
-    else if(action==='reject'||action==='remove')await db.delete(crewMembers).where(where);
+    else if(action==='reject')await db.delete(crewMembers).where(where);
+    else if(action==='remove')await db.transaction(async tx=>{await tx.delete(crewMembers).where(where);await dropFromCrewRides(tx,id,account!.userId)});
     else await db.update(crewMembers).set({role:action==='promote'?'colead':'member'}).where(where);
     return json({id,rider,action});
   }catch{return json({error:'That change was not saved. Please try again.'},503)}

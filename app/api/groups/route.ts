@@ -5,6 +5,7 @@ import {getUser,isAdmin} from '../../auth';
 import {crewInput,crewUpdateInput,membershipInput,crewIdInput,MAX_CREWS_PER_ORGANIZER} from '../../../lib/crew-schema.mjs';
 import {PROFILE_LINKS,cleanLinks} from '../../../public/domain.mjs';
 import {json,readJson} from '../../../lib/http';
+import {dropFromCrewRides} from '../../../lib/rides';
 export const dynamic='force-dynamic';
 
 // Public list of active crews (plus the viewer's own crews under review). Organizer user IDs stay on the server;
@@ -81,7 +82,11 @@ export async function PATCH(request:Request){
       const [m]=await db.select({status:crewMembers.status}).from(crewMembers).where(and(eq(crewMembers.crewId,id),eq(crewMembers.userId,user.userId))).limit(1);
       return json({id,joined:m?.status==='active',pending:m?.status==='pending'});
     }
-    const left=await db.delete(crewMembers).where(and(eq(crewMembers.crewId,id),eq(crewMembers.userId,user.userId),ne(crewMembers.role,'owner'))).returning({role:crewMembers.role});
+    const left=await db.transaction(async tx=>{
+      const gone=await tx.delete(crewMembers).where(and(eq(crewMembers.crewId,id),eq(crewMembers.userId,user.userId),ne(crewMembers.role,'owner'))).returning({role:crewMembers.role});
+      if(gone.length)await dropFromCrewRides(tx,id,user.userId);
+      return gone;
+    });
     if(!left.length){
       const [owner]=await db.select({id:crews.id}).from(crews).where(and(eq(crews.id,id),eq(crews.organizerId,user.userId))).limit(1);
       if(owner)return json({error:'You own this group. Delete it instead of leaving.'},400);

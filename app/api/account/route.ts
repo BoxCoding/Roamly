@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '../../../db';
-import { accounts, aiQuota, crewMembers, crewReports, crews, profiles, users } from '../../../db/schema';
+import { accounts, aiQuota, crewMembers, crewReports, crews, profiles, rideRsvps, rideUpdates, users } from '../../../db/schema';
 import { clearSessionCookie, getUser } from '../../auth';
 import { json, readJson } from '../../../lib/http';
 export const dynamic = 'force-dynamic';
@@ -19,6 +19,8 @@ export async function DELETE(request: Request) {
       await tx.delete(crewReports).where(eq(crewReports.reporterId, uid));
       await tx.delete(profiles).where(eq(profiles.userId, uid));
       await tx.delete(aiQuota).where(eq(aiQuota.userId, uid));
+      await tx.delete(rideRsvps).where(eq(rideRsvps.userId, uid));
+      await tx.delete(rideUpdates).where(eq(rideUpdates.authorId, uid));
       await tx.delete(accounts).where(eq(accounts.userId, uid));
       if (uid.startsWith('user:')) await tx.delete(users).where(eq(users.id, uid.slice(5)));
     });

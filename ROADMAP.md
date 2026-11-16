@@ -19,12 +19,12 @@ A rider is a normal user everywhere and gets group powers only inside the groups
 
 ## Phases
 
-### Phase 1: Roles and groups (foundation)
+### Phase 1: Roles and groups (foundation) — done
 - Group roles (owner, co-lead, member), public or private groups, join requests with approval.
 - Admin role in the database (not only `ADMIN_EMAILS`), suspend or ban users, an admin dashboard for users, groups and reports.
 - Rider public profile page (name, city, vehicles, groups, links).
 
-### Phase 2: Group rides (planning rides together)
+### Phase 2: Group rides (planning rides together) — done
 - A group ride has a date, a route (catalog or custom), a meetup point and time, a capacity, a minimum experience level and a ride lead.
 - Riders RSVP as going, maybe or waitlist. Each rider has a checklist (documents, vehicle check, gear) and a member list.
 - An AI ride brief is generated once per ride and shared by every member (route, stays, fuel, cautions, budget per rider).

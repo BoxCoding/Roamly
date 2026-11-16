@@ -16,3 +16,11 @@
 .admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 40px 18px}.admin-stats>div{background:#edf2e5;border-radius:8px;padding:14px}.admin-stats strong{display:block;font:750 22px 'Manrope'}.admin-stats small{font-size:10px;color:var(--muted)}
 .admin-list{margin:0 40px 35px}
 @media(max-width:560px){.admin-stats,.admin-list{margin-left:18px;margin-right:18px}.member-row{flex-direction:column;align-items:flex-start}.member-actions{justify-content:flex-start}}
+.ride-list{margin:0 40px 35px;display:grid;gap:10px}.ride-card{display:grid;grid-template-columns:62px 1fr auto;gap:14px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff}.ride-card.past,.ride-card.cancelled{opacity:.65}
+.ride-date{background:var(--green);color:#fff;border-radius:8px;text-align:center;padding:8px 4px}.ride-date strong{display:block;font:750 22px 'Manrope'}.ride-date span{font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.ride-info h3{margin:0 0 4px}.ride-info p{margin:2px 0;font-size:11px;color:var(--muted)}.ride-status{font-size:10px;font-weight:700;color:#45683e;background:#eef2e8;border-radius:999px;padding:6px 10px;white-space:nowrap}
+.ride-filters{margin:0 40px 14px}.checklist{display:grid;gap:8px;font-size:12px;margin:8px 0 14px}.checklist input{margin-right:6px}
+.rider-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}.rider-chip{background:#eef2e8;border-radius:999px;padding:5px 10px;font-size:11px}
+.ride-update{border-left:3px solid var(--line);padding:6px 0 6px 12px;margin:10px 0;font-size:12px}.ride-update.pinned{border-color:var(--green)}.ride-update p{margin:4px 0;color:var(--ink)}
+.brief-caution{color:#a35740}.brief-days{display:grid;gap:8px}
+@media(max-width:560px){.ride-list,.ride-filters{margin-left:18px;margin-right:18px}.ride-card{grid-template-columns:52px 1fr}.ride-status{grid-column:1/-1;justify-self:start}}
