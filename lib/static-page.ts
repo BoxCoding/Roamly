@@ -6,7 +6,7 @@ export function staticPage({title,description,url,image='/app-icon-1024.png',hea
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escHtml(title)}</title><meta name="description" content="${escHtml(description)}">
 <meta property="og:site_name" content="Roamly"><meta property="og:title" content="${escHtml(title)}"><meta property="og:description" content="${escHtml(description)}">
-<meta property="og:image" content="${escHtml(image)}">${url?`<meta property="og:url" content="${escHtml(url)}"><link rel="canonical" href="${escHtml(url)}">`:''}<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${escHtml(image)}">${url?`<meta property="og:url" content="${escHtml(url)}"><link rel="canonical" href="${escHtml(url)}">`:''}<meta name="twitter:card" content="${image.includes('app-icon')?'summary':'summary_large_image'}">
 <link rel="icon" href="/favicon.svg"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#244d3d">${head}
 <style>
 :root{--paper:#fbfaf6;--ink:#1f2a22;--muted:#5f6b5c;--accent:#244d3d;--line:#e3e6dd}

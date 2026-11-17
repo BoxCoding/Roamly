@@ -27,8 +27,11 @@ try{
   const {id:coverRide}=await (await call('POST','/api/rides',{crewId,ride:{...ride,cover:commons,tags:['Ghats','Monsoon']}},owner)).json();
   let cr=(await get('/api/rides/'+coverRide)).body.ride;assert.deepEqual(cr.cover,commons);assert.deepEqual(cr.tags,['Ghats','Monsoon']);
   assert.equal((await get('/api/rides')).body.rides.find(x=>x.id===coverRide).cover,commons.url);
+  const og=async()=>(await (await fetch(origin+'/r/'+coverRide)).text()).match(/property="og:image" content="([^"]+)"/)?.[1];
+  assert.equal(await og(),commons.url,'share link shows the cover');
   assert.equal((await call('PUT','/api/rides/'+coverRide,{...ride,cover:{url:'assets/photo-1464822759023-fed622ff2c3b.jpg',credit:'',page:''},tags:[]},owner)).status,200);
   cr=(await get('/api/rides/'+coverRide)).body.ride;assert.equal(cr.cover.url,'assets/photo-1464822759023-fed622ff2c3b.jpg');assert.deepEqual(cr.tags,[]);
+  assert.equal(await og(),origin+'/assets/photo-1464822759023-fed622ff2c3b.jpg','relative covers become absolute');
   assert.equal((await call('DELETE','/api/rides/'+coverRide,{},owner)).status,200);
   // Profile photo must be your own upload.
   const {emptyProfile:ep}=await import('./lib/profile-schema.mjs');
