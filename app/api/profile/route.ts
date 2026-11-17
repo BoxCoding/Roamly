@@ -1,6 +1,6 @@
 import {and,eq} from 'drizzle-orm';
 import {getDb} from '../../../db';
-import {profiles} from '../../../db/schema';
+import {profiles,uploads} from '../../../db/schema';
 import {getUser} from '../../auth';
 import {emptyProfile,profileUpdateSchema,withDefaults} from '../../../lib/profile-schema.mjs';
 import {json,readJson} from '../../../lib/http';
@@ -19,6 +19,8 @@ export async function PUT(request:Request){
   const parsed=profileUpdateSchema.safeParse(req.body);if(!parsed.success)return json({error:parsed.error.issues[0]?.message||'Invalid profile.'},400);
   try{
     const {profile,updatedAt}=parsed.data;
+    // Profile photo must be the rider's own upload.
+    if(profile.photo&&!(await getDb().select({key:uploads.key}).from(uploads).where(and(eq(uploads.key,profile.photo),eq(uploads.userId,user.userId))).limit(1)).length)return json({error:'Upload your photo again.'},400);
     const stamp=new Date(Math.max(Date.now(),updatedAt?Date.parse(updatedAt)+1:0)).toISOString();const values={details:JSON.stringify(profile),updatedAt:stamp};
     const db=getDb();
     const rows=updatedAt?await db.update(profiles).set(values).where(and(eq(profiles.userId,user.userId),eq(profiles.updatedAt,updatedAt))).returning():await db.insert(profiles).values({userId:user.userId,...values}).onConflictDoNothing().returning();

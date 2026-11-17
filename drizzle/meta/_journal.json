@@ -50,6 +50,13 @@
       "when": 1794904110849,
       "tag": "0006_p0_safety_auth_analytics",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794907409664,
+      "tag": "0007_ride_cover_tags",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,7 @@ import {notify} from '../../../../lib/notify';
 import {trips} from '../../../../public/catalog.mjs';
 import {estimate} from '../../../../public/domain.mjs';
 import {json,readJson} from '../../../../lib/http';
+import {coverAllowed} from '../../../../lib/ride-media';
 export const dynamic='force-dynamic';
 type Ctx={params:Promise<{id:string}>};
 const validId=(id:string)=>/^[0-9a-f-]{36}$/.test(id);
@@ -41,7 +42,7 @@ export async function GET(_request:Request,{params}:Ctx){
       roster:insider?rsvps.map(x=>({name:x.name||'Rider',publicId:x.publicId,status:x.status,ready:JSON.parse(x.checklist).length===CHECKLIST.length,...(a.canManage&&x.status==='going'?{emergency:emergency.get(x.userId)||null}:{})})):null,
       myRsvp:mine?.status||null,myChecklist:mine?JSON.parse(mine.checklist):[],myExperience:experience,
       updates:insider?updates.map(u=>({id:u.id,author:u.authorName,body:u.body,pinned:u.pinned,createdAt:u.createdAt})):null,
-      brief:r.brief?JSON.parse(r.brief):null,plan:r.plan?JSON.parse(r.plan):null,briefAt:r.briefAt,briefCount:r.briefCount,
+      cover:r.cover?JSON.parse(r.cover):null,tags:JSON.parse(r.tags),brief:r.brief?JSON.parse(r.brief):null,plan:r.plan?JSON.parse(r.plan):null,briefAt:r.briefAt,briefCount:r.briefCount,
       perRider,member:a.member,canManage:a.canManage,signedIn:Boolean(user)},checklist:CHECKLIST});
   }catch{return json({error:'This ride could not be loaded.'},503)}
 }
@@ -50,18 +51,19 @@ export async function GET(_request:Request,{params}:Ctx){
 export async function PUT(request:Request,{params}:Ctx){
   const {id}=await params;if(!validId(id))return json({error:'Ride not found.'},404);
   const user=await getUser();if(!user)return json({error:'Sign in to edit this ride.'},401);
-  const req=await readJson(request,4000);if('error' in req)return req.error;
+  const req=await readJson(request,6000);if('error' in req)return req.error;
   const parsed=rideUpdateInput.safeParse(req.body);if(!parsed.success)return json({error:parsed.error.issues[0]?.message||'Check the ride details.'},400);
   try{
     const a=await rideAccess(id,user);if(!a?.canSee)return json({error:'Ride not found.'},404);
     if(!a.canManage)return json({error:'Only the ride lead, crew owner or a co-lead can edit this ride.'},403);
-    const {custom,...r}=parsed.data,old=a.ride;
+    const {custom,cover,tags,...r}=parsed.data,old=a.ride;
+    if(!await coverAllowed(cover,user.userId,old.cover))return json({error:'Upload the cover photo again.'},400);
     if(r.startDate!==old.startDate&&startsInPast(r.startDate))return json({error:'Choose a start date from today onwards.'},400);
     const trip=r.routeId==='custom'?null:trips.find(t=>t.id===r.routeId);if(r.routeId!=='custom'&&!trip)return json({error:'Route not found.'},404);
     const route=JSON.stringify(trip?{title:trip.title,route:trip.route}:custom);
     const replan=route!==old.route||r.days!==old.days||r.startDate!==old.startDate||r.vehicle!==old.vehicle||r.distanceKm!==old.distanceKm;
     await getDb().transaction(async tx=>{
-      await tx.update(rides).set({...r,route,...(replan?{brief:null,briefAt:null}:{})}).where(eq(rides.id,id));
+      await tx.update(rides).set({...r,cover:cover?JSON.stringify(cover):null,tags:JSON.stringify(tags),route,...(replan?{brief:null,briefAt:null}:{})}).where(eq(rides.id,id));
       if(r.capacity>old.capacity)await promoteWaitlist(tx,id,r.capacity);
     });
     if(r.status==='cancelled'&&old.status!=='cancelled'){

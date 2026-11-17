@@ -17,6 +17,13 @@ const created=await call('POST','/api/plans',plan,lead);assert.equal(created.sta
 const list=(await get('/api/plans',lead)).body.plans;assert.equal(list.find(p=>p.id===id).km,580);
 assert.deepEqual((await get('/api/plans/'+id,lead)).body.plan.days[0].places,['Lonavala lake']);
 assert.equal((await get('/api/plans/'+id,other)).status,404,'plans are private');
+// Cover and tags on plans follow the ride rules.
+assert.equal((await call('POST','/api/plans',{...plan,cover:{url:'https://evil.test/a.jpg',credit:'',page:''}},lead)).status,400,'foreign cover rejected');
+assert.equal((await call('POST','/api/plans',{...plan,cover:{url:'/api/photos/'+'d'.repeat(32)+'.webp',credit:'',page:''}},lead)).status,400,'not your upload');
+const coverPlan={...plan,cover:{url:'assets/photo-1464822759023-fed622ff2c3b.jpg',credit:'',page:''},tags:['Coast','Monsoon']};
+assert.equal((await call('PUT','/api/plans/'+id,coverPlan,lead)).status,200);
+assert.deepEqual((await get('/api/plans/'+id,lead)).body.plan.tags,['Coast','Monsoon']);
+assert.equal((await get('/api/plans',lead)).body.plans.find(p=>p.id===id).cover,coverPlan.cover.url);
 assert.equal((await call('PUT','/api/plans/'+id,plan,other)).status,404);
 assert.equal((await call('DELETE','/api/plans/'+id,{},other)).status,404);
 const edited={...plan,days:[...plan.days.slice(0,1),{...plan.days[1],stayArea:'Panaji'},day(3,'Panaji','Pune',450)]};

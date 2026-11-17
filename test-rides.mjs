@@ -19,6 +19,21 @@ try{
   const created=await call('POST','/api/rides',{crewId,ride},owner);assert.equal(created.status,201);const {id}=await created.json();
   const {id:privateRide}=await (await call('POST','/api/rides',{crewId:privateId,ride},owner)).json();
 
+  // Cover photo and tags: only our uploads (own), catalog photos or Wikimedia Commons; others rejected.
+  const commons={url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Khandala_Ghat-_Lonavala_-_panoramio.jpg/1280px-Khandala_Ghat-_Lonavala_-_panoramio.jpg',credit:'Photo: X · CC BY 3.0 · Wikimedia Commons',page:'https://commons.wikimedia.org/wiki/File:Khandala_Ghat-_Lonavala_-_panoramio.jpg'};
+  assert.equal((await call('POST','/api/rides',{crewId,ride:{...ride,cover:{url:'https://evil.test/x.jpg',credit:'',page:''}}},owner)).status,400,'foreign image host rejected');
+  assert.equal((await call('POST','/api/rides',{crewId,ride:{...ride,cover:{url:'/api/photos/'+'b'.repeat(32)+'.webp',credit:'',page:''}}},owner)).status,400,'someone else\'s upload rejected');
+  assert.equal((await call('POST','/api/rides',{crewId,ride:{...ride,tags:['a','b','c','d','e','f']}},owner)).status,400,'max 5 tags');
+  const {id:coverRide}=await (await call('POST','/api/rides',{crewId,ride:{...ride,cover:commons,tags:['Ghats','Monsoon']}},owner)).json();
+  let cr=(await get('/api/rides/'+coverRide)).body.ride;assert.deepEqual(cr.cover,commons);assert.deepEqual(cr.tags,['Ghats','Monsoon']);
+  assert.equal((await get('/api/rides')).body.rides.find(x=>x.id===coverRide).cover,commons.url);
+  assert.equal((await call('PUT','/api/rides/'+coverRide,{...ride,cover:{url:'assets/photo-1464822759023-fed622ff2c3b.jpg',credit:'',page:''},tags:[]},owner)).status,200);
+  cr=(await get('/api/rides/'+coverRide)).body.ride;assert.equal(cr.cover.url,'assets/photo-1464822759023-fed622ff2c3b.jpg');assert.deepEqual(cr.tags,[]);
+  assert.equal((await call('DELETE','/api/rides/'+coverRide,{},owner)).status,200);
+  // Profile photo must be your own upload.
+  const {emptyProfile:ep}=await import('./lib/profile-schema.mjs');
+  assert.equal((await call('PUT','/api/profile',{profile:{...ep(),photo:'c'.repeat(32)+'.webp'},updatedAt:null},outsider)).status,400,'cannot use someone else\'s photo');
+
   // Visibility: open crew rides are public; private crew rides are members-only.
   const anonList=(await get('/api/rides')).body.rides;assert(anonList.some(r=>r.id===id));assert(!anonList.some(r=>r.id===privateRide),'private rides hidden');
   assert.equal((await get('/api/rides/'+privateRide,outsider)).status,404);

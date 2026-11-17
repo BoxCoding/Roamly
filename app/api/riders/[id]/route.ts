@@ -25,7 +25,7 @@ export async function GET(_request:Request,{params}:{params:Promise<{id:string}>
     ]);
     const p=withDefaults(row?JSON.parse(row.details):{});
     return json({rider:{publicId:account.publicId,name:account.name,memberSince:account.createdAt,isYou:account.userId===user.userId,
-      homeCity:p.homeCity,experience:p.experience,bio:p.bio,ridingSince:p.ridingSince,styles:p.styles,pace:p.pace,lookingFor:p.lookingFor,regions:p.regions,languages:p.languages,
+      photo:p.photo?'/api/photos/'+p.photo:null,homeCity:p.homeCity,experience:p.experience,bio:p.bio,ridingSince:p.ridingSince,styles:p.styles,pace:p.pace,lookingFor:p.lookingFor,regions:p.regions,languages:p.languages,
       links:cleanLinks(p.links||{},PROFILE_LINKS).links||{},vehicles:(p.vehicles||[]).map((v:{type:string,make:string,model:string,year:number})=>({type:v.type,make:v.make,model:v.model,year:v.year})),
       completeness:profileCompleteness(p),groups,stats,following:Boolean(follow)}});
   }catch{return json({error:'This profile could not be loaded.'},503)}

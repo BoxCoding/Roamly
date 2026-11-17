@@ -4,6 +4,7 @@ import {plans} from '../../../../db/schema';
 import {getUser} from '../../../auth';
 import {planSchema} from '../../../../lib/plan-schema.mjs';
 import {json,readJson} from '../../../../lib/http';
+import {coverAllowed} from '../../../../lib/ride-media';
 export const dynamic='force-dynamic';
 type Ctx={params:Promise<{id:string}>};
 const mine=(id:string,userId:string)=>and(eq(plans.id,id),eq(plans.userId,userId));
@@ -20,6 +21,7 @@ export async function PUT(request:Request,{params}:Ctx){
   const {id}=await params;const user=await getUser();if(!user)return json({error:'Sign in first.'},401);
   const req=await readJson(request,30000);if('error' in req)return req.error;
   const parsed=planSchema.safeParse(req.body);if(!parsed.success)return json({error:parsed.error.issues[0]?.message||'Check the plan.'},400);
+  if(!await coverAllowed(parsed.data.cover,user.userId))return json({error:'Upload the cover photo again.'},400);
   try{
     const now=new Date().toISOString();
     const done=await getDb().update(plans).set({title:parsed.data.title,data:JSON.stringify(parsed.data),updatedAt:now}).where(mine(id,user.userId)).returning({id:plans.id});

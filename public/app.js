@@ -89,7 +89,8 @@ function renderProfile(){
   const ph={instagram:'instagram.com/you',youtube:'youtube.com/@yourchannel',facebook:'facebook.com/you',x:'x.com/you',strava:'strava.com/athletes/123',threads:'threads.net/@you',website:'yourblog.in'};
   $('#modal-body').innerHTML=`<div class="eyebrow">YOUR RIDER PROFILE</div><h2>${esc(me.name)}</h2><p>Signed in with ${providerName()} · only signed-in riders can see your rider card.</p>${session.user.provider==='password'&&session.user.emailVerified===false?'<p class="notice">Your email is not confirmed yet, so you cannot reset your password if you forget it. <button type="button" class="text-link" id="resend-verify">Send confirmation link</button></p>':''}
   <div class="profile-meter" role="img" aria-label="Profile ${done}% complete"><span style="width:${done}%"></span></div><p class="form-footnote">Profile ${done}% complete. A fuller profile helps organizers approve you and riders find their kind of crew.${me.publicId?` <button type="button" class="text-link" data-rider="${esc(me.publicId)}">View my rider card ↗</button>`:''}</p>
-  <form id="profile-form">
+  <form id="profile-form" data-max-photos="1" data-photos='${esc(JSON.stringify(d.photo?[{key:d.photo,url:'/api/photos/'+d.photo}]:[]))}'>
+  <div class="profile-photo-row"><div class="photo-thumbs avatar-thumb" data-photo-thumbs>${d.photo?`<span class="photo-thumb"><img src="/api/photos/${esc(d.photo)}" alt="Your profile photo"><button type="button" data-remove-photo="${esc(d.photo)}" aria-label="Remove photo">×</button></span>`:'<span class="avatar avatar-lg">'+esc((me.name||'R')[0])+'</span>'}</div><label class="secondary file-button">📷 ${d.photo?'Change':'Add'} profile photo<input type="file" accept="image/jpeg,image/png,image/webp" data-photo-input hidden></label></div>
   <h3>The basics</h3><div class="form-grid"><div class="form-field"><label for="home-city">Home city</label><input id="home-city" name="homeCity" maxlength="80" value="${esc(d.homeCity)}" placeholder="Noida"></div><div class="form-field"><label for="experience">Experience</label><select id="experience" name="experience">${['Beginner','Intermediate','Experienced'].map(x=>`<option ${d.experience===x?'selected':''}>${x}</option>`).join('')}</select></div>
   <div class="form-field"><label for="riding-since">Riding since <small>(year)</small></label><input id="riding-since" name="ridingSince" type="number" min="1950" max="${new Date().getFullYear()}" value="${d.ridingSince??''}" placeholder="2016"></div><div class="form-field"><label for="pace">Usual pace</label><select id="pace" name="pace"><option value="">Choose</option>${RIDING_PACES.map(x=>`<option ${d.pace===x?'selected':''}>${x}</option>`).join('')}</select></div>
   <div class="form-field wide"><label for="profile-bio">About your riding</label><textarea id="profile-bio" name="bio" maxlength="500" placeholder="Weekend tourer, love the hills, always up for a chai stop.">${esc(d.bio)}</textarea></div></div>
@@ -107,6 +108,7 @@ function captureProfile(){
     links:Object.fromEntries(PROFILE_LINKS.map(k=>{const raw=String(data.get('link-'+k)||'').trim();return [k,cleanLink(k,raw)??raw]}).filter(([,v])=>v)),
     ridingSince:since?Number(since):null,styles:data.getAll('styles'),pace:String(data.get('pace')||''),lookingFor:data.getAll('lookingFor'),
     regions:String(data.get('regions')||'').trim(),languages:String(data.get('languages')||'').trim(),
+    photo:JSON.parse(form.dataset.photos||'[]')[0]?.key||'',
     emergency:{name:String(data.get('sosName')||'').trim(),phone:String(data.get('sosPhone')||'').trim(),bloodGroup:String(data.get('sosBlood')||'')},
     vehicles:[...form.querySelectorAll('[data-vehicle-row]')].map(row=>Object.fromEntries([...row.querySelectorAll('input,select')].map(field=>[field.name,['year','mileage','seats','engineCc'].includes(field.name)?Number(field.value):field.value])))};
 }
@@ -291,7 +293,7 @@ async function showRider(id){
     const {rider:x}=await api('/api/riders/'+encodeURIComponent(id));
     const years=x.ridingSince?new Date().getFullYear()-x.ridingSince:null;
     const facts=[x.homeCity&&'⌖ '+x.homeCity,x.experience,years!==null&&(years<1?'Riding since '+x.ridingSince:`${years} year${years===1?'':'s'} riding`),x.pace&&x.pace+' pace'].filter(Boolean);
-    open(`<div class="eyebrow">RIDER CARD${x.isYou?' · THIS IS HOW RIDERS SEE YOU':''}</div><h2>${esc(x.name)}</h2>
+    open(`<div class="eyebrow">RIDER CARD${x.isYou?' · THIS IS HOW RIDERS SEE YOU':''}</div><div class="rider-head">${x.photo?`<img class="rider-photo" src="${esc(x.photo)}" alt="${esc(x.name)}">`:''}<h2>${esc(x.name)}</h2></div>
     <div class="detail-facts">${facts.map(f=>`<span>${esc(f)}</span>`).join('')}<span>Member since ${shortDate(x.memberSince)}</span></div>
     <div class="rider-stats"><div><strong>${x.stats.rides}</strong><small>group rides</small></div><div><strong>${x.stats.km.toLocaleString('en-IN')}</strong><small>km ridden</small></div><div><strong>${x.stats.reports}</strong><small>road reports</small></div><div><strong>${x.stats.followers}</strong><small>followers</small></div></div>
     ${x.stats.badges.length?`<div class="tag-list badges">${x.stats.badges.map(b=>`<span>🏅 ${esc(b.label)}</span>`).join('')}</div>`:''}
@@ -389,7 +391,7 @@ function ridesPage(){
 }
 function rideCard(r){
   const {day,month}=dayMonth(r.startDate),full=r.going>=r.capacity;
-  return `<article class="ride-card ${r.phase}"><div class="ride-date"><strong>${day}</strong><span>${month}</span></div><div class="ride-info"><h3><button class="card-action" data-ride="${esc(r.id)}">${esc(r.title)} ↗</button></h3>
+  return `<article class="ride-card ${r.phase}"><div class="ride-date"><strong>${day}</strong><span>${month}</span></div><div class="ride-info">${r.cover?`<img class="ride-thumb" src="${esc(r.cover)}" alt="" loading="lazy" onerror="this.remove()">`:''}<h3><button class="card-action" data-ride="${esc(r.id)}">${esc(r.title)} ↗</button></h3>
   <p>${esc(r.crewName)}${r.crewVisibility==='private'?' 🔒':''} · ${esc(r.routeLabel)} · ${r.days} day${r.days>1?'s':''} · ${vehicleLabel(r.vehicle)}</p>
   <p>⌖ ${esc(r.meetupPoint)} · ${esc(r.meetupTime)} · ${r.going}/${r.capacity} going${r.waitlist?` · ${r.waitlist} waitlisted`:''}${r.minExperience!=='Beginner'?` · ${esc(r.minExperience)}+`:''}</p></div>
   <span class="ride-status">${r.phase!=='upcoming'?PHASE_LABELS[r.phase]:r.myRsvp?rsvpLabel[r.myRsvp]:full?'Full · waitlist':'Seats open'}</span></article>`;
@@ -410,7 +412,7 @@ function rideForm(crewId,r=null){
   const crew=crews.find(c=>c.id===crewId),today=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
   const v=(k,d='')=>esc(r?.[k]??d),custom=r?.routeId==='custom';
   return `<div class="eyebrow">${esc(crew?.name||'CREW').toUpperCase()}</div><h2>${r?'Edit ride.':'Plan a group ride.'}</h2><p>${r?'Riders see changes straight away. Changing the route, dates or vehicle clears the AI brief so you can regenerate it.':'Crew members RSVP, the ride lead posts updates, and one AI brief is shared with everyone.'}</p>
-  <form id="ride-form" data-crew="${esc(crewId)}" ${r?`data-ride-edit="${esc(r.id)}"`:''}><div class="form-grid">
+  <form id="ride-form" data-crew="${esc(crewId)}" data-cover='${esc(JSON.stringify(r?.cover||null))}' ${r?`data-ride-edit="${esc(r.id)}"`:''}><div class="form-grid">
   <div class="form-field wide"><label for="ride-title">Ride title</label><input id="ride-title" name="title" required maxlength="80" value="${v('title')}" placeholder="Sunday sunrise to Lavasa"></div>
   <div class="form-field wide"><label for="ride-route">Route</label><select id="ride-route" name="routeId">${trips.map(t=>`<option value="${t.id}" data-km="${t.km}" data-days="${t.days}" data-vehicle="${t.vehicle}" ${r?.routeId===t.id?'selected':''}>${esc(t.title)} · ${esc(t.route)}</option>`).join('')}<option value="custom" ${custom?'selected':''}>✎ My own route</option></select></div>
   <div id="ride-custom" class="form-grid wide" ${custom?'':'hidden'} style="grid-column:1/-1"><div class="form-field"><label for="ride-from">From</label><input id="ride-from" name="from" maxlength="80" value="${esc(r?.route?.from||'')}"></div><div class="form-field"><label for="ride-to">To</label><input id="ride-to" name="to" maxlength="80" value="${esc(r?.route?.to||'')}"></div><div class="form-field wide"><label for="ride-via">Via <small>(comma separated, up to 5)</small></label><input id="ride-via" name="via" maxlength="300" value="${esc((r?.route?.via||[]).join(', '))}"></div></div>
@@ -423,10 +425,45 @@ function rideForm(crewId,r=null){
   <div class="form-field"><label for="ride-vehicle">Vehicle</label><select id="ride-vehicle" name="vehicle">${['Bike','Car'].map(x=>`<option ${(r?.vehicle||crew?.vehicle)===x?'selected':''}>${x}</option>`).join('')}</select></div>
   <div class="form-field"><label for="ride-stay">Stay budget</label><select id="ride-stay" name="stay">${['Budget','Comfort','Premium'].map(x=>`<option ${(r?.stay||'Comfort')===x?'selected':''}>${x}</option>`).join('')}</select></div>
   <div class="form-field"><label for="ride-km">Total distance (km)</label><input id="ride-km" name="distanceKm" type="number" min="1" max="20000" required value="${v('distanceKm',trips[0].km)}"></div>
+  ${coverFields(r?.cover,r?.tags)}
   <div class="form-field wide"><label for="ride-desc">Notes for riders <small>(optional)</small></label><textarea id="ride-desc" name="description" maxlength="600" placeholder="Pace, breakfast stop, rules, what to bring">${v('description')}</textarea></div>
   ${r?`<div class="form-field wide"><label for="ride-status">Status</label><select id="ride-status" name="status"><option value="scheduled" ${r.status!=='cancelled'?'selected':''}>Scheduled</option><option value="cancelled" ${r.status==='cancelled'?'selected':''}>Cancelled</option></select></div>`:''}
   <button class="primary">${r?'Save ride':'Publish ride ↗'}</button></div></form>`;
 }
+// Cover photo and tags, shared by the ride form and the plan editor. The chosen cover lives in the form's data-cover.
+const coverPreview=c=>c?`<img src="${esc(c.url)}" alt="Cover photo">${c.credit?`<small>${c.page?`<a href="${esc(c.page)}" target="_blank" rel="noopener noreferrer">${esc(c.credit)}</a>`:esc(c.credit)}</small>`:''}<button type="button" class="text-link" data-cover-pick="null">Remove cover</button>`:'<p class="form-footnote">No cover yet. Suggest one with AI or upload your own.</p>';
+const coverFields=(cover,tags)=>`<div class="form-field wide"><label>Cover photo and tags</label><div class="cover-preview">${coverPreview(cover)}</div>
+  <div class="button-row"><button type="button" class="secondary" data-cover-suggest>✨ Suggest tags and photos</button><label class="secondary file-button">📷 Upload my photo<input type="file" accept="image/jpeg,image/png,image/webp" data-cover-file hidden></label></div>
+  <div class="cover-options"></div>
+  <label class="form-footnote">Tags <small>(up to 5, comma separated)</small><input name="tags" data-tags maxlength="130" value="${esc((tags||[]).join(', '))}" placeholder="Ghats, Monsoon, Beginner friendly"></label></div>`;
+const readTags=f=>[...new Set(String(f.querySelector('[data-tags]')?.value||'').split(',').map(x=>x.trim().slice(0,24)).filter(Boolean))].slice(0,5);
+function setCover(f,c){f.dataset.cover=JSON.stringify(c);f.querySelector('.cover-preview').innerHTML=coverPreview(c);if(f.id==='plan-edit-form'&&planDraft)planDraft.cover=c}
+// What the AI sees for each form: a title, the route as text, notes and the vehicle.
+function coverContext(f){
+  if(f.id==='plan-edit-form'){const p=capturePlan(),towns=[...new Set(p.days.flatMap(d=>[d.from,d.to]).filter(Boolean))];
+    return {trip:trips.find(t=>t.id===p.routeId),body:{title:p.title,route:(towns.length>6?[...towns.slice(0,5),towns.at(-1)]:towns).join(' → '),description:p.days.flatMap(d=>d.places).join(', ').slice(0,600),vehicle:p.settings.vehicle}}}
+  const d=Object.fromEntries(new FormData(f)),trip=trips.find(t=>t.id===d.routeId);
+  return {trip,body:{title:d.title.trim(),route:d.routeId==='custom'?[d.from,d.via,d.to].filter(x=>x&&x.trim()).join(' → '):`${trip.title} · ${trip.route}`,description:d.description.trim(),vehicle:d.vehicle}};
+}
+document.addEventListener('click',async e=>{
+  const pick=e.target.closest('[data-cover-pick]');if(pick)return setCover(pick.closest('form'),JSON.parse(pick.dataset.coverPick));
+  const b=e.target.closest('[data-cover-suggest]');if(!b)return;
+  const f=b.closest('form'),{trip,body}=coverContext(f);
+  if(!body.title||!body.route.trim())return toast('Add a title and route first.');
+  b.disabled=true;b.textContent='Thinking…';
+  try{
+    const x=await api('/api/rides/suggest',{method:'POST',body:{...body,route:body.route.slice(0,300)}});
+    if(x.tags.length)f.querySelector('[data-tags]').value=x.tags.join(', ');
+    const options=[...(trip?[{url:photo(trip.image),credit:'',page:''}]:[]),...x.images];
+    f.querySelector('.cover-options').innerHTML=options.length?options.map(c=>`<button type="button" class="cover-option" data-cover-pick='${esc(JSON.stringify(c))}' title="${esc(c.credit||'Roamly photo')}"><img src="${esc(c.url)}" alt="Suggested cover" loading="lazy"></button>`).join(''):'<p class="form-footnote">No photos found. Upload your own.</p>';
+  }catch(error){toast(error.message)}
+  finally{b.disabled=false;b.textContent='✨ Suggest tags and photos'}
+});
+document.addEventListener('change',async e=>{
+  if(!e.target.matches('[data-cover-file]'))return;const f=e.target.closest('form'),file=e.target.files[0];e.target.value='';if(!file)return;
+  try{const r=await fetch('/api/uploads',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:await shrink(file)});const d=await r.json();if(!r.ok)throw new Error(d.error);setCover(f,{url:d.url,credit:'',page:''})}
+  catch(error){toast(error.message||'Photo upload failed.')}
+});
 function syncRideRoute(){
   const sel=$('#ride-route');if(!sel)return;const o=sel.selectedOptions[0],custom=sel.value==='custom';
   $('#ride-custom').hidden=!custom;$('#ride-from').required=$('#ride-to').required=custom;
@@ -437,7 +474,7 @@ document.addEventListener('submit',async e=>{
   const f=e.target;
   if(f.id==='ride-form'){
     const d=Object.fromEntries(new FormData(f)),custom=d.routeId==='custom';
-    const ride={title:d.title.trim(),routeId:d.routeId,custom:custom?{from:d.from.trim(),to:d.to.trim(),via:d.via.split(',').map(x=>x.trim()).filter(Boolean).slice(0,5)}:null,startDate:d.startDate,days:Number(d.days),meetupPoint:d.meetupPoint.trim(),meetupTime:d.meetupTime,capacity:Number(d.capacity),minExperience:d.minExperience,vehicle:d.vehicle,stay:d.stay,distanceKm:Number(d.distanceKm),description:d.description.trim(),...(d.status?{status:d.status}:{})};
+    const ride={title:d.title.trim(),routeId:d.routeId,custom:custom?{from:d.from.trim(),to:d.to.trim(),via:d.via.split(',').map(x=>x.trim()).filter(Boolean).slice(0,5)}:null,startDate:d.startDate,days:Number(d.days),meetupPoint:d.meetupPoint.trim(),meetupTime:d.meetupTime,capacity:Number(d.capacity),minExperience:d.minExperience,vehicle:d.vehicle,stay:d.stay,distanceKm:Number(d.distanceKm),description:d.description.trim(),cover:JSON.parse(f.dataset.cover||'null'),tags:readTags(f),...(d.status?{status:d.status}:{})};
     try{
       if(f.dataset.rideEdit){const x=await api('/api/rides/'+f.dataset.rideEdit,{method:'PUT',body:ride});toast(x.briefCleared?'Ride updated. Regenerate the AI brief for the new plan.':'Ride updated.');showRide(f.dataset.rideEdit)}
       else{const {id}=await api('/api/rides',{method:'POST',body:{crewId:f.dataset.crew,ride}});toast('Ride published. Your crew can RSVP now.');showRide(id)}
@@ -461,6 +498,8 @@ async function showRide(id){
     const shareUrl=location.origin+'/r/'+r.id,shareText=`${r.title} · ${rideDates(r)} · meetup ${r.meetupPoint} at ${r.meetupTime} · ${shareUrl}`;
     const roster=s=>r.roster.filter(x=>x.status===s).map(x=>`<span class="rider-chip">${x.publicId?`<button class="text-link" data-rider="${esc(x.publicId)}">${esc(x.name)}</button>`:esc(x.name)}${s==='going'&&x.ready?' ✓':''}${x.emergency?` <small class="sos" title="Emergency contact">🩸${esc(x.emergency.bloodGroup||'?')}${x.emergency.phone?` · <a href="tel:${esc(x.emergency.phone.replace(/[^+0-9]/g,''))}">${esc(x.emergency.name||'SOS')}</a>`:''}</small>`:x.emergency===null?' <small class="sos">no SOS info</small>':''}</span>`).join('');
     open(`<div class="eyebrow">${esc(r.crewName).toUpperCase()}${r.crewVisibility==='private'?' · PRIVATE CREW':''} · ${PHASE_LABELS[r.phase].toUpperCase()}</div><h2>${esc(r.title)}</h2>
+    ${r.cover?`<figure class="ride-cover"><img src="${esc(r.cover.url)}" alt="Ride cover photo" onerror="this.parentElement.remove()">${r.cover.credit?`<figcaption>${r.cover.page?`<a href="${esc(r.cover.page)}" target="_blank" rel="noopener noreferrer">${esc(r.cover.credit)}</a>`:esc(r.cover.credit)}</figcaption>`:''}</figure>`:''}
+    ${r.tags?.length?`<div class="ride-tags">${r.tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div>`:''}
     ${r.status==='cancelled'?'<p class="notice">This ride was cancelled by the ride lead.</p>':''}
     <div class="detail-facts"><span>${rideDates(r)}</span><span>${esc(r.routeLabel)}</span><span>~${r.distanceKm} km</span><span>${vehicleLabel(r.vehicle)}</span><span>${esc(r.minExperience)}+ riders</span><span>${esc(r.stay)} stays</span></div>
     <dl class="group-facts"><dt>Meetup</dt><dd><a href="${mapLink(r.meetupPoint)}" target="_blank" rel="noopener noreferrer">${esc(r.meetupPoint)} ↗</a> at ${esc(r.meetupTime)}</dd><dt>Ride lead</dt><dd>${r.lead?.publicId?`<button class="text-link" data-rider="${esc(r.lead.publicId)}">${esc(r.lead.name)} ↗</button>`:esc(r.lead?.name||'Crew lead')}</dd><dt>Seats</dt><dd>${r.going} / ${r.capacity} going${r.maybe?` · ${r.maybe} maybe`:''}${r.waitlist?` · ${r.waitlist} on waitlist`:''}</dd>${r.perRider?`<dt>Est. per rider</dt><dd>${money(r.perRider)} <small>(fuel, ${esc(r.stay.toLowerCase())} stays, food, tolls, 15% buffer)</small></dd>`:''}</dl>
@@ -582,7 +621,7 @@ function plansPage(){
 async function loadPlans(){
   if(!session.user){if(planDraft)renderPlanEditor();return}
   try{({plans:planList}=await api('/api/plans'));
-    $('#plan-list').innerHTML=planList.length?planList.map(p=>`<article class="plan-card ${planDraft?.id===p.id?'active':''}"><div><strong>${esc(p.title)}</strong><small>${p.days} day${p.days>1?'s':''} · ~${p.km} km · ${vehicleLabel(p.vehicle)} · edited ${shortDate(p.updatedAt)}</small></div><button class="secondary" data-open-plan="${esc(p.id)}">Open</button></article>`).join(''):'<p class="form-footnote">No saved plans yet. Build a plan in the AI trip planner and tap “Edit & save plan”.</p>';
+    $('#plan-list').innerHTML=planList.length?planList.map(p=>`<article class="plan-card ${planDraft?.id===p.id?'active':''}">${p.cover?`<img class="plan-thumb" src="${esc(p.cover)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div><strong>${esc(p.title)}</strong><small>${p.days} day${p.days>1?'s':''} · ~${p.km} km · ${vehicleLabel(p.vehicle)} · edited ${shortDate(p.updatedAt)}</small>${p.tags?.length?`<div class="ride-tags">${p.tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div>`:''}</div><button class="secondary" data-open-plan="${esc(p.id)}">Open</button></article>`).join(''):'<p class="form-footnote">No saved plans yet. Build a plan in the AI trip planner and tap “Edit & save plan”.</p>';
     if(planDraft)renderPlanEditor();
   }catch(error){$('#plan-list').innerHTML=`<p class="notice">${esc(error.message)}</p>`}
 }
@@ -605,7 +644,8 @@ function planDayFields(d,i,total){
 function renderPlanEditor(){
   const p=planDraft,el=$('#plan-editor');if(!el||!p)return;
   el.innerHTML=`<section class="plan-editor"><div class="section-heading"><h3>${p.id?'Edit plan':'New plan'}</h3><span class="eyebrow">${p.days.length} DAYS · ${vehicleLabel(p.settings.vehicle)} · ${p.settings.people} TRAVELER${p.settings.people>1?'S':''}</span></div>
-  <form id="plan-edit-form"><div class="form-field wide"><label for="plan-title">Plan name</label><input id="plan-title" name="title" maxlength="80" value="${esc(p.title)}" required></div>
+  <form id="plan-edit-form" data-cover='${esc(JSON.stringify(p.cover||null))}'><div class="form-field wide"><label for="plan-title">Plan name</label><input id="plan-title" name="title" maxlength="80" value="${esc(p.title)}" required></div>
+  ${coverFields(p.cover,p.tags)}
   <div id="plan-map" class="plan-map"></div><div id="plan-edit-budget">${planBudgetHtml(p)}</div>
   ${p.days.map((d,i)=>planDayFields(d,i,p.days.length)).join('')}
   <div class="button-row"><button type="button" class="secondary" data-plan-day-add ${p.days.length>=30?'disabled':''}>＋ Add a day</button>${p.days.length>1?'<button type="button" class="text-link danger" data-plan-day-remove>Remove last day</button>':''}</div>
@@ -614,7 +654,7 @@ function renderPlanEditor(){
 }
 function capturePlan(){
   const f=$('#plan-edit-form');if(!f||!planDraft)return planDraft;
-  planDraft.title=$('#plan-title').value.trim();
+  planDraft.title=$('#plan-title').value.trim();planDraft.tags=readTags(f);planDraft.cover=JSON.parse(f.dataset.cover||'null');
   planDraft.days=[...f.querySelectorAll('[data-plan-day]')].map((fs,i)=>{const v=n=>fs.querySelector(`[name="${n}"]`)?.value??'';
     return {day:i+1,from:v('from').trim(),to:v('to').trim(),km:Math.max(0,Math.min(1500,Math.round(Number(v('km'))||0))),stayArea:v('stayArea').trim(),stayType:v('stayType'),stayBand:v('stayBand')||'Comfort',places:splitList(v('places')),fuelStops:splitList(v('fuelStops')),notes:v('notes').trim()}});
   return planDraft;
@@ -637,7 +677,7 @@ document.addEventListener('input',e=>{
 });
 document.addEventListener('submit',async e=>{
   if(e.target.id!=='plan-edit-form')return;
-  const p=capturePlan(),status=$('#plan-save-status'),body={title:p.title,routeId:p.routeId,settings:p.settings,days:p.days};
+  const p=capturePlan(),status=$('#plan-save-status'),body={title:p.title,routeId:p.routeId,settings:p.settings,days:p.days,cover:p.cover||null,tags:p.tags||[]};
   status.textContent='Saving…';
   try{
     if(p.id)await api('/api/plans/'+p.id,{method:'PUT',body});else p.id=(await api('/api/plans',{method:'POST',body})).id;
@@ -806,9 +846,10 @@ async function shrink(file){
 }
 document.addEventListener('change',async e=>{
   if(!e.target.matches('[data-photo-input]'))return;
-  const form=e.target.closest('form'),thumbs=form.querySelector('[data-photo-thumbs]'),have=JSON.parse(form.dataset.photos||'[]');
-  const files=[...e.target.files].slice(0,4-have.length);e.target.value='';
-  if(!files.length)return toast('Up to 4 photos per post.');
+  const form=e.target.closest('form'),thumbs=form.querySelector('[data-photo-thumbs]'),max=Number(form.dataset.maxPhotos||4);
+  if(max===1){form.dataset.photos='[]';thumbs.innerHTML=''}
+  const files=[...e.target.files].slice(0,max-JSON.parse(form.dataset.photos||'[]').length);e.target.value='';
+  if(!files.length)return toast(`Up to ${max} photos.`);
   form.dataset.uploading=Number(form.dataset.uploading||0)+files.length;
   for(const file of files){
     const slot=document.createElement('span');slot.className='photo-thumb loading';thumbs.append(slot);

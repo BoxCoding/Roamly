@@ -104,6 +104,9 @@ export const rides = pgTable('rides', {
   briefCount: integer('brief_count').notNull().default(0),
   // Snapshot of a saved plan the lead attached (JSON), so riders see the same route and stays.
   plan: text('plan'),
+  // Cover photo JSON {url, credit, page} (an upload, a catalog photo or a Wikimedia Commons image) and tags JSON array.
+  cover: text('cover'),
+  tags: text('tags').notNull().default('[]'),
   createdAt: text('created_at').notNull(),
 }, t => [index('rides_crew_idx').on(t.crewId), index('rides_start_idx').on(t.startDate)]);
 

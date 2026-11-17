@@ -9,6 +9,7 @@ import {routeLabel} from '../../../lib/rides';
 import {notify} from '../../../lib/notify';
 import {json,readJson} from '../../../lib/http';
 import {track} from '../../../lib/track';
+import {coverAllowed} from '../../../lib/ride-media';
 export const dynamic='force-dynamic';
 
 const createInput=z.object({crewId:z.string().uuid(),ride:z.unknown()}).strict();
@@ -34,7 +35,7 @@ export async function GET(request:Request){
     const list=rows.map(({ride:r,crew})=>{
       const lead=leads.find(l=>l.userId===r.leadId),role=roles.get(crew.id);
       return {id:r.id,crewId:crew.id,crewName:crew.name,crewVisibility:crew.visibility,title:r.title,routeId:r.routeId,routeLabel:routeLabel(r.routeId,r.route),
-        startDate:r.startDate,days:r.days,meetupPoint:r.meetupPoint,meetupTime:r.meetupTime,capacity:r.capacity,minExperience:r.minExperience,vehicle:r.vehicle,distanceKm:r.distanceKm,
+        startDate:r.startDate,days:r.days,meetupPoint:r.meetupPoint,meetupTime:r.meetupTime,capacity:r.capacity,minExperience:r.minExperience,vehicle:r.vehicle,distanceKm:r.distanceKm,cover:r.cover?JSON.parse(r.cover).url:null,tags:JSON.parse(r.tags),
         going:n(r.id,'going'),maybe:n(r.id,'maybe'),waitlist:n(r.id,'waitlist'),myRsvp:my.get(r.id)||null,phase:ridePhase(r),
         lead:lead?{name:lead.name,publicId:lead.publicId}:null,canManage:Boolean(user)&&(admin||role==='owner'||role==='colead'||r.leadId===user!.userId)};
     }).filter(r=>(past||r.phase!=='past')&&(!mine||r.myRsvp));
@@ -45,7 +46,7 @@ export async function GET(request:Request){
 // Crew owners and co-leads plan a ride; they lead it and take the first seat.
 export async function POST(request:Request){
   const user=await getUser();if(!user)return json({error:'Sign in to plan a ride.'},401);
-  const req=await readJson(request,4000);if('error' in req)return req.error;
+  const req=await readJson(request,6000);if('error' in req)return req.error;
   const wrap=createInput.safeParse(req.body);if(!wrap.success)return json({error:'Invalid ride.'},400);
   const parsed=rideInput.safeParse(wrap.data.ride);if(!parsed.success)return json({error:parsed.error.issues[0]?.message||'Check the ride details.'},400);
   const r=parsed.data,crewId=wrap.data.crewId;
@@ -57,10 +58,11 @@ export async function POST(request:Request){
     const [m]=await db.select({role:crewMembers.role}).from(crewMembers).innerJoin(crews,eq(crews.id,crewMembers.crewId))
       .where(and(eq(crewMembers.crewId,crewId),eq(crewMembers.userId,user.userId),eq(crewMembers.status,'active'),eq(crews.status,'active'))).limit(1);
     if(m?.role!=='owner'&&m?.role!=='colead')return json({error:'Only the crew owner or a co-lead can plan rides.'},403);
-    const id=crypto.randomUUID(),now=new Date().toISOString(),{custom,...fields}=r;
+    if(!await coverAllowed(r.cover,user.userId))return json({error:'Upload the cover photo again.'},400);
+    const id=crypto.randomUUID(),now=new Date().toISOString(),{custom,cover,tags,...fields}=r;
     const route=JSON.stringify(trip?{title:trip.title,route:trip.route}:custom);
     await db.transaction(async tx=>{
-      await tx.insert(rides).values({id,crewId,...fields,route,leadId:user.userId,createdAt:now});
+      await tx.insert(rides).values({id,crewId,...fields,cover:cover?JSON.stringify(cover):null,tags:JSON.stringify(tags),route,leadId:user.userId,createdAt:now});
       await tx.insert(rideRsvps).values({rideId:id,userId:user.userId,status:'going',createdAt:now});
     });
     const [members,fans,[crewRow]]=await Promise.all([
