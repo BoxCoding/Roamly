@@ -68,8 +68,8 @@ try{
   assert((await inbox(d)).some(n=>n.link==='#ride='+rideId),'crew followers hear about new rides');
 
   // Waitlist promotion and ride updates notify riders.
-  await call('POST',`/api/rides/${rideId}/rsvp`,{status:'going'},b);
-  assert.equal((await (await call('POST',`/api/rides/${rideId}/rsvp`,{status:'going'},c)).json()).status,'waitlist');
+  await call('POST',`/api/rides/${rideId}/rsvp`,{status:'going',waiver:true},b);
+  assert.equal((await (await call('POST',`/api/rides/${rideId}/rsvp`,{status:'going',waiver:true},c)).json()).status,'waitlist');
   await call('POST',`/api/rides/${rideId}/rsvp`,{status:'none'},b);
   assert((await inbox(c)).some(n=>n.text.startsWith('A seat opened up')),'promoted rider is told');
   await call('POST',`/api/rides/${rideId}/updates`,{body:'Meet at the petrol pump'},a);

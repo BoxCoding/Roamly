@@ -4,6 +4,7 @@ import {getDb} from '../../../db';
 import {accounts,aiQuota,crews,crewMembers,crewReports,postReports,posts} from '../../../db/schema';
 import {getUser,isAdmin} from '../../auth';
 import {json,readJson} from '../../../lib/http';
+import {launchMetrics} from '../../../lib/metrics';
 export const dynamic='force-dynamic';
 
 const adminAction=z.object({rider:z.string().regex(/^[a-f0-9]{12}$/),action:z.enum(['suspend','unsuspend','make-admin','remove-admin']),reason:z.string().trim().max(200).default('')}).strict();
@@ -27,7 +28,8 @@ export async function GET(request:Request){
         db.select({n:sql<number>`coalesce(sum(${aiQuota.calls}),0)::int`}).from(aiQuota).where(eq(aiQuota.day,day)),
         db.select({n:count()}).from(accounts).where(sql`${accounts.createdAt} >= ${new Date(Date.now()-7*86400000).toISOString()}`),
       ]);
-      return json({overview:{riders:r.n,newRidersThisWeek:newRiders.n,suspended:s.n,admins:a.n,activeGroups:c.n,hiddenGroups:h.n,openReports:rep.n,aiPlansToday:ai.n}});
+      const metrics=await launchMetrics().catch(()=>null);
+      return json({overview:{riders:r.n,newRidersThisWeek:newRiders.n,suspended:s.n,admins:a.n,activeGroups:c.n,hiddenGroups:h.n,openReports:rep.n,aiPlansToday:ai.n,metrics}});
     }
     if(view==='riders'){
       const rows=await db.select().from(accounts).where(q?or(ilike(accounts.name,like(q)),ilike(accounts.email,like(q))):undefined).orderBy(desc(accounts.lastSeenAt)).limit(50);

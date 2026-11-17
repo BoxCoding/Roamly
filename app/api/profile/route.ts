@@ -4,6 +4,7 @@ import {profiles} from '../../../db/schema';
 import {getUser} from '../../auth';
 import {emptyProfile,profileUpdateSchema,withDefaults} from '../../../lib/profile-schema.mjs';
 import {json,readJson} from '../../../lib/http';
+import {track} from '../../../lib/track';
 export const dynamic='force-dynamic';
 export async function GET(){
   const user=await getUser(); if(!user)return json({error:'Sign in to view your profile.'},401);
@@ -22,6 +23,7 @@ export async function PUT(request:Request){
     const db=getDb();
     const rows=updatedAt?await db.update(profiles).set(values).where(and(eq(profiles.userId,user.userId),eq(profiles.updatedAt,updatedAt))).returning():await db.insert(profiles).values({userId:user.userId,...values}).onConflictDoNothing().returning();
     if(!rows.length)return json({error:'Your profile changed in another tab. Reopen your profile before editing again.'},409);
+    await track('profile_saved',user.userId,{vehicles:profile.vehicles.length,sos:Boolean(profile.emergency.phone)});
     return json({profile,updatedAt:stamp});
   }catch{return json({error:'Your profile was not saved. Please try again.'},503)}
 }

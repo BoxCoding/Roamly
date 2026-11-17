@@ -35,6 +35,7 @@ export const users = pgTable('users', {
   createdAt: text('created_at').notNull(),
   failedLogins: integer('failed_logins').notNull().default(0),
   lockedUntil: text('locked_until'),
+  emailVerifiedAt: text('email_verified_at'),
 });
 
 // shortcut: session signing key auto-created in the DB when SESSION_SECRET is unset; set the secret in production.
@@ -113,6 +114,7 @@ export const rideRsvps = pgTable('ride_rsvps', {
   status: text('status').notNull(),
   checklist: text('checklist').notNull().default('[]'),
   createdAt: text('created_at').notNull(),
+  waiverAt: text('waiver_at'),
 }, t => [primaryKey({ columns: [t.rideId, t.userId] }), index('ride_rsvps_user_idx').on(t.userId)]);
 
 // Notes from the ride lead and crew leads; pinned ones show first.
@@ -213,3 +215,12 @@ export const uploads = pgTable('uploads', {
   height: integer('height').notNull(),
   createdAt: text('created_at').notNull(),
 }, t => [index('uploads_user_idx').on(t.userId), index('uploads_post_idx').on(t.postId)]);
+
+// First-party product analytics (no third-party trackers). userId is null for signed-out visitors.
+export const events = pgTable('events', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  userId: text('user_id'),
+  props: text('props').notNull().default('{}'),
+  at: text('at').notNull(),
+}, t => [index('events_name_at_idx').on(t.name, t.at), index('events_user_idx').on(t.userId)]);

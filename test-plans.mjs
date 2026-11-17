@@ -35,7 +35,7 @@ const {id:crewId}=await (await call('POST','/api/groups',{name:'Plan Test Crew',
 try{
   const ride={title:'Goa run',routeId:'konkan',startDate:new Date(Date.now()+7*864e5).toISOString().slice(0,10),days:3,meetupPoint:'Pune',meetupTime:'06:00',capacity:8,minExperience:'Beginner',vehicle:'Bike',stay:'Comfort',distanceKm:1030,description:''};
   const {id:rideId}=await (await call('POST','/api/rides',{crewId,ride},lead)).json();
-  await call('POST',`/api/rides/${rideId}/rsvp`,{status:'going'},other);
+  await call('POST',`/api/rides/${rideId}/rsvp`,{status:'going',waiver:true},other);
   const {id:otherPlan}=await (await call('POST','/api/plans',plan,other)).json();
   assert.equal((await call('POST',`/api/rides/${rideId}/plan`,{planId:id},other)).status,403,'members cannot attach');
   assert.equal((await call('POST',`/api/rides/${rideId}/plan`,{planId:otherPlan},lead)).status,404,"cannot attach someone else's plan");

@@ -43,6 +43,13 @@
       "when": 1794859279176,
       "tag": "0005_phase5_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794904110849,
+      "tag": "0006_p0_safety_auth_analytics",
+      "breakpoints": true
     }
   ]
 }

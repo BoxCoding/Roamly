@@ -10,4 +10,7 @@ export const env = process.env as {
   SESSION_SECRET?: string;
   ADMIN_EMAILS?: string;
   PHOTO_BUCKET?: string;
+  RESEND_API_KEY?: string;
+  RESEND_FROM?: string;
+  APP_ORIGIN?: string;
 };

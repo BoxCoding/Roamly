@@ -26,7 +26,9 @@ try{
   assert.equal((await call('POST',`/api/rides/${privateRide}/rsvp`,{status:'going'},outsider)).status,404);
 
   // RSVP, auto-join, capacity and waitlist promotion.
-  const rsvp=async(c,status)=>(await (await call('POST',`/api/rides/${id}/rsvp`,{status},c)).json()).status;
+  const rsvp=async(c,status)=>(await (await call('POST',`/api/rides/${id}/rsvp`,{status,...(status==='going'?{waiver:true}:{})},c)).json()).status;
+  // A new "going" needs the safety terms accepted.
+  const noWaiver=await call('POST',`/api/rides/${id}/rsvp`,{status:'going'},rider);assert.equal(noWaiver.status,400);assert.equal((await noWaiver.json()).waiver,true);
   assert.equal(await rsvp(rider,'going'),'going','rider gets the last seat and joins the crew');
   assert.equal((await get('/api/groups',rider)).body.groups.find(g=>g.id===crewId).joined,true);
   assert.equal(await rsvp(late,'going'),'waitlist','full ride waitlists');
@@ -43,6 +45,14 @@ try{
   assert.equal((await call('POST',`/api/rides/${id}/updates`,{body:'Regroup at Lonavala',pinned:true},owner)).status,201);
   d=(await get('/api/rides/'+id,late)).body.ride;assert.equal(d.updates[0].body,'Regroup at Lonavala');assert.deepEqual(d.myChecklist,['docs','fuel']);
   assert.deepEqual(d.roster.map(x=>x.status).sort(),['going','going','waitlist']);
+  // Emergency info: the lead sees it for riders going; other members never do.
+  const {emptyProfile}=await import('./lib/profile-schema.mjs');
+  assert.equal((await call('PUT','/api/profile',{profile:{...emptyProfile(),experience:'Experienced',emergency:{name:'Sis',phone:'+91 90000 00000',bloodGroup:'B+'}},updatedAt:(await get('/api/profile',late)).body.updatedAt},late)).status,200);
+  const lateId=(await me(late)).publicId;
+  const leadView=(await get('/api/rides/'+id,owner)).body.ride.roster.find(x=>x.publicId===lateId);
+  assert.deepEqual(leadView.emergency,{name:'Sis',phone:'+91 90000 00000',bloodGroup:'B+'},'lead sees SOS info of a going rider');
+  assert(!(await get('/api/rides/'+id,late)).body.ride.roster.some(x=>'emergency' in x),'members never see SOS info');
+  assert(!JSON.stringify((await get('/api/riders/'+lateId,owner)).body).includes('90000'),'SOS info not on the rider card');
 
   // Leaving the crew frees the seat for the waitlist.
   assert.equal((await call('PATCH','/api/groups',{id:crewId,joined:false},late)).status,200);
@@ -51,7 +61,7 @@ try{
   // Edits: experience gate, capacity growth, cancel closes RSVPs.
   assert.equal((await call('PUT','/api/rides/'+id,{...ride,minExperience:'Experienced'},rider)).status,403,'members cannot edit');
   assert.equal((await call('PUT','/api/rides/'+id,{...ride,minExperience:'Experienced',capacity:5},owner)).status,200);
-  assert.equal((await call('POST',`/api/rides/${id}/rsvp`,{status:'going'},outsider)).status,403,'beginner blocked by experience gate');
+  assert.equal((await call('POST',`/api/rides/${id}/rsvp`,{status:'going',waiver:true},outsider)).status,403,'beginner blocked by experience gate');
   assert.equal(await rsvp(outsider,'maybe'),'maybe','maybe is allowed');
 
   if(withBrief){
@@ -64,7 +74,7 @@ try{
   }
 
   assert.equal((await call('PUT','/api/rides/'+id,{...ride,status:'cancelled'},owner)).status,200);
-  assert.equal((await call('POST',`/api/rides/${id}/rsvp`,{status:'going'},rider)).status,400,'cancelled ride closes RSVPs');
+  assert.equal((await call('POST',`/api/rides/${id}/rsvp`,{status:'going',waiver:true},rider)).status,400,'cancelled ride closes RSVPs');
   assert.equal((await get('/api/rides/'+id)).body.ride.phase,'cancelled');
   assert.equal((await call('DELETE','/api/rides/'+id,{},rider)).status,403);
   assert.equal((await call('DELETE','/api/rides/'+id,{},owner)).status,200);

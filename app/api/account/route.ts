@@ -1,6 +1,6 @@
 import { and, eq, or } from 'drizzle-orm';
 import { getDb } from '../../../db';
-import { accounts, aiQuota, comments, crewMembers, crewReports, crews, follows, notifications, plans, postReactions, postReports, posts, profiles, rideRsvps, rideUpdates, uploads, users } from '../../../db/schema';
+import { accounts, aiQuota, comments, crewMembers, crewReports, crews, follows, notifications, plans, postReactions, postReports, posts, profiles, rideRsvps, rideUpdates, uploads, users, events } from '../../../db/schema';
 import { clearSessionCookie, getUser } from '../../auth';
 import { json, readJson } from '../../../lib/http';
 import { deletePhotos } from '../../../lib/photos';
@@ -31,6 +31,7 @@ export async function DELETE(request: Request) {
       await tx.delete(follows).where(or(eq(follows.followerId, uid), and(eq(follows.targetType, 'rider'), eq(follows.targetId, uid))));
       await tx.delete(notifications).where(eq(notifications.userId, uid));
       await tx.delete(uploads).where(eq(uploads.userId, uid));
+      await tx.delete(events).where(eq(events.userId, uid));
       await tx.delete(accounts).where(eq(accounts.userId, uid));
       if (uid.startsWith('user:')) await tx.delete(users).where(eq(users.id, uid.slice(5)));
     });

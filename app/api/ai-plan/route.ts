@@ -8,6 +8,7 @@ import {AGENTS,agentBody,parseAgent,checkRoad,checkDays} from '../../../lib/agen
 import {trips} from '../../../public/catalog.mjs';
 import {estimate} from '../../../public/domain.mjs';
 import {json,readJson} from '../../../lib/http';
+import {track} from '../../../lib/track';
 export const dynamic='force-dynamic';
 const model=()=>env.GEMINI_MODEL||'gemini-3.1-flash-lite';
 type AgentName=keyof typeof AGENTS;
@@ -40,5 +41,6 @@ export async function POST(request:Request){
   const agents=Object.fromEntries(names.flatMap((name,i)=>results[i].status==='fulfilled'?[[name,(results[i] as PromiseFulfilledResult<unknown>).value]]:[]));
   const failed=names.filter(name=>!(name in agents)).map(name=>AGENTS[name].label);
   if(!names.some(name=>name in agents))return json({error:'The AI experts are unavailable right now. Your curated plan is still below.'},502);
+  await track('plan_built',user.userId,{custom});
   return json({source:'ai',baseline,agents,failed});
 }

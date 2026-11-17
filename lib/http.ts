@@ -1,5 +1,10 @@
-export const json = (data: unknown, status = 200) =>
-  Response.json(data, { status, headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } });
+import { reportError } from "./report-error";
+
+// Routes catch their own failures and answer 5xx; log those too so Error Reporting shows them.
+export const json = (data: unknown, status = 200) => {
+  if (status >= 500) reportError("server", `HTTP ${status}: ${(data as { error?: string })?.error || "server error"}`);
+  return Response.json(data, { status, headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } });
+};
 
 // The origin the browser used. Behind Cloud Run, request.url is the container's internal address,
 // so take the public host from the Host header and the scheme from the proxy.

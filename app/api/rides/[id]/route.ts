@@ -1,4 +1,4 @@
-import {desc,eq} from 'drizzle-orm';
+import {desc,eq,inArray} from 'drizzle-orm';
 import {getDb} from '../../../../db';
 import {accounts,profiles,rides,rideRsvps,rideUpdates} from '../../../../db/schema';
 import {getUser} from '../../../auth';
@@ -27,13 +27,18 @@ export async function GET(_request:Request,{params}:Ctx){
       user?db.select({details:profiles.details}).from(profiles).where(eq(profiles.userId,user.userId)).limit(1):[],
     ]);
     const going=rsvps.filter(x=>x.status==='going').length,mine=rsvps.find(x=>x.userId===user?.userId);
+    // Ride leads see emergency contacts of riders who are going; nobody else does.
+    const goingIds=rsvps.filter(x=>x.status==='going').map(x=>x.userId),emergency=new Map<string,{name:string,phone:string,bloodGroup:string}>();
+    if(a.canManage&&goingIds.length)for(const p of await db.select({userId:profiles.userId,details:profiles.details}).from(profiles).where(inArray(profiles.userId,goingIds))){
+      try{const e=JSON.parse(p.details).emergency;if(e&&(e.phone||e.bloodGroup))emergency.set(p.userId,{name:e.name||'',phone:e.phone||'',bloodGroup:e.bloodGroup||''})}catch{}
+    }
     let perRider=null;try{perRider=estimate({distance:r.distanceKm,days:r.days,people:Math.min(30,Math.max(2,going)),vehicle:r.vehicle,stay:r.stay}).perPerson}catch{}
     let experience='Beginner';try{experience=JSON.parse(profile?.details||'{}').experience||'Beginner'}catch{}
     return json({ride:{id:r.id,crewId:a.crew.id,crewName:a.crew.name,crewVisibility:a.crew.visibility,title:r.title,routeId:r.routeId,route:JSON.parse(r.route),routeLabel:routeLabel(r.routeId,r.route),
       startDate:r.startDate,days:r.days,meetupPoint:r.meetupPoint,meetupTime:r.meetupTime,capacity:r.capacity,minExperience:r.minExperience,vehicle:r.vehicle,stay:r.stay,distanceKm:r.distanceKm,description:r.description,
       status:r.status,phase:ridePhase(r),lead:lead||null,leadIsYou:r.leadId===user?.userId,
       going,maybe:rsvps.filter(x=>x.status==='maybe').length,waitlist:rsvps.filter(x=>x.status==='waitlist').length,
-      roster:insider?rsvps.map(x=>({name:x.name||'Rider',publicId:x.publicId,status:x.status,ready:JSON.parse(x.checklist).length===CHECKLIST.length})):null,
+      roster:insider?rsvps.map(x=>({name:x.name||'Rider',publicId:x.publicId,status:x.status,ready:JSON.parse(x.checklist).length===CHECKLIST.length,...(a.canManage&&x.status==='going'?{emergency:emergency.get(x.userId)||null}:{})})):null,
       myRsvp:mine?.status||null,myChecklist:mine?JSON.parse(mine.checklist):[],myExperience:experience,
       updates:insider?updates.map(u=>({id:u.id,author:u.authorName,body:u.body,pinned:u.pinned,createdAt:u.createdAt})):null,
       brief:r.brief?JSON.parse(r.brief):null,plan:r.plan?JSON.parse(r.plan):null,briefAt:r.briefAt,briefCount:r.briefCount,

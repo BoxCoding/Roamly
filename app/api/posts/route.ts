@@ -8,6 +8,7 @@ import {checkRules,shouldHide} from '../../../lib/moderation.mjs';
 import {aiReview} from '../../../lib/ai-moderation';
 import {trips} from '../../../public/catalog.mjs';
 import {json,readJson} from '../../../lib/http';
+import {track} from '../../../lib/track';
 export const dynamic='force-dynamic';
 
 // Share a post or a road report. Crew posts need active membership and follow the crew's visibility.
@@ -42,6 +43,7 @@ export async function POST(request:Request){
       const fans=await db.select({id:follows.followerId}).from(follows).where(and(eq(follows.targetType,'rider'),eq(follows.targetId,user.userId)));
       await notify(fans.map(f=>f.id),{kind:'post',text:`${user.displayName} ${p.kind==='report'?`shared a road report from ${p.place}`:'shared a post'}`,link:`#post=${id}`},user.userId);
     }
+    await track('post_created',user.userId,{kind:p.kind});
     return json({id},201);
   }catch{return json({error:'Your post was not shared. Please try again.'},503)}
 }

@@ -1,4 +1,5 @@
 import { env } from '../lib/env';
+import { track } from "../lib/track";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { getDb } from "../db";
@@ -35,7 +36,9 @@ export async function sessionSecret(): Promise<string> {
 
 /** Set-Cookie values for a signed app session (any half-finished sign-in flow is dropped); also creates or refreshes the rider's account row. */
 export async function sessionCookie(user: AppUser): Promise<string[]> {
-  await ensureAccount(user, true);
+  const account = await ensureAccount(user, true);
+  // A row created just now is a sign-up; otherwise this is a sign-in.
+  await track(account && Date.now() - Date.parse(account.createdAt) < 10000 ? "signup" : "login", user.userId, { provider: user.provider });
   const maxAge = SESSION_DAYS * 86400;
   return jarCookies({ s: await seal({ uid: user.userId, name: user.displayName, provider: user.provider, email: user.email }, await sessionSecret(), maxAge) });
 }

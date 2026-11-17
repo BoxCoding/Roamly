@@ -8,6 +8,7 @@ import {trips} from '../../../public/catalog.mjs';
 import {routeLabel} from '../../../lib/rides';
 import {notify} from '../../../lib/notify';
 import {json,readJson} from '../../../lib/http';
+import {track} from '../../../lib/track';
 export const dynamic='force-dynamic';
 
 const createInput=z.object({crewId:z.string().uuid(),ride:z.unknown()}).strict();
@@ -68,6 +69,7 @@ export async function POST(request:Request){
       db.select({name:crews.name}).from(crews).where(eq(crews.id,crewId)).limit(1),
     ]);
     await notify([...members,...fans].map(x=>x.id),{kind:'ride',text:`New ride in ${crewRow?.name||'your crew'}: ${r.title} on ${r.startDate}`,link:`#ride=${id}`},user.userId);
+    await track('ride_created',user.userId);
     return json({id},201);
   }catch{return json({error:'The ride was not saved. Please try again.'},503)}
 }

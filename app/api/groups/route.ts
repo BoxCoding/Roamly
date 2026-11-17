@@ -7,6 +7,7 @@ import {PROFILE_LINKS,cleanLinks} from '../../../public/domain.mjs';
 import {json,readJson} from '../../../lib/http';
 import {dropFromCrewRides} from '../../../lib/rides';
 import {notify} from '../../../lib/notify';
+import {track} from '../../../lib/track';
 export const dynamic='force-dynamic';
 
 // Public list of active crews (plus the viewer's own crews under review). Organizer user IDs stay on the server;
@@ -52,6 +53,7 @@ export async function POST(request:Request){
       await tx.insert(crews).values({id,...fields,links:JSON.stringify(links),organizerId:user.userId,organizerName:user.displayName,createdAt:now});
       await tx.insert(crewMembers).values({crewId:id,userId:user.userId,joinedAt:now,role:'owner'});
     });
+    await track('crew_created',user.userId,{visibility:fields.visibility||'public'});
     return json({id},201);
   }catch{return json({error:'Your group was not saved. Please try again.'},503)}
 }
@@ -86,6 +88,7 @@ export async function PATCH(request:Request){
         const leads=await db.select({id:crewMembers.userId}).from(crewMembers).where(and(eq(crewMembers.crewId,id),eq(crewMembers.status,'active'),inArray(crewMembers.role,['owner','colead'])));
         await notify(leads.map(l=>l.id),{kind:'join-request',text:`${user.displayName} asked to join ${crew.name}`,link:`#crew=${id}`},user.userId);
       }
+      if(fresh.length)await track('crew_joined',user.userId,{pending:status==='pending'});
       return json({id,joined:m?.status==='active',pending:m?.status==='pending'});
     }
     const left=await db.transaction(async tx=>{
