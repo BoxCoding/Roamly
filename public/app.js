@@ -59,6 +59,7 @@ function persist(){try{localStorage.setItem(storageKey,JSON.stringify(state))}ca
 function toast(s){$('#toast').textContent=s;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3800)}
 function updateProfile(){
   $('#saved-count').textContent=state.saved.length;
+  const u=session.user;$('#profile-button .avatar').innerHTML=u?.photo?`<img src="/api/photos/${esc(u.photo)}" alt="">`:esc(((u?.name||'').trim()[0]||'R').toUpperCase());
   $('#profile-label').innerHTML=authLoading?'Checking sign-in…<small>Please wait</small>':session.user?`${esc(session.user.name)}<small>Signed in with ${providerName()}</small>`:authError?'Sign-in unavailable<small>Tap to retry</small>':'Guest explorer<small>Sign in or register</small>';
   if(session.user?.admin&&!$('#nav-admin'))$('nav').insertAdjacentHTML('beforeend','<button class="nav-item" id="nav-admin" data-page="admin"><span>⚙</span> Admin</button>');if(!session.user?.admin)$('#nav-admin')?.remove();
   const top=$('#auth-button');top.textContent=authLoading?'Checking sign-in…':session.user?'My account':'Sign in';top.disabled=authLoading;
@@ -141,7 +142,7 @@ function showTrip(id){const t=trips.find(t=>t.id===id);if(!t)return;open(`<img c
 async function saveGarage(form){
   const button=$('#save-profile'),status=$('#profile-status');
   garageDraft=captureProfile();button.disabled=true;status.textContent='Saving your profile…';
-  try{const response=await fetch('/api/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:garageDraft,updatedAt:garage.updatedAt})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Profile could not be saved.');garage=data;status.textContent='Profile and all vehicles saved to your account.';toast('Your garage is saved.');if(page==='planner')render()}
+  try{const response=await fetch('/api/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:garageDraft,updatedAt:garage.updatedAt})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Profile could not be saved.');garage=data;if(session.user){session.user.photo=data.profile.photo||'';updateProfile()}status.textContent='Profile and all vehicles saved to your account.';toast('Your garage is saved.');if(page==='planner')render()}
   catch(error){status.textContent=error.message}
   finally{button.disabled=false}
 }
@@ -162,7 +163,7 @@ function buildPlan(data){
     const t=custom?{id:'custom',custom:{from,to,via},title:[from,...via,to].join(' → '),places:[],stays:[],stops:[],months:[],days:Number(data.days),risk:'Custom route: no curated safety notes. Check weather, road closures and permits for every stretch.'}:trips.find(t=>t.id===data.route);if(!t)throw new Error('Choose a valid route.');
     const d={...data,days:Number(data.days),people:Number(data.people),distance:Number(data.distance),mileage:Number(data.mileage),seats:Number(data.seats),fuelPrice:Number(data.fuelPrice),month:Number(data.month)};
     const r=estimate(d);latestPlan={trip:t,data:d,result:r};
-    $('#plan-result').innerHTML=`<div class="eyebrow">YOUR ESCAPE, ON PAPER</div><h3 style="margin-top:9px">${esc(t.title)}</h3><div id="plan-budget">${budgetHtml(d,r)}</div><div class="notice">${t.custom?'':t.months.includes(d.month)?'This month broadly matches the listed travel window.':'This month is outside the typical travel window ('+esc(travelWindow(t))+'). Consider another date or route.'} ${esc(t.risk)}</div>${!t.custom&&d.days<t.days?`<p class="notice">This route usually needs about ${t.days} days. Your ${d.days}-day outline may be too rushed; add days or shorten the route.</p>`:''}<div id="ai-expert"></div>${t.custom?'':`<h3 class="subheading">Places to visit</h3>${placeCards(t)}<h3 class="subheading">Stay areas</h3>${stayCards(t)}<h3 class="subheading">Food, fuel & rest stops</h3>${stopCards(t)}`}<div class="section-heading subheading"><h3>Daily outline</h3><span id="plan-source" class="eyebrow">CURATED DRAFT</span></div><div id="daily-plan">${t.custom?'<p class="form-footnote">Your day-by-day plan for this custom route comes from the AI experts.</p>':dayPlanHtml(t,d.days)}</div><div id="ai-tips"></div><p class="form-footnote" id="ai-status">${!aiAvailable?'Live AI is not configured. This is a curated planning draft, with useful places and stop suggestions.':d.days>30?'AI expert plans cover up to 30 days. This is the curated draft.':session.user?'Your AI experts are working on this plan…':'Sign in to have the AI experts plan the route, roads and budget. Only route and trip settings are sent, not your profile.'}</p><div class="button-row"><button class="secondary" id="request-ai" ${!aiAvailable||d.days>30?'disabled':''}>✧ Ask the AI experts</button><button class="secondary" id="plan-alerts">◷ Set time alerts</button><button class="secondary" id="edit-plan" data-edit-plan-draft>✎ Edit & save plan</button><button class="primary" id="download-plan">↓ Download plan</button></div><p class="form-footnote">No live route optimization, bookings or traffic data. Check facilities, opening hours, detours and current road access.${t.source?` <a href="${t.source}" target="_blank" rel="noopener noreferrer">Tourism reference ↗</a>`:''}</p>`;
+    $('#plan-result').innerHTML=`<div class="eyebrow">YOUR ESCAPE, ON PAPER</div><h3 style="margin-top:9px">${esc(t.title)}</h3><div id="plan-budget">${budgetHtml(d,r)}</div><div class="notice">${t.custom?'':t.months.includes(d.month)?'This month broadly matches the listed travel window.':'This month is outside the typical travel window ('+esc(travelWindow(t))+'). Consider another date or route.'} ${esc(t.risk)}</div>${!t.custom&&d.days<t.days?`<p class="notice">This route usually needs about ${t.days} days. Your ${d.days}-day outline may be too rushed; add days or shorten the route.</p>`:''}<div id="ai-expert"></div>${t.custom?'':`<h3 class="subheading">Places to visit</h3>${placeCards(t)}<h3 class="subheading">Stay areas</h3>${stayCards(t)}<h3 class="subheading">Food, fuel & rest stops</h3>${stopCards(t)}`}<div class="section-heading subheading"><h3>Daily outline</h3><span id="plan-source" class="eyebrow">CURATED DRAFT</span></div><div id="daily-plan">${t.custom?'<p class="form-footnote">Your day-by-day plan for this custom route comes from the AI experts.</p>':dayPlanHtml(t,d.days)}</div><div id="ai-tips"></div><p class="form-footnote" id="ai-status">${!aiAvailable?'Live AI is not configured. This is a curated planning draft, with useful places and stop suggestions.':d.days>30?'AI expert plans cover up to 30 days. This is the curated draft.':session.user?'Your AI experts are working on this plan…':'Sign in to have the AI experts plan the route, roads and budget. Only route and trip settings are sent, not your profile.'}</p><div class="button-row"><button class="secondary" id="request-ai" ${!aiAvailable||d.days>30?'disabled':''}>✧ Ask the AI experts</button><button class="secondary" id="plan-alerts">◷ Set time alerts</button><button class="secondary" id="edit-plan" data-edit-plan-draft>✎ Edit & save plan</button><button class="secondary" id="view-plan">▤ View my plan</button><button class="primary" id="download-plan">↓ Download PDF</button></div><p class="form-footnote">No live route optimization, bookings or traffic data. Check facilities, opening hours, detours and current road access.${t.source?` <a href="${t.source}" target="_blank" rel="noopener noreferrer">Tourism reference ↗</a>`:''}</p>`;
     if(innerWidth<850)$('#plan-result').scrollIntoView({behavior:'smooth'});
     if(aiAvailable&&session.user&&d.days<=30)requestAI();
   }catch(error){toast(error.message)}
@@ -193,6 +194,32 @@ async function requestAI(){
     status.textContent=kmNote+(data.failed.length?`${data.failed.join(', ')} agent could not answer; that part stays curated. `:'')+'AI estimates and road notes are planning guidance. Confirm prices, permits and current road conditions before travel.'}
   catch(error){if(latestPlan===current&&$('#ai-status')){$('#ai-expert').innerHTML='';$('#ai-status').textContent=error.message||'AI is unavailable. Your curated plan is still available.'}}
   finally{if($('#request-ai'))$('#request-ai').disabled=false}
+}
+// The plan as a clean page: the result without its buttons, under a Roamly header. The PDF is a picture of this page.
+function viewPlan(){
+  const body=$('#plan-result').cloneNode(true);body.removeAttribute('id');body.querySelectorAll('.button-row,button,input,select,textarea,[id]').forEach(x=>x.matches('.button-row,button,input,select,textarea')?x.remove():x.removeAttribute('id'));body.querySelectorAll('details').forEach(d=>d.open=true);
+  open(`<div id="plan-doc" class="plan-doc"><div class="plan-doc-head"><span class="brand-mark">r<span>↗</span></span><div><strong>roamly.</strong><small>Trip plan · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</small></div></div>${body.innerHTML}<p class="plan-doc-foot">Made with Roamly · ${esc(location.host)} · Estimates only: confirm prices, permits and road conditions before you ride.</p></div><div class="button-row"><button class="primary" id="plan-doc-pdf">↓ Download PDF</button></div>`);
+}
+const loadScript=src=>new Promise((ok,fail)=>{if(document.querySelector(`script[src="${src}"]`))return ok();const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>fail(new Error('Could not load the PDF tools. Check your connection.'));document.head.append(s)});
+async function planPdf(btn){
+  const label=btn.textContent;btn.disabled=true;btn.textContent='Making PDF…';
+  try{
+    await Promise.all([loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')]);
+    const canvas=await html2canvas($('#plan-doc'),{scale:2,backgroundColor:'#ffffff',useCORS:true}),pdf=new jspdf.jsPDF({unit:'pt',format:'a4'});
+    // Slice the tall page picture into A4 pages.
+    const m=28,w=pdf.internal.pageSize.getWidth()-2*m,h=pdf.internal.pageSize.getHeight()-2*m,slice=Math.floor(h*canvas.width/w);
+    for(let y=0,first=true;y<canvas.height;y+=slice,first=false){
+      const part=document.createElement('canvas');part.width=canvas.width;part.height=Math.min(slice,canvas.height-y);part.getContext('2d').drawImage(canvas,0,-y);
+      if(!first)pdf.addPage();pdf.addImage(part.toDataURL('image/jpeg',.9),'JPEG',m,m,w,part.height*w/canvas.width);
+    }
+    const name=`roamly-${(latestPlan?.trip?.title||'trip-plan').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}.pdf`;
+    if(nativeApp){
+      if(!NP.Filesystem)throw new Error('Update the Roamly app to download PDFs.');
+      const {uri}=await NP.Filesystem.writeFile({path:name,data:pdf.output('datauristring').split(',')[1],directory:'CACHE'});
+      await NP.Share.share({title:name,files:[uri]});
+    }else pdf.save(name);
+  }catch(error){if(!/cancel/i.test(error.message))toast(error.message||'The PDF could not be made.')}
+  finally{btn.disabled=false;btn.textContent=label}
 }
 function downloadFile(name,text,type='text/plain'){
   const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -226,7 +253,8 @@ function handleExtraClick(el){if(handleCommunityClick(el)||handleRideClick(el)||
   if(el.dataset.removeVehicle!==undefined){garageDraft=captureProfile();garageDraft.vehicles.splice(Number(el.dataset.removeVehicle),1);renderProfile()}
   if(el.dataset.group)showGroup(el.dataset.group);
   if(el.id==='request-ai')requestAI();
-  if(el.id==='download-plan'&&$('#plan-result'))downloadFile('roamly-trip-plan.txt',$('#plan-result').innerText);
+  if(el.id==='view-plan'&&$('#plan-result'))viewPlan();
+  if((el.id==='download-plan'&&$('#plan-result'))||el.id==='plan-doc-pdf'){if(!$('#plan-doc'))viewPlan();planPdf(el)}
   if(el.id==='plan-alerts')schedulePlan();
   if(el.id==='confirm-trip-alerts'){try{const alerts=tripAlerts({title:latestPlan.trip.title,departure:$('#trip-departure').value,days:latestPlan.data.days});if(state.alerts.length+alerts.length>500)throw new Error('Remove old alerts before creating more (500 maximum).');state.alerts.push(...alerts);persist();modal.close();page='alerts';render();toast('Trip reminders created. Export them to your calendar for alerts when the app is closed.')}catch(error){toast(error.message)}}
   if(el.id==='export-alerts'){const future=state.alerts.filter(a=>Date.parse(a.at)>Date.now());if(!future.length)return toast('There are no future alerts to export.');downloadFile('roamly-reminders.ics',calendar(future),'text/calendar')}
