@@ -4,7 +4,7 @@ import {getDb} from '../../../db';
 import {accounts,crews,crewMembers,follows,rides,rideRsvps} from '../../../db/schema';
 import {getUser,isAdmin} from '../../auth';
 import {rideInput,ridePhase,startsInPast} from '../../../lib/ride-schema.mjs';
-import {trips} from '../../../public/catalog.mjs';
+import {getRoute} from '../../../lib/routes';
 import {routeLabel} from '../../../lib/rides';
 import {notify} from '../../../lib/notify';
 import {json,readJson} from '../../../lib/http';
@@ -51,7 +51,7 @@ export async function POST(request:Request){
   const parsed=rideInput.safeParse(wrap.data.ride);if(!parsed.success)return json({error:parsed.error.issues[0]?.message||'Check the ride details.'},400);
   const r=parsed.data,crewId=wrap.data.crewId;
   if(startsInPast(r.startDate))return json({error:'Choose a start date from today onwards.'},400);
-  const trip=r.routeId==='custom'?null:trips.find(t=>t.id===r.routeId);
+  const trip=r.routeId==='custom'?null:await getRoute(r.routeId);
   if(r.routeId!=='custom'&&!trip)return json({error:'Route not found.'},404);
   try{
     const db=getDb();

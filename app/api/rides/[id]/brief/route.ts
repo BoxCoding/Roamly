@@ -7,7 +7,7 @@ import {BRIEF_INSTRUCTION,BRIEF_LIMIT,briefJsonSchema,briefSchema,checkBrief} fr
 import {rideAccess} from '../../../../../lib/rides';
 import {notify} from '../../../../../lib/notify';
 import {generateJson} from '../../../../../lib/gemini';
-import {trips} from '../../../../../public/catalog.mjs';
+import {getRoute} from '../../../../../lib/routes';
 import {json,readJson} from '../../../../../lib/http';
 export const dynamic='force-dynamic';
 type Ctx={params:Promise<{id:string}>};
@@ -26,7 +26,7 @@ export async function POST(request:Request,{params}:Ctx){
     const [slot]=await db.update(rides).set({briefCount:sql`${rides.briefCount} + 1`}).where(and(eq(rides.id,id),lt(rides.briefCount,BRIEF_LIMIT))).returning({n:rides.briefCount});
     if(!slot)return json({error:`This ride already used its ${BRIEF_LIMIT} AI briefs.`},429);
     const [{going}]=await db.select({going:count()}).from(rideRsvps).where(and(eq(rideRsvps.rideId,id),eq(rideRsvps.status,'going')));
-    const trip=trips.find(t=>t.id===r.routeId),route=JSON.parse(r.route);
+    const trip=await getRoute(r.routeId),route=JSON.parse(r.route);
     // Compact facts: only what the brief needs, so the prompt stays small.
     const facts={ride:r.title,vehicle:r.vehicle,month:new Date(r.startDate+'T00:00:00Z').toLocaleString('en',{month:'long',timeZone:'UTC'}),days:r.days,distanceKm:r.distanceKm,
       meetup:`${r.meetupPoint} at ${r.meetupTime}`,riders:Math.max(going,1),minExperience:r.minExperience,stayBudget:r.stay,notes:r.description.slice(0,300),

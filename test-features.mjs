@@ -146,3 +146,21 @@ console.log('Feature checks passed: 16 routes, stop/stay coverage, mileage and E
   assert(shouldHide({verdict:'violates',category:'scam',confidence:.9}));assert(!shouldHide({verdict:'violates',category:'scam',confidence:.5}));assert(!shouldHide({verdict:'ok',category:'',confidence:.99}));
   console.log('Moderation rules passed.');
 }
+
+// Route schema (admin add/edit).
+{
+  const {routeInput,toRoute}=await import('./lib/route-schema.mjs');
+  const {trips}=await import('./public/catalog.mjs');
+  const asInput=({seasons,places,...t})=>({...t,places:places.map(({id,...p})=>p),tags:t.tags||[]});
+  for(const t of trips){const r=routeInput.safeParse(asInput(t));assert(r.success,t.id+': '+JSON.stringify(r.error?.issues?.[0]));}
+  const base=asInput(trips[0]);
+  assert(!routeInput.safeParse({...base,id:'Bad ID'}).success);
+  assert(!routeInput.safeParse({...base,cover:null}).success,'cover required');
+  assert(!routeInput.safeParse({...base,places:[{...base.places[0],stayArea:'Nowhere'}]}).success,'stay area must exist');
+  assert(!routeInput.safeParse({...base,stays:[{...base.stays[0],min:5000,max:100}]}).success);
+  assert(!routeInput.safeParse({...base,source:'http://x.in'}).success,'https only');
+  const stored=toRoute(routeInput.parse(base));
+  assert.deepEqual(stored.places.map(p=>p.id),trips[0].places.map(p=>p.id),'place IDs match catalog');
+  assert.deepEqual(toRoute({...routeInput.parse(base),months:[0,4,6,9]}).seasons,['Winter','Summer','Monsoon','Autumn']);
+  console.log('Route schema passed.');
+}

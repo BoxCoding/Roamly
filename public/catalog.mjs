@@ -13,7 +13,6 @@ export const trips=[
     ],
     "level": "Challenging",
     "tag": "THE HIGH-ALTITUDE ESCAPE",
-    "image": "photo-1581793745862-99fde7fa73d2",
     "desc": "An unforgettable loop through stark mountain valleys, centuries-old monasteries, and roads that make you feel very small. Acclimatization is part of the journey.",
     "months": [
       5,
@@ -69,7 +68,12 @@ export const trips=[
         "max": 3500
       }
     ],
-    "source": "https://www.incredibleindia.gov.in/en/himachal-pradesh/spiti-valley"
+    "source": "https://www.incredibleindia.gov.in/en/himachal-pradesh/spiti-valley",
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Key_Monastery_-_Spiti_-Himachal_Pradesh_MG_6796.jpg/1280px-Key_Monastery_-_Spiti_-Himachal_Pradesh_MG_6796.jpg",
+      "credit": "Photo: Prasad Gaude · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Key_Monastery_-_Spiti_-Himachal_Pradesh_MG_6796.jpg"
+    }
   },
   {
     "id": "coorg",
@@ -85,7 +89,6 @@ export const trips=[
     ],
     "level": "Easy going",
     "tag": "THE WEEKEND RESET",
-    "image": "photo-1441974231531-c6227db76b6e",
     "desc": "Trade city traffic for misty plantations, slow breakfasts, and winding forest roads. A relaxed escape with time to stop whenever the view deserves it.",
     "months": [
       9,
@@ -148,7 +151,12 @@ export const trips=[
         "max": 3500
       }
     ],
-    "source": "https://www.incredibleindia.gov.in/en/karnataka/coorg"
+    "source": "https://www.incredibleindia.gov.in/en/karnataka/coorg",
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Paddy_Hills_Inakanahalli_Coorg_Nov24_A7CR_04454.jpg/1280px-Paddy_Hills_Inakanahalli_Coorg_Nov24_A7CR_04454.jpg",
+      "credit": "Photo: Timothy A. Gonsalves · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Paddy_Hills_Inakanahalli_Coorg_Nov24_A7CR_04454.jpg"
+    }
   },
   {
     "id": "konkan",
@@ -164,7 +172,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "SALT IN THE AIR",
-    "image": "photo-1473448912268-2022ce9509d8",
     "desc": "Ocean detours, quiet coastal villages, and golden evenings. Follow the Konkan coast at a pace that leaves room for one more beach.",
     "months": [
       10,
@@ -224,7 +231,12 @@ export const trips=[
         "max": 3500
       }
     ],
-    "source": "https://www.incredibleindia.gov.in/en/goa"
+    "source": "https://www.incredibleindia.gov.in/en/goa",
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/GANPATIPULE_BEACH_%281%29.jpg/1280px-GANPATIPULE_BEACH_%281%29.jpg",
+      "credit": "Photo: Sanjaybhagwat · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:GANPATIPULE_BEACH_(1).jpg"
+    }
   },
   {
     "id": "rajasthan",
@@ -240,7 +252,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "THE DESERT CHAPTER",
-    "image": "photo-1477587458883-47145ed94245",
     "desc": "A warm winter route through sandstone forts, open desert highways, and cities full of color.",
     "months": [
       10,
@@ -306,7 +317,12 @@ export const trips=[
         "max": 3500
       }
     ],
-    "source": "https://www.incredibleindia.gov.in/en/rajasthan"
+    "source": "https://www.incredibleindia.gov.in/en/rajasthan",
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Jaisalmer_forteresse.jpg/1280px-Jaisalmer_forteresse.jpg",
+      "credit": "Photo: Gérard Janot · CC BY-SA 3.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Jaisalmer_forteresse.jpg"
+    }
   },
   {
     "id": "ladakh",
@@ -324,7 +340,6 @@ export const trips=[
     ],
     "level": "Challenging",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1581793745862-99fde7fa73d2",
     "desc": "An independent road-trip idea through Ladakh, with time for local sights, breaks and unhurried evenings.",
     "risk": "Allow acclimatization before riding; remote high-altitude roads and cold weather require local advice.",
     "places": [
@@ -371,7 +386,12 @@ export const trips=[
     "source": "https://www.incredibleindia.gov.in/en/trips/trip-listing/leh-unraveling-the-ladakhi-landscapes",
     "seasons": [
       "Monsoon"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Hemis_Monastery_02.jpg/1280px-Hemis_Monastery_02.jpg",
+      "credit": "Photo: Bernard Gagnon Canon EOS REBEL T4i · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Hemis_Monastery_02.jpg"
+    }
   },
   {
     "id": "rishikesh",
@@ -390,7 +410,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1464822759023-fed622ff2c3b",
     "desc": "An independent road-trip idea through Uttarakhand, with time for local sights, breaks and unhurried evenings.",
     "risk": "River activities need authorized operators. Check congestion, weather and hill-road access locally.",
     "places": [
@@ -445,7 +464,12 @@ export const trips=[
       "Winter",
       "Summer",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Lakshman_Jhula_Bridge_-_Hrishikesh_-_Uttarakhand_001.jpg/1280px-Lakshman_Jhula_Bridge_-_Hrishikesh_-_Uttarakhand_001.jpg",
+      "credit": "Photo: Snehrashmi · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Lakshman_Jhula_Bridge_-_Hrishikesh_-_Uttarakhand_001.jpg"
+    }
   },
   {
     "id": "meghalaya",
@@ -465,7 +489,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1441974231531-c6227db76b6e",
     "desc": "An independent road-trip idea through Meghalaya, with time for local sights, breaks and unhurried evenings.",
     "risk": "Heavy rain can affect visibility and access. Keep daylight buffers and confirm road conditions.",
     "places": [
@@ -530,7 +553,12 @@ export const trips=[
       "Winter",
       "Summer",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Dawki_Bridge_and_Umngot_River.jpg/1280px-Dawki_Bridge_and_Umngot_River.jpg",
+      "credit": "Photo: ANKAN · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Dawki_Bridge_and_Umngot_River.jpg"
+    }
   },
   {
     "id": "sikkim",
@@ -549,7 +577,6 @@ export const trips=[
     ],
     "level": "Challenging",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1473448912268-2022ce9509d8",
     "desc": "An independent road-trip idea through Sikkim, with time for local sights, breaks and unhurried evenings.",
     "risk": "Mountain weather and landslides can alter routes. Check local access and any applicable permits.",
     "places": [
@@ -603,7 +630,12 @@ export const trips=[
     "seasons": [
       "Summer",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Kanchenjunga_range_viewed_from_Hanuman_Tok_temple%2C_Gangtok%2C_Sikkim%2C_India.jpg/1280px-Kanchenjunga_range_viewed_from_Hanuman_Tok_temple%2C_Gangtok%2C_Sikkim%2C_India.jpg",
+      "credit": "Photo: Dinesh Valke from Thane, India Derivative work: UnpetitproleX · CC BY-SA 2.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Kanchenjunga_range_viewed_from_Hanuman_Tok_temple,_Gangtok,_Sikkim,_India.jpg"
+    }
   },
   {
     "id": "hampi",
@@ -622,7 +654,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1477587458883-47145ed94245",
     "desc": "An independent road-trip idea through Karnataka, with time for local sights, breaks and unhurried evenings.",
     "risk": "Start early for heat management. Check monument entry and parking arrangements.",
     "places": [
@@ -682,7 +713,12 @@ export const trips=[
     "seasons": [
       "Winter",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg/1280px-Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg",
+      "credit": "Photo: iMahesh · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Complex_of_Virupaksha_Temple,_Hampi_(04).jpg"
+    }
   },
   {
     "id": "wayanad",
@@ -702,7 +738,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1581793745862-99fde7fa73d2",
     "desc": "An independent road-trip idea through Kerala, with time for local sights, breaks and unhurried evenings.",
     "risk": "Ghat bends, fog and seasonal rain need slower travel. Respect forest restrictions and wildlife.",
     "places": [
@@ -757,7 +792,12 @@ export const trips=[
       "Winter",
       "Summer",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Banasura_hills_from_View_Point_Wayanad_Resort%2C_Pulinjal_%2845%29.jpg/1280px-Banasura_hills_from_View_Point_Wayanad_Resort%2C_Pulinjal_%2845%29.jpg",
+      "credit": "Photo: Vinayaraj · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Banasura_hills_from_View_Point_Wayanad_Resort,_Pulinjal_(45).jpg"
+    }
   },
   {
     "id": "munnar",
@@ -777,7 +817,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1464822759023-fed622ff2c3b",
     "desc": "An independent road-trip idea through Kerala, with time for local sights, breaks and unhurried evenings.",
     "risk": "Hill roads can be foggy. Confirm park opening, advance-entry requirements and rain advisories.",
     "places": [
@@ -832,7 +871,12 @@ export const trips=[
       "Winter",
       "Summer",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Munnar_Tea_Plantations-WUS07343-Pano.jpg/1280px-Munnar_Tea_Plantations-WUS07343-Pano.jpg",
+      "credit": "Photo: Rainer Halama · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Munnar_Tea_Plantations-WUS07343-Pano.jpg"
+    }
   },
   {
     "id": "ooty",
@@ -855,7 +899,6 @@ export const trips=[
     ],
     "level": "Challenging",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1441974231531-c6227db76b6e",
     "desc": "An independent road-trip idea through Tamil Nadu, with time for local sights, breaks and unhurried evenings.",
     "risk": "Steep bends require vehicle checks. Confirm any current e-pass and traffic restrictions before travel.",
     "places": [
@@ -911,7 +954,12 @@ export const trips=[
       "Summer",
       "Monsoon",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Nilgiri_Mountain_Railway_on_Bridge%2C_May_2010.JPG/1280px-Nilgiri_Mountain_Railway_on_Bridge%2C_May_2010.JPG",
+      "credit": "Photo: Stephan Niewolik · CC BY 3.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Nilgiri_Mountain_Railway_on_Bridge,_May_2010.JPG"
+    }
   },
   {
     "id": "pondy",
@@ -930,7 +978,6 @@ export const trips=[
     ],
     "level": "Easy going",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1473448912268-2022ce9509d8",
     "desc": "An independent road-trip idea through Tamil Nadu & Puducherry, with time for local sights, breaks and unhurried evenings.",
     "risk": "Check coastal storm forecasts and avoid riding through waterlogged stretches.",
     "places": [
@@ -985,7 +1032,12 @@ export const trips=[
       "Winter",
       "Summer",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Promenade_Beach_Puducherry_IMG_20180609_084012736_HDR.jpg/1280px-Promenade_Beach_Puducherry_IMG_20180609_084012736_HDR.jpg",
+      "credit": "Photo: P Jeganathan · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Promenade_Beach_Puducherry_IMG_20180609_084012736_HDR.jpg"
+    }
   },
   {
     "id": "kutch",
@@ -1003,7 +1055,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1477587458883-47145ed94245",
     "desc": "An independent road-trip idea through Gujarat, with time for local sights, breaks and unhurried evenings.",
     "risk": "Long remote stretches need water and fuel planning. Verify permits and salt-desert access.",
     "places": [
@@ -1057,7 +1108,12 @@ export const trips=[
     "seasons": [
       "Winter",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/White_salt_desert_at_Rann_of_Kutch.jpg/1280px-White_salt_desert_at_Rann_of_Kutch.jpg",
+      "credit": "Photo: Prof Ranga Sai · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:White_salt_desert_at_Rann_of_Kutch.jpg"
+    }
   },
   {
     "id": "udaipur",
@@ -1076,7 +1132,6 @@ export const trips=[
     ],
     "level": "Moderate",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1581793745862-99fde7fa73d2",
     "desc": "An independent road-trip idea through Rajasthan, with time for local sights, breaks and unhurried evenings.",
     "risk": "Rural hill roads can be narrow. Leave daylight for the fort approach and check local closures.",
     "places": [
@@ -1130,7 +1185,12 @@ export const trips=[
     "seasons": [
       "Winter",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/20191207_Lake_Pichola%2C_Udaipur%2C_1531_7276.jpg/1280px-20191207_Lake_Pichola%2C_Udaipur%2C_1531_7276.jpg",
+      "credit": "Photo: Jakub Hałun · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:20191207_Lake_Pichola,_Udaipur,_1531_7276.jpg"
+    }
   },
   {
     "id": "goa",
@@ -1149,7 +1209,6 @@ export const trips=[
     ],
     "level": "Easy going",
     "tag": "YOUR NEXT CHAPTER",
-    "image": "photo-1464822759023-fed622ff2c3b",
     "desc": "An independent road-trip idea through Goa, with time for local sights, breaks and unhurried evenings.",
     "risk": "Expect narrow village roads and pedestrians. Check coastal weather and park only where permitted.",
     "places": [
@@ -1204,6 +1263,11 @@ export const trips=[
       "Winter",
       "Summer",
       "Autumn"
-    ]
+    ],
+    "cover": {
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Rocks_on_Palolem_Beach_South_Goa.jpg/1280px-Rocks_on_Palolem_Beach_South_Goa.jpg",
+      "credit": "Photo: Vachary · CC BY-SA 4.0 · Wikimedia Commons",
+      "page": "https://commons.wikimedia.org/wiki/File:Rocks_on_Palolem_Beach_South_Goa.jpg"
+    }
   }
 ];

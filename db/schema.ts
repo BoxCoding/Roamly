@@ -227,3 +227,15 @@ export const events = pgTable('events', {
   props: text('props').notNull().default('{}'),
   at: text('at').notNull(),
 }, t => [index('events_name_at_idx').on(t.name, t.at), index('events_user_idx').on(t.userId)]);
+
+// Trip routes shown in Discover, the planner and route pages. data is the route as JSON (see lib/route-schema.mjs);
+// seeded from public/catalog.mjs, then edited by admins. status: active | hidden.
+export const routes = pgTable('routes', {
+  id: text('id').primaryKey(),
+  data: text('data').notNull(),
+  status: text('status').notNull().default('active'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdBy: text('created_by').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});

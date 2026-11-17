@@ -4,6 +4,8 @@ export async function register() {
   const { migrate } = await import('drizzle-orm/node-postgres/migrator');
   const { getDb } = await import('./db');
   await migrate(getDb(), { migrationsFolder: "drizzle" });
+  const { seedRoutes } = await import('./lib/routes');
+  await seedRoutes();
 }
 
 // Uncaught errors in routes go to Cloud Error Reporting.

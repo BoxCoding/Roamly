@@ -5,7 +5,7 @@ import {aiQuota} from '../../../db/schema';
 import {getUser} from '../../auth';
 import {planRequest,validateAIPlan,geminiText} from '../../../lib/ai-plan.mjs';
 import {AGENTS,agentBody,parseAgent,checkRoad,checkDays} from '../../../lib/agents.mjs';
-import {trips} from '../../../public/catalog.mjs';
+import {getRoute} from '../../../lib/routes';
 import {estimate} from '../../../public/domain.mjs';
 import {json,readJson} from '../../../lib/http';
 import {track} from '../../../lib/track';
@@ -27,7 +27,7 @@ export async function POST(request:Request){
   const parsed=planRequest.safeParse(req.body);if(!parsed.success)return json({error:'Choose a route, 1–30 days, month, vehicle, distance, stay and up to 30 travelers. Preferences must be under 500 characters.'},400);
   const data=parsed.data,custom=data.routeId==='custom';
   if(custom!==Boolean(data.custom))return json({error:'Enter where the custom route starts and ends.'},400);
-  const trip=custom?null:trips.find(t=>t.id===data.routeId);if(!custom&&!trip)return json({error:'Route not found.'},404);
+  const trip=custom?null:await getRoute(data.routeId);if(!custom&&!trip)return json({error:'Route not found.'},404);
   let baseline;try{baseline=estimate(data)}catch(error){return json({error:(error as Error).message},400)}
   const day=new Date().toISOString().slice(0,10);
   const quota=await getDb().insert(aiQuota).values({userId:user.userId,day,calls:1}).onConflictDoUpdate({target:aiQuota.userId,set:{day,calls:sql`CASE WHEN ${aiQuota.day} = ${day} THEN ${aiQuota.calls} + 1 ELSE 1 END`},setWhere:sql`${aiQuota.day} != ${day} OR ${aiQuota.calls} < 10`}).returning();

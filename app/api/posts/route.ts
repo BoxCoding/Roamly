@@ -6,7 +6,7 @@ import {POSTS_PER_DAY,postInput} from '../../../lib/feed-schema.mjs';
 import {notify} from '../../../lib/notify';
 import {checkRules,shouldHide} from '../../../lib/moderation.mjs';
 import {aiReview} from '../../../lib/ai-moderation';
-import {trips} from '../../../public/catalog.mjs';
+import {getRoute} from '../../../lib/routes';
 import {json,readJson} from '../../../lib/http';
 import {track} from '../../../lib/track';
 export const dynamic='force-dynamic';
@@ -18,7 +18,7 @@ export async function POST(request:Request){
   const parsed=postInput.safeParse(req.body);if(!parsed.success)return json({error:parsed.error.issues[0]?.message||'Check your post.'},400);
   const p=parsed.data,rule=checkRules(p.body);
   if(rule.block)return json({error:rule.block},400);
-  if(p.routeId&&!trips.some(t=>t.id===p.routeId))return json({error:'Route not found.'},404);
+  if(p.routeId&&!await getRoute(p.routeId).catch(()=>null))return json({error:'Route not found.'},404);
   try{
     const db=getDb();
     const [{n}]=await db.select({n:count()}).from(posts).where(and(eq(posts.authorId,user.userId),gte(posts.createdAt,new Date(Date.now()-86400000).toISOString())));

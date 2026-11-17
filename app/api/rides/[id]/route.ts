@@ -5,7 +5,7 @@ import {getUser} from '../../../auth';
 import {CHECKLIST,rideUpdateInput,ridePhase,startsInPast} from '../../../../lib/ride-schema.mjs';
 import {promoteWaitlist,rideAccess,routeLabel} from '../../../../lib/rides';
 import {notify} from '../../../../lib/notify';
-import {trips} from '../../../../public/catalog.mjs';
+import {getRoute} from '../../../../lib/routes';
 import {estimate} from '../../../../public/domain.mjs';
 import {json,readJson} from '../../../../lib/http';
 import {coverAllowed} from '../../../../lib/ride-media';
@@ -59,7 +59,7 @@ export async function PUT(request:Request,{params}:Ctx){
     const {custom,cover,tags,...r}=parsed.data,old=a.ride;
     if(!await coverAllowed(cover,user.userId,old.cover))return json({error:'Upload the cover photo again.'},400);
     if(r.startDate!==old.startDate&&startsInPast(r.startDate))return json({error:'Choose a start date from today onwards.'},400);
-    const trip=r.routeId==='custom'?null:trips.find(t=>t.id===r.routeId);if(r.routeId!=='custom'&&!trip)return json({error:'Route not found.'},404);
+    const trip=r.routeId==='custom'?null:await getRoute(r.routeId);if(r.routeId!=='custom'&&!trip)return json({error:'Route not found.'},404);
     const route=JSON.stringify(trip?{title:trip.title,route:trip.route}:custom);
     const replan=route!==old.route||r.days!==old.days||r.startDate!==old.startDate||r.vehicle!==old.vehicle||r.distanceKm!==old.distanceKm;
     await getDb().transaction(async tx=>{
