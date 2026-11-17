@@ -70,7 +70,7 @@ export const trips=[
     ],
     "source": "https://www.incredibleindia.gov.in/en/himachal-pradesh/spiti-valley",
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Key_Monastery_-_Spiti_-Himachal_Pradesh_MG_6796.jpg/1280px-Key_Monastery_-_Spiti_-Himachal_Pradesh_MG_6796.jpg",
+      "url": "/api/photos/f427f174714f71b40d9a670dee8ed535.webp",
       "credit": "Photo: Prasad Gaude · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Key_Monastery_-_Spiti_-Himachal_Pradesh_MG_6796.jpg"
     }
@@ -153,7 +153,7 @@ export const trips=[
     ],
     "source": "https://www.incredibleindia.gov.in/en/karnataka/coorg",
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Paddy_Hills_Inakanahalli_Coorg_Nov24_A7CR_04454.jpg/1280px-Paddy_Hills_Inakanahalli_Coorg_Nov24_A7CR_04454.jpg",
+      "url": "/api/photos/92d0e0d0c712dec746f8d6923c6f94f5.webp",
       "credit": "Photo: Timothy A. Gonsalves · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Paddy_Hills_Inakanahalli_Coorg_Nov24_A7CR_04454.jpg"
     }
@@ -233,7 +233,7 @@ export const trips=[
     ],
     "source": "https://www.incredibleindia.gov.in/en/goa",
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/GANPATIPULE_BEACH_%281%29.jpg/1280px-GANPATIPULE_BEACH_%281%29.jpg",
+      "url": "/api/photos/bd6b6eb8959b66130e5d00a73025368b.webp",
       "credit": "Photo: Sanjaybhagwat · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:GANPATIPULE_BEACH_(1).jpg"
     }
@@ -319,7 +319,7 @@ export const trips=[
     ],
     "source": "https://www.incredibleindia.gov.in/en/rajasthan",
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Jaisalmer_forteresse.jpg/1280px-Jaisalmer_forteresse.jpg",
+      "url": "/api/photos/c7aaa05e1161601f821773a3b5f78635.webp",
       "credit": "Photo: Gérard Janot · CC BY-SA 3.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Jaisalmer_forteresse.jpg"
     }
@@ -388,7 +388,7 @@ export const trips=[
       "Monsoon"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Hemis_Monastery_02.jpg/1280px-Hemis_Monastery_02.jpg",
+      "url": "/api/photos/971ded48a320930ad88cf2ebac25ec53.webp",
       "credit": "Photo: Bernard Gagnon Canon EOS REBEL T4i · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Hemis_Monastery_02.jpg"
     }
@@ -466,7 +466,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Lakshman_Jhula_Bridge_-_Hrishikesh_-_Uttarakhand_001.jpg/1280px-Lakshman_Jhula_Bridge_-_Hrishikesh_-_Uttarakhand_001.jpg",
+      "url": "/api/photos/20ccd7397978b803a1220a1c59edd462.webp",
       "credit": "Photo: Snehrashmi · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Lakshman_Jhula_Bridge_-_Hrishikesh_-_Uttarakhand_001.jpg"
     }
@@ -555,7 +555,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Dawki_Bridge_and_Umngot_River.jpg/1280px-Dawki_Bridge_and_Umngot_River.jpg",
+      "url": "/api/photos/e6ee17ec0224e914d89b5799757690b1.webp",
       "credit": "Photo: ANKAN · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Dawki_Bridge_and_Umngot_River.jpg"
     }
@@ -632,7 +632,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Kanchenjunga_range_viewed_from_Hanuman_Tok_temple%2C_Gangtok%2C_Sikkim%2C_India.jpg/1280px-Kanchenjunga_range_viewed_from_Hanuman_Tok_temple%2C_Gangtok%2C_Sikkim%2C_India.jpg",
+      "url": "/api/photos/3d1819ee9329ed39358ab78fd3b06845.webp",
       "credit": "Photo: Dinesh Valke from Thane, India Derivative work: UnpetitproleX · CC BY-SA 2.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Kanchenjunga_range_viewed_from_Hanuman_Tok_temple,_Gangtok,_Sikkim,_India.jpg"
     }
@@ -715,7 +715,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg/1280px-Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg",
+      "url": "/api/photos/66d29aa4926424dd738f21ac8457ff70.webp",
       "credit": "Photo: iMahesh · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Complex_of_Virupaksha_Temple,_Hampi_(04).jpg"
     }
@@ -794,7 +794,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Banasura_hills_from_View_Point_Wayanad_Resort%2C_Pulinjal_%2845%29.jpg/1280px-Banasura_hills_from_View_Point_Wayanad_Resort%2C_Pulinjal_%2845%29.jpg",
+      "url": "/api/photos/f1505e2d0e780d905acd8e356fc3bb1f.webp",
       "credit": "Photo: Vinayaraj · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Banasura_hills_from_View_Point_Wayanad_Resort,_Pulinjal_(45).jpg"
     }
@@ -873,7 +873,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Munnar_Tea_Plantations-WUS07343-Pano.jpg/1280px-Munnar_Tea_Plantations-WUS07343-Pano.jpg",
+      "url": "/api/photos/4e7a4bafbde1d2e3409dbf3b3614a3a3.webp",
       "credit": "Photo: Rainer Halama · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Munnar_Tea_Plantations-WUS07343-Pano.jpg"
     }
@@ -956,7 +956,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Nilgiri_Mountain_Railway_on_Bridge%2C_May_2010.JPG/1280px-Nilgiri_Mountain_Railway_on_Bridge%2C_May_2010.JPG",
+      "url": "/api/photos/4050b944eb0b412f238c032a8bad1e4d.webp",
       "credit": "Photo: Stephan Niewolik · CC BY 3.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Nilgiri_Mountain_Railway_on_Bridge,_May_2010.JPG"
     }
@@ -1034,7 +1034,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Promenade_Beach_Puducherry_IMG_20180609_084012736_HDR.jpg/1280px-Promenade_Beach_Puducherry_IMG_20180609_084012736_HDR.jpg",
+      "url": "/api/photos/0eec5db883b6153dec761449b86b039e.webp",
       "credit": "Photo: P Jeganathan · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Promenade_Beach_Puducherry_IMG_20180609_084012736_HDR.jpg"
     }
@@ -1110,7 +1110,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/White_salt_desert_at_Rann_of_Kutch.jpg/1280px-White_salt_desert_at_Rann_of_Kutch.jpg",
+      "url": "/api/photos/cbac20a4b43f5ab388b6c7e54b93c44c.webp",
       "credit": "Photo: Prof Ranga Sai · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:White_salt_desert_at_Rann_of_Kutch.jpg"
     }
@@ -1187,7 +1187,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/20191207_Lake_Pichola%2C_Udaipur%2C_1531_7276.jpg/1280px-20191207_Lake_Pichola%2C_Udaipur%2C_1531_7276.jpg",
+      "url": "/api/photos/0dbeb8c394e20b6090521ea77ce6d639.webp",
       "credit": "Photo: Jakub Hałun · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:20191207_Lake_Pichola,_Udaipur,_1531_7276.jpg"
     }
@@ -1265,7 +1265,7 @@ export const trips=[
       "Autumn"
     ],
     "cover": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Rocks_on_Palolem_Beach_South_Goa.jpg/1280px-Rocks_on_Palolem_Beach_South_Goa.jpg",
+      "url": "/api/photos/60dbed446d6a3c50aa9e4ac6cc718901.webp",
       "credit": "Photo: Vachary · CC BY-SA 4.0 · Wikimedia Commons",
       "page": "https://commons.wikimedia.org/wiki/File:Rocks_on_Palolem_Beach_South_Goa.jpg"
     }

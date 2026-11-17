@@ -56,7 +56,7 @@ async function loadSession(){
 }
 let page='discover',filter={query:'',vehicle:'All',season:'All'}, toastTimer;
 function persist(){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch{toast('Browser storage is unavailable. Changes will last for this session.')}updateProfile()}
-function toast(s){$('#toast').textContent=s;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3800)}
+function toast(s){const host=modal.open?modal:document.body;if($('#toast').parentElement!==host)host.append($('#toast'));$('#toast').textContent=s;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3800)}
 function updateProfile(){
   $('#saved-count').textContent=state.saved.length;
   const u=session.user;$('#profile-button .avatar').innerHTML=u?.photo?`<img src="/api/photos/${esc(u.photo)}" alt="">`:esc(((u?.name||'').trim()[0]||'R').toUpperCase());
@@ -66,7 +66,7 @@ function updateProfile(){
 }
 function open(content){$('#modal-body').innerHTML=content;modal.showModal()}
 function heading(title,sub,extra=''){return `<div class="page-heading"><div><div class="eyebrow">THE WORLD LOOKS BETTER FROM THE ROAD</div><h1>${title}</h1><p>${sub}</p></div>${extra}</div>`}
-function tripCard(t){return `<article class="trip-card"><div class="card-photo"><img src="${esc(t.cover.url)}" alt="${esc(t.title)}" loading="lazy"><span class="card-tag">${vehicleLabel(t.vehicle)} trip</span><button class="save ${state.saved.includes(t.id)?'saved':''}" data-save="${t.id}" aria-label="${state.saved.includes(t.id)?'Unsave':'Save'} ${esc(t.title)}" aria-pressed="${state.saved.includes(t.id)}">${state.saved.includes(t.id)?'♥':'♡'}</button><span class="photo-bottom">${t.level==='Easy going'?'◌':'↗'} ${t.level}</span></div><div class="card-body"><button class="card-action" data-trip="${t.id}"><div class="card-location">⌖ ${t.location}</div><h3>${t.title}</h3><div class="trip-meta"><span>▦ ${t.days} days</span><span>⌁ ${t.km} km</span></div></button><div class="card-separator"></div><div class="card-bottom"><span class="price">${money(tripPrice(t))} <small>/ person · 2 travelers</small></span><button class="text-link" data-trip="${t.id}">Explore ↗</button></div></div></article>`}
+function tripCard(t){return `<article class="trip-card"><div class="card-photo">${coverImg(t.cover,t.title,'(max-width: 700px) 92vw, 30vw')}<span class="card-tag">${vehicleLabel(t.vehicle)} trip</span><button class="save ${state.saved.includes(t.id)?'saved':''}" data-save="${t.id}" aria-label="${state.saved.includes(t.id)?'Unsave':'Save'} ${esc(t.title)}" aria-pressed="${state.saved.includes(t.id)}">${state.saved.includes(t.id)?'♥':'♡'}</button><span class="photo-bottom">${t.level==='Easy going'?'◌':'↗'} ${t.level}</span></div><div class="card-body"><button class="card-action" data-trip="${t.id}"><div class="card-location">⌖ ${t.location}</div><h3>${t.title}</h3><div class="trip-meta"><span>▦ ${t.days} days</span><span>⌁ ${t.km} km</span></div></button><div class="card-separator"></div><div class="card-bottom"><span class="price">${money(tripPrice(t))} <small>/ person · 2 travelers</small></span><button class="text-link" data-trip="${t.id}">Explore ↗</button></div></div></article>`}
 function groupRow(g,full=false){if(g.external)return `<article class="group-row"><div class="group-logo">♧</div><div class="group-info"><h3><button class="card-action" data-group="${esc(g.id)}">${esc(g.name)} ↗</button></h3><p>${esc(g.city)} · ${g.vehicle}</p></div><span class="credibility">Unrated</span><a class="join" href="${g.website}" target="_blank" rel="noopener noreferrer">Official site ↗</a>${full?`<div class="group-detail">${esc(g.description)}<br><span class="social-empty">Public directory reference · no imported membership or affiliation</span></div>`:''}</article>`;const joined=g.server?g.joined:state.joined.includes(g.id),sample=isSample(g.id);return `<article class="group-row"><div class="group-logo">${esc(g.icon||'♧')}</div><div class="group-info"><h3><button class="card-action" data-group="${esc(g.id)}">${esc(g.name)} ↗</button></h3><p>⌖ ${esc(g.city)} · ${g.server?g.members:Number(g.members)+(joined?1:0)} members · ${g.vehicle}${g.visibility==='private'?' · 🔒 Private':''}${g.pendingRequests?` · <strong>${g.pendingRequests} join request${g.pendingRequests>1?'s':''}</strong>`:''}</p></div><button class="credibility" data-score="${esc(g.id)}" title="See credibility signals">♢ ${sample?credibility(g)+' / 100':'Unrated'}</button><button class="join" data-join="${esc(g.id)}">${joinLabel(g,joined)}</button>${full?`<div class="group-detail">${esc(g.description)}<br><span class="social-empty">${sample?'Sample community · no live social connection':(g.underReview?'Under review · hidden from other riders until a moderator checks it':'Roamly member crew · organized by '+esc(g.organizer))}</span></div><div class="group-links">${ownLinks(g)||`<a href="https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(g.city+' '+g.vehicle+' road trip')}" target="_blank" rel="noopener noreferrer">Search Instagram ↗</a><a href="https://www.facebook.com/search/groups/?q=${encodeURIComponent(g.city+' road trip')}" target="_blank" rel="noopener noreferrer">Search Facebook groups ↗</a>`}</div>`:''}</article>`}
 function discover(){return heading('Find your road. Find your people.','Extraordinary routes. Like-minded explorers. One unforgettable journey.',`<div class="date-note"><span>☀</span> A little wanderlust looks good on you.</div>`)+`<section class="hero"><img src="${photo('photo-1464822759023-fed622ff2c3b')}" alt="Sunlight over a dramatic green mountain valley"><div class="hero-content"><span class="hero-tag">FOR THE LOVE OF THE OPEN ROAD</span><h2>Take the scenic route.<br>Make a better story.</h2><p>Two wheels or four. Mountains or coastlines.<br>Your kind of adventure, with your kind of people.</p><button class="primary" data-page="planner">✧ Plan my next escape <span style="margin-left:16px">↗</span></button></div><div class="hero-caption">⌖ Somewhere worth getting lost.<small>Illustrative landscape</small></div></section><form class="search-panel" id="search-form"><div class="search-field"><label for="destination">WHERE TO?</label><input id="destination" name="query" placeholder="⌖  A place, a route, a little escape" value="${esc(filter.query)}" maxlength="100"></div><div class="search-field"><label for="vehicle">YOUR RIDE</label><select id="vehicle" name="vehicle"><option value="All">Bike or car</option><option>Bike</option><option>Car</option></select></div><div class="search-field"><label for="season">WHEN'S THE ADVENTURE?</label><select id="season" name="season"><option value="All">Any season</option><option>Winter</option><option>Summer</option><option>Monsoon</option><option>Autumn</option></select></div><button class="primary">Find my trip ↗</button></form><section><div class="section-heading"><div><h2>16 routes. Countless stories.</h2><p>Handpicked escapes for your next out-of-office.</p></div><div class="pills">${['All','Bike','Car'].map(v=>`<button class="pill ${filter.vehicle===v?'active':''}" data-filter="${v}">${v==='All'?'All trips':vehicleLabel(v)}</button>`).join('')}</div></div><div id="results-info" class="results-info"></div><div class="trip-grid" id="trip-results"></div></section><div class="lower-grid"><section><div class="section-heading"><div><h2>Your people are out there.</h2><p>Find a crew that shares your kind of adventure.</p></div><button class="text-link" data-page="groups">All communities ↗</button></div><div class="group-list">${[...directoryGroups,...sampleGroups].slice(0,2).map(g=>groupRow(g)).join('')}</div></section><section><div class="section-heading"><div><h2>Right place. Right season.</h2><p>A little timing makes a big difference.</p></div></div><div class="season-card"><div class="eyebrow">THE SEASONAL EDIT · OCT — FEB</div><h3>Cooler days.<br>Warmer memories.</h3><p>Follow the coast or head for the desert.<br>Find your next winter escape.</p><span class="season-icon">✳</span><button class="text-link" data-season="Winter">Explore winter routes ↗</button><div class="season-tags"><span>☀ Rajasthan</span><span>≈ Konkan coast</span><span>♧ Coorg</span></div></div></section></div>`}
 function updateTrips(){const result=trips.filter(t=>matches(t,filter));$('#trip-results').innerHTML=result.length?result.map(tripCard).join(''):'<div class="empty">No matching routes yet. Try another place, vehicle, or season.</div>';$('#results-info').textContent=`${result.length} curated route${result.length===1?'':'s'} · distances and budgets are estimates${filter.season!=='All'?' · '+filter.season:''}`;$('#vehicle').value=filter.vehicle;$('#season').value=filter.season}
@@ -372,7 +372,7 @@ async function loadAdmin(q=''){
     const tile=(n,label)=>`<div><strong>${n}</strong><small>${label}</small></div>`;
     $('#admin-stats').innerHTML=tile(o.riders,'riders')+tile(o.newRidersThisWeek,'new this week')+tile(o.activeGroups,'active crews')+tile(o.openReports,'open reports')+tile(o.hiddenGroups,'hidden crews')+tile(o.suspended,'suspended')+tile(o.aiPlansToday,'AI plans today');
     const m=o.metrics;$('#admin-health')?.remove();if(m)$('#admin-stats').insertAdjacentHTML('afterend',`<div id="admin-health"><h3>Launch health</h3><div class="admin-stats">${tile(m.dau,'active today')+tile(m.wau,'active this week')+tile(m.mau,'active this month')+tile(m.activationPct===null?'—':m.activationPct+'%',`activation · ${m.activationCohort} new riders`)+tile(m.week4RetentionPct===null?'—':m.week4RetentionPct+'%',`week-4 retention · ${m.week4Cohort} riders`)}</div><p class="form-footnote">Activation: new riders (last 30 days) who joined or created a crew or RSVPed going within 7 days. Week-4 retention: riders who joined 4–8 weeks ago and were active this week.</p></div>`);
-    if(adminView==='routes'){const ql=q.toLowerCase();$('#admin-list').innerHTML=`<div class="button-row"><button class="primary" data-route-new>＋ Add a route</button></div>`+list.routes.filter(r=>!ql||`${r.title} ${r.route} ${r.location}`.toLowerCase().includes(ql)).map(r=>`<div class="member-row"><span class="route-admin-row"><img src="${esc(r.cover.url)}" alt="" loading="lazy"><span><strong>${esc(r.title)}</strong>${r.status==='hidden'?' <span class="role-badge role-suspended">hidden</span>':''}<small><br>${esc(r.route)} · ${esc(r.location)} · ${r.days} days · ~${r.km} km · ${r.vehicle}</small></span></span><span class="member-actions"><button class="secondary" data-route-edit="${esc(r.id)}">Edit</button><button class="text-link" data-route-status="${esc(r.id)}" data-status="${r.status==='hidden'?'active':'hidden'}">${r.status==='hidden'?'Show':'Hide'}</button></span></div>`).join('');window.__adminRoutes=list.routes;return}
+    if(adminView==='routes'){const ql=q.toLowerCase();$('#admin-list').innerHTML=`<div class="button-row"><button class="primary" data-route-new>＋ Add a route</button></div>`+list.routes.filter(r=>!ql||`${r.title} ${r.route} ${r.location}`.toLowerCase().includes(ql)).map(r=>`<div class="member-row"><span class="route-admin-row"><img src="${esc(wikiSize(r.cover.url,250))}" alt="" loading="lazy"><span><strong>${esc(r.title)}</strong>${r.status==='hidden'?' <span class="role-badge role-suspended">hidden</span>':''}<small><br>${esc(r.route)} · ${esc(r.location)} · ${r.days} days · ~${r.km} km · ${r.vehicle}</small></span></span><span class="member-actions"><button class="secondary" data-route-edit="${esc(r.id)}">Edit</button><button class="text-link" data-route-status="${esc(r.id)}" data-status="${r.status==='hidden'?'active':'hidden'}">${r.status==='hidden'?'Show':'Hide'}</button></span></div>`).join('');window.__adminRoutes=list.routes;return}
     if(adminView==='posts'){$('#admin-list').innerHTML=list.posts.map(x=>`<div class="member-row"><span><strong>${esc(x.author)}</strong> <span class="role-badge role-${x.status==='active'?'member':'suspended'}">${x.status}</span>${x.kind==='report'?' · road report · '+esc(x.place):''}<small><br>${esc(x.body.slice(0,240))}<br>${x.reasons.length} report${x.reasons.length===1?'':'s'}: ${x.reasons.map(esc).join(', ')||'—'} · ${shortDate(x.createdAt)}</small></span><span class="member-actions">${x.status!=='active'?`<button class="secondary" data-admin-post="restore" data-post="${esc(x.id)}">Restore</button>`:`<button class="secondary" data-admin-post="restore" data-post="${esc(x.id)}">Keep</button>`}${x.status!=='removed'?`<button class="text-link danger" data-admin-post="remove" data-post="${esc(x.id)}">Remove</button>`:''}</span></div>`).join('')||'<p>No reported posts.</p>';return}
     $('#admin-list').innerHTML=adminView==='riders'
       ?(list.riders.map(r=>`<div class="member-row"><span><button class="text-link" data-rider="${esc(r.publicId)}">${esc(r.name)}</button>${r.role==='admin'?' <span class="role-badge role-owner">Admin</span>':''}${r.status==='suspended'?' <span class="role-badge role-suspended">Suspended</span>':''}<small><br>${esc(r.email||'no email')} · ${esc(r.provider)} · joined ${shortDate(r.createdAt)} · seen ${shortDate(r.lastSeenAt)} · owns ${r.groupsOwned} crew${r.groupsOwned===1?'':'s'}${r.suspendReason?' · reason: '+esc(r.suspendReason):''}</small></span><span class="member-actions">${r.isYou?'<small>You</small>':`<button class="secondary" data-admin-action="${r.status==='suspended'?'unsuspend':'suspend'}" data-rider="${esc(r.publicId)}">${r.status==='suspended'?'Unsuspend':'Suspend'}</button><button class="secondary" data-admin-action="${r.role==='admin'?'remove-admin':'make-admin'}" data-rider="${esc(r.publicId)}">${r.role==='admin'?'Remove admin':'Make admin'}</button>`}</span></div>`).join('')||'<p>No riders found.</p>')
@@ -491,8 +491,9 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('change',async e=>{
   if(!e.target.matches('[data-cover-file]'))return;const f=e.target.closest('form'),file=e.target.files[0];e.target.value='';if(!file)return;
-  try{const r=await fetch('/api/uploads',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:await shrink(file)});const d=await r.json();if(!r.ok)throw new Error(d.error);setCover(f,{url:d.url,credit:'',page:''})}
-  catch(error){toast(error.message||'Photo upload failed.')}
+  const preview=f.querySelector('.cover-preview'),before=preview.innerHTML;preview.innerHTML='<p class="form-footnote">Uploading your photo…</p>';
+  try{const d=await uploadPhoto(file);setCover(f,{url:d.url,credit:'',page:''})}
+  catch(error){preview.innerHTML=before;toast(error.message||'Photo upload failed.')}
 });
 function syncRideRoute(){
   const sel=$('#ride-route');if(!sel)return;const o=sel.selectedOptions[0],custom=sel.value==='custom';
@@ -618,7 +619,7 @@ async function drawMap(el,days){
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
     const known=towns.map((t,i)=>({t,i,p:points[i]})).filter(x=>x.p);
     known.forEach(({t,i,p})=>L.marker([p.lat,p.lng],{icon:L.divIcon({className:'map-pin',html:`<span>${i===0?'S':i}</span>`,iconSize:[26,26]})}).addTo(map).bindPopup(`${i===0?'Start':'End of day '+i}: ${esc(t)}`));
-    if(known.length>1)L.polyline(known.map(x=>[x.p.lat,x.p.lng]),{color:'#244d3d',weight:3,dashArray:'6 8'}).addTo(map);
+    if(known.length>1)L.polyline(known.map(x=>[x.p.lat,x.p.lng]),{color:'#0b5d66',weight:3,dashArray:'6 8'}).addTo(map);
     if(known.length)map.fitBounds(L.latLngBounds(known.map(x=>[x.p.lat,x.p.lng])).pad(.2));else map.setView([22.5,79],4);
     const lost=towns.filter((_,i)=>!points[i]);
     el.insertAdjacentHTML('afterend',lost.length?`<p class="form-footnote map-note">Not found on the map: ${lost.map(esc).join(', ')}. Try a nearby town name.</p>`:'');
@@ -868,6 +869,21 @@ function handleFeedClick(el){
 }
 
 // Photos: resized in the browser (max 1600 px JPEG, which also drops EXIF), then re-encoded on the server.
+// Shrink in the browser when it can (faster upload, no location data); phones that cannot decode a very large
+// photo (50 MP cameras) send the original instead, and the server shrinks it and strips its metadata.
+async function uploadPhoto(file){
+  let body,type='image/jpeg';
+  // A decoder that stalls on a huge photo must not leave the upload hanging.
+  try{body=await Promise.race([shrink(file),new Promise((_,no)=>setTimeout(()=>no(new Error('slow')),15000))])}
+  catch(error){
+    if(file.size>20*1024*1024)throw new Error('This photo is over 20 MB. Pick a smaller one.');
+    body=file;if(/^image\/(jpeg|png|webp)$/.test(file.type))type=file.type;
+  }
+  const r=await fetch('/api/uploads',{method:'POST',headers:{'Content-Type':type},body});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||'Photo upload failed. Please try again.');
+  return d;
+}
 async function shrink(file){
   const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>{throw new Error('This photo format is not supported here. Use JPEG or PNG.')});
   const scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height)),c=document.createElement('canvas');
@@ -884,8 +900,7 @@ document.addEventListener('change',async e=>{
   for(const file of files){
     const slot=document.createElement('span');slot.className='photo-thumb loading';thumbs.append(slot);
     try{
-      const blob=await shrink(file);
-      const r=await fetch('/api/uploads',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob});const d=await r.json();if(!r.ok)throw new Error(d.error);
+      const d=await uploadPhoto(file);
       const list=JSON.parse(form.dataset.photos||'[]');list.push({key:d.key,url:d.url});form.dataset.photos=JSON.stringify(list);
       slot.className='photo-thumb';slot.innerHTML=`<img src="${esc(d.url)}" alt=""><button type="button" data-remove-photo="${esc(d.key)}" aria-label="Remove photo">×</button>`;
     }catch(error){slot.remove();toast(error.message||'Photo upload failed.')}
@@ -922,7 +937,11 @@ async function finishAppLogin(link){
 }
 if(nativeApp){
   document.documentElement.classList.add('native-app','platform-'+cap.getPlatform());
-  NP.StatusBar?.setStyle?.({style:'DARK'}).catch(()=>{});
+  // iOS draws a teal status bar, so light icons. Android 15+ draws the app edge to edge under white bars, so the
+  // status bar and the 3-button navigation need dark icons or they vanish (white on white).
+  const barStyle=cap.getPlatform()==='android'?'LIGHT':'DARK';
+  NP.StatusBar?.setStyle?.({style:barStyle}).catch(()=>{});
+  NP.SystemBars?.setStyle?.({style:barStyle}).catch(()=>{});
   NP.App?.addListener('backButton',()=>{
     if(modal.open)return modal.close();
     if(page!=='discover'){page='discover';render();window.scrollTo({top:0});return}
@@ -971,6 +990,13 @@ async function loadRoutes(){
     trips.splice(0,trips.length,...d.routes);if(['discover','saved'].includes(page))render()}catch{}
 }
 loadRoutes();
+// Wikimedia serves fixed thumbnail widths; cards ask for the smallest one that is sharp on the screen
+// (a 1280 px photo per card made phones wait ~10 s for the route list).
+function wikiSize(u,w){return String(u).replace(/(\/thumb\/.+\/)\d+px-([^/]+)$/,`$1${w}px-$2`)}
+function coverImg(c,alt,sizes){
+  const u=c.url,thumb=/\/thumb\/.+\/\d+px-[^/]+$/.test(u);
+  return thumb?`<img src="${esc(wikiSize(u,500))}" srcset="${[500,960,1280].map(w=>`${esc(wikiSize(u,w))} ${w}w`).join(', ')}" sizes="${sizes}" alt="${esc(alt)}" loading="lazy" decoding="async">`:`<img src="${esc(u)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
+}
 const MONTH_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const slug=s=>s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
 // Admin add/edit form. Lists are one item per line, fields separated by |.

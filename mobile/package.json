@@ -5,7 +5,7 @@
   "description": "Native Android and iOS apps for Roamly (Capacitor), loading the deployed app with native touches.",
   "scripts": {
     "sync": "cap sync",
-    "icons": "capacitor-assets generate --android --ios --iconBackgroundColor '#244d3d' --splashBackgroundColor '#244d3d'",
+    "icons": "capacitor-assets generate --android --ios --iconBackgroundColor '#0b7480' --splashBackgroundColor '#0b5d66'",
     "android": "cap open android",
     "ios": "cap open ios"
   },

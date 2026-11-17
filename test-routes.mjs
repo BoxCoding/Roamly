@@ -9,14 +9,14 @@ const rider=await account(origin,{name:'Route Rider'});
 const admin=await account(origin,{email:'moderator@roamly.test',name:'Moderator'});
 const seeded=await list();
 assert(seeded.length>=16,'catalog seeded into the database');
-assert(seeded.every(r=>/^https:\/\/(upload|thumb)\.wikimedia\.org\//.test(r.cover.url)||r.cover.url.startsWith('/api/photos/')),'every route has a real cover');
+assert(seeded.every(r=>/^\/api\/photos\/[a-f0-9]{32}\.webp$/.test(r.cover.url)),'every route cover is served from our storage');
 assert.equal(new Set(seeded.map(r=>r.cover.url)).size,seeded.length,'no two routes share a photo');
 assert(seeded.find(r=>r.id==='konkan').cover.credit.includes('Wikimedia Commons'),'credit kept');
 
 const id='test-route-'+Date.now().toString(36);
 const route={id,title:'Test Western Ghats loop',location:'Maharashtra',route:'Pune → Lonavala → Pune',vehicle:'Bike',level:'Easy going',days:2,km:180,months:[6,7,8],tag:'',desc:'Monsoon waterfalls and ghats.',risk:'',
   places:[{name:'Bhushi Dam',minutes:60,area:'Lonavala',stayArea:'Lonavala'}],stays:[{area:'Lonavala',type:'Hotel',min:1200,max:4000}],stops:[{name:'Khopoli',purpose:'Fuel'}],source:'',
-  cover:seeded[0].cover,tags:['Monsoon']};
+  cover:{url:'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Jaisalmer_forteresse.jpg/500px-Jaisalmer_forteresse.jpg',credit:'Photo: Gérard Janot · CC BY-SA 3.0 · Wikimedia Commons',page:'https://commons.wikimedia.org/wiki/File:Jaisalmer_forteresse.jpg'},tags:['Monsoon']};
 assert.equal((await call('POST','/api/routes',route)).status,403,'signed out');
 assert.equal((await call('POST','/api/routes',route,rider)).status,403,'riders cannot add routes');
 assert.equal((await call('POST','/api/routes',{...route,cover:null},admin)).status,400,'cover required');
@@ -24,8 +24,9 @@ assert.equal((await call('POST','/api/routes',{...route,places:[{...route.places
 assert.equal((await call('POST','/api/routes',{...route,cover:{url:'https://evil.test/x.jpg',credit:'',page:''}},admin)).status,400,'only uploads or Wikimedia');
 assert.equal((await call('POST','/api/routes',route,admin)).status,201);
 assert.equal((await call('POST','/api/routes',route,admin)).status,409,'IDs are unique');
-let mine=(await list()).find(r=>r.id===id);assert.equal(mine.places[0].id,id+'-p0');assert.deepEqual(mine.seasons,['Monsoon']);
-assert.equal((await call('PUT','/api/routes',{...route,km:200,title:'Test Ghats loop'},admin)).status,200);
+let mine=(await list()).find(r=>r.id===id);assert.match(mine.cover.url,/^\/api\/photos\/[a-f0-9]{32}\.webp$/,'Wikimedia pick copied into our storage');assert.equal(mine.cover.page,route.cover.page,'source page kept');
+  assert.equal((await fetch(origin+mine.cover.url)).headers.get('content-type'),'image/webp');assert.equal(mine.places[0].id,id+'-p0');assert.deepEqual(mine.seasons,['Monsoon']);
+assert.equal((await call('PUT','/api/routes',{...route,cover:mine.cover,km:200,title:'Test Ghats loop'},admin)).status,200,'re-saving the stored cover is allowed');
 assert.equal((await list()).find(r=>r.id===id).km,200);
 const page=await fetch(origin+'/routes/'+id);assert.equal(page.status,200);assert.match(await page.text(),/Test Ghats loop[\s\S]*Wikimedia Commons/);
 assert.match(await (await fetch(origin+'/sitemap.xml')).text(),new RegExp(`/routes/${id}<`));

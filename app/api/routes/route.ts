@@ -5,6 +5,7 @@ import {routes} from '../../../db/schema';
 import {getUser,isAdmin} from '../../auth';
 import {routeInput,toRoute} from '../../../lib/route-schema.mjs';
 import {coverAllowed} from '../../../lib/ride-media';
+import {copyRemoteCover} from '../../../lib/photos';
 import {getRoutes,invalidateRoutes} from '../../../lib/routes';
 import {json,readJson} from '../../../lib/http';
 export const dynamic='force-dynamic';
@@ -28,6 +29,8 @@ async function save(request:Request,mode:'create'|'update'){
     if(mode==='update'&&!existing)return json({error:'Route not found.'},404);
     // An uploaded cover must be this admin's own upload (or the route's current cover).
     if(!await coverAllowed(r.cover,user!.userId,existing?JSON.stringify(JSON.parse(existing.data).cover):null))return json({error:'Upload the cover photo again.'},400);
+    // A Wikimedia suggestion is copied into our storage so phones load it fast; credit and source page stay.
+    try{r.cover={...r.cover!,url:await copyRemoteCover(r.cover!.url)}}catch{return json({error:'That photo could not be fetched. Pick another or upload one.'},502)}
     const now=new Date().toISOString(),data=JSON.stringify(toRoute(r));
     if(existing)await db.update(routes).set({data,updatedAt:now}).where(eq(routes.id,r.id));
     else{const [{n}]=await db.select({n:count()}).from(routes);await db.insert(routes).values({id:r.id,data,sortOrder:n,createdBy:user!.userId,createdAt:now,updatedAt:now})}

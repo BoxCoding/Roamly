@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Roamly">
+  <defs>
+    <linearGradient id="rl-bg" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#19B9AE"/><stop offset="1" stop-color="#0B7480"/></linearGradient>
+    <linearGradient id="rl-sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD36B"/><stop offset="1" stop-color="#FF7A3D"/></linearGradient>
+    <linearGradient id="rl-land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A5268"/><stop offset="1" stop-color="#072F45"/></linearGradient>
+    <clipPath id="rl-clip"><rect width="64" height="64" rx="16"/></clipPath>
+  </defs>
+  <g clip-path="url(#rl-clip)">
+    <rect width="64" height="64" fill="url(#rl-bg)"/>
+    <circle cx="39" cy="26" r="10.5" fill="url(#rl-sun)"/>
+    <path d="M-2 40 L12 29 L21 35 L33 23 L45 34 L52 29 L66 40 V66 H-2 Z" fill="url(#rl-land)"/>
+    <path d="M8 66 C13 56 27 53 30 47 C31.8 43.2 29.8 41.4 31.8 38.4 L34.2 38.4 C34 41.6 36.8 44.2 35.8 48.6 C34 56 29 59 35 66 Z" fill="#fff"/>
+    <path d="M21 65 C23 57 31.6 53.5 33 47.6 C33.6 44.6 32.6 42.4 33.1 40.2" fill="none" stroke="#FF8A3D" stroke-width="1.4" stroke-dasharray="2.6 2.6" stroke-linecap="round"/>
+  </g>
+</svg>

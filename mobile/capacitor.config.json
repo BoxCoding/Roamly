@@ -2,16 +2,36 @@
   "appId": "app.roamly.rides",
   "appName": "Roamly",
   "webDir": "www",
-  "backgroundColor": "#244d3d",
+  "backgroundColor": "#0b5d66",
   "server": {
     "url": "https://roamly-526696942469.asia-south1.run.app",
     "errorPath": "offline.html",
-    "allowNavigation": ["roamly-526696942469.asia-south1.run.app"]
+    "allowNavigation": [
+      "roamly-526696942469.asia-south1.run.app"
+    ]
   },
   "plugins": {
-    "SplashScreen": {"launchShowDuration": 1200, "launchAutoHide": true, "backgroundColor": "#244d3d", "showSpinner": false},
-    "StatusBar": {"style": "DARK", "backgroundColor": "#244d3d", "overlaysWebView": false}
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#0b5d66",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0b5d66",
+      "overlaysWebView": false
+    },
+    "SystemBars": {
+      "style": "LIGHT",
+      "insetsHandling": "css"
+    }
   },
-  "android": {"allowMixedContent": false},
-  "ios": {"contentInset": "never", "scheme": "Roamly"}
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "never",
+    "scheme": "Roamly"
+  }
 }

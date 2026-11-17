@@ -22,6 +22,12 @@ export async function getRoute(id:string){return (await all()).find(r=>r.route.i
 
 /** First start (and new catalog entries): copy public/catalog.mjs into the table. Existing rows, and admin edits, are kept. */
 export async function seedRoutes(){
-  const now=new Date().toISOString();
-  await getDb().insert(routes).values(trips.map((t,i)=>({id:t.id,data:JSON.stringify(t),sortOrder:i,createdAt:now,updatedAt:now}))).onConflictDoNothing();
+  const db=getDb(),now=new Date().toISOString();
+  await db.insert(routes).values(trips.map((t,i)=>({id:t.id,data:JSON.stringify(t),sortOrder:i,createdAt:now,updatedAt:now}))).onConflictDoNothing();
+  // Seeded rows that still hotlink the same Wikimedia photo switch to our stored copy; covers an admin changed are left alone.
+  for(const row of await db.select().from(routes)){
+    const t=trips.find(x=>x.id===row.id),d=JSON.parse(row.data);
+    if(t&&/wikimedia\.org/.test(d.cover?.url||'')&&d.cover.page===t.cover.page&&d.cover.url!==t.cover.url)
+      await db.update(routes).set({data:JSON.stringify({...d,cover:t.cover}),updatedAt:now}).where(eq(routes.id,row.id));
+  }
 }
